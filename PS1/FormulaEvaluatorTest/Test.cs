@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace FormulaEvaluatorTest
 {
-    class Program
+    class Test
     {
         static void Main(string[] args)
         {
