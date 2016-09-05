@@ -26,7 +26,7 @@ namespace FormulaEvaluator
             string[] tokens = Regex.Split(exp, "(\\()|(\\))|(-)|(\\+)|(\\*)|(/)");
 
             //Set up stacks and start distributing the tokens into them
-            Stack<string> values = new Stack<string>();
+            Stack<int> values = new Stack<int>();
             Stack<string> operators = new Stack<string>();
 
             //Loop over the tokens
@@ -37,6 +37,51 @@ namespace FormulaEvaluator
                 {
                     continue;
                 }
+
+                //Integer/Variable handling:
+                int integer;
+                bool isInteger = false;
+                if (IsVariable(tokens[i]))
+                {
+                    try
+                    {
+                        integer = variableEvaluator(tokens[i]);
+                    }
+                    catch (ArgumentException)
+                    {
+                        throw new ArgumentException("Invalid Variable " + tokens[i] + ", no value.");
+                    }
+                    isInteger = true;
+                }
+                else
+                {
+                    int.TryParse(tokens[i], out integer);
+                    isInteger = true;
+                }
+                if (isInteger)
+                {
+                    if (operators.IsOnTop("*") || operators.IsOnTop("/"))
+                    {
+                        try
+                        {
+                            values.Push(Arithmator(operators.Pop(), values.Pop(), integer));
+                        }
+                        catch (InvalidOperationException)
+                        {
+                            throw new ArgumentException("Error: Invalid Expression (Attempted to multiply or divide by a nonexistant value)");
+                        }
+                        catch (DivideByZeroException)
+                        {
+                            throw new ArgumentException("Error: Invalid Expression (Attemtped to divide by 0)");
+                        }
+                    }
+                    else
+                    {
+                        values.Push(integer);
+                    }
+                }
+
+                //Arithmetic Operator Handling
 
             }
 
@@ -110,5 +155,24 @@ namespace FormulaEvaluator
                 }
             }
         }
+        /// <summary>
+        /// Checks to see if a specified element is on the top of this stack.
+        /// </summary>
+        /// <typeparam name="T">The type of the stack.</typeparam>
+        /// <param name="stack">The stack to look at the top of.</param>
+        /// <param name="element">The element to check.</param>
+        /// <returns>true if the element is on top of this stack, false if the element isn't, or the stack is empty.</returns>
+        private static bool IsOnTop<T>(this Stack<T> stack, T element)
+        {
+            try
+            {
+                return stack.Peek().Equals(element);
+            }
+            catch (InvalidOperationException)
+            {
+                return false;
+            }
+        }
     }
+
 }
