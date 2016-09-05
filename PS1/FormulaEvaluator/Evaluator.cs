@@ -81,7 +81,22 @@ namespace FormulaEvaluator
                     }
                 }
 
-                //Arithmetic Operator Handling
+                //+ or - Operator Handling
+                if (tokens[i].Equals("+") || tokens[i].Equals("-"))
+                {
+                    if (operators.IsOnTop("+") || operators.IsOnTop("-"))
+                    {
+                        try
+                        {
+                            values.Push(Arithmator(operators.Pop(), values.Pop(), values.Pop()));
+                        }
+                        catch (InvalidOperationException)
+                        {
+                            throw new ArgumentException("Error: Invalid Expression (Too many plus or minus signs");
+                        }
+                    }
+                    operators.Push(tokens[i]);
+                }
 
             }
 
