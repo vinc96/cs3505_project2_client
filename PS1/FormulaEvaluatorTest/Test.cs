@@ -75,7 +75,7 @@ namespace FormulaEvaluatorTest
             //We don't allow two sequential operators
             try
             {
-                Evaluator.Evaluate("1 ++ 1", EmptyDeligate);
+                Evaluator.Evaluate("1 + + 1", EmptyDeligate);
                 Console.WriteLine("\nSequential Operators: TEST FAILED.");
             }
             catch (ArgumentException e)
@@ -83,16 +83,16 @@ namespace FormulaEvaluatorTest
                 Console.WriteLine("\n" + e.ToString());
                 Console.WriteLine("Sequential Operators: TEST PASSED.");
             }
-            //We don't allow two sequential operands
+            //We don't allow invalid variables, despite looking similar to what we use.
             try
             {
-                Evaluator.Evaluate("A1 A2", Always0Deligate);
-                Console.WriteLine("\nSequential Operands: TEST FAILED.");
+                Evaluator.Evaluate("A1A2", Always0Deligate);
+                Console.WriteLine("\nAlmost Variables: TEST FAILED.");
             }
             catch (ArgumentException e)
             {
                 Console.WriteLine("\n" + e.ToString());
-                Console.WriteLine("Sequential Operands: TEST PASSED.");
+                Console.WriteLine("Almost Variables: TEST PASSED.");
             }
             //We don't allow operators with only 1 operand
             try

@@ -55,14 +55,22 @@ namespace FormulaEvaluator
                     }
                     catch (ArgumentException)
                     {
-                        throw new ArgumentException("Invalid Variable " + tokens[i] + ", no value.");
+                        throw new ArgumentException("Invalid Variable " + tokens[i] + ", no value.)");
                     }
                     isInteger = true;
                 }
                 else
                 {
                     int.TryParse(tokens[i], out integer);
-                    isInteger = true;
+                    //Determine if we've successfully parsed the integer
+                    if (tokens[i].Equals("0"))
+                    {
+                        isInteger = true;
+                    }
+                    else if (integer != 0)
+                    {
+                        isInteger = true;
+                    }
                 }
                 if (isInteger)
                 {
@@ -98,7 +106,7 @@ namespace FormulaEvaluator
                         }
                         catch (InvalidOperationException)
                         {
-                            throw new ArgumentException("Error: Invalid Expression (Too many plus or minus signs");
+                            throw new ArgumentException("Error: Invalid Expression (Too many plus or minus signs)");
                         }
                     }
                     operators.Push(tokens[i]);
@@ -125,7 +133,7 @@ namespace FormulaEvaluator
                         }
                         catch (InvalidOperationException)
                         {
-                            throw new ArgumentException("Error: Invalid Expression (Too many plus or minus signs");
+                            throw new ArgumentException("Error: Invalid Expression (Too many plus or minus signs)");
                         }
                     }
 
@@ -142,7 +150,7 @@ namespace FormulaEvaluator
                         }
                         catch (InvalidOperationException)
                         {
-                            throw new ArgumentException("Error: Invalid Expression (Too many multiply or divide signs");
+                            throw new ArgumentException("Error: Invalid Expression (Too many multiply or divide signs)");
                         }
                         catch (DivideByZeroException)
                         {
@@ -160,6 +168,10 @@ namespace FormulaEvaluator
                 {
                     return values.Pop();
                 }
+                else
+                {
+                    throw new ArgumentException("Error: No Empty Strings Allowed");
+                }
             }
             else if (operators.Count == 1)
             {
@@ -171,7 +183,7 @@ namespace FormulaEvaluator
                     }
                     catch (InvalidOperationException)
                     {
-                        throw new ArgumentException("Error: Invalid Expression (Too many plus or minus signs");
+                        throw new ArgumentException("Error: Invalid Expression (There exists an operator with only one operand)");
                     }
                     return values.Pop();
                 }
@@ -184,8 +196,6 @@ namespace FormulaEvaluator
             {
                 throw new ArgumentException("Leftover Operators");
             }
-            //REMOVE IF POSSIBLE, PUT THERE TO COMPILE
-            return -1337;
         }
         /// <summary>
         /// Simply takes an operator, a value for a and b, and performs the specified operation on them, in the order they were given. Has no inbuilt error handling, all exceptions will be passed up the stack. Throws ArgumentException if it's passed an invalid operator.
@@ -213,7 +223,14 @@ namespace FormulaEvaluator
         /// <returns>True if the token is a valid variable name, false otherwise.</returns>
         private static bool IsVariable(string token)
         {
-            int index = 0;
+
+            //We have to start with a letter
+            if (!Char.IsLetter(token[0]))
+            {
+                return false;
+            }
+
+            int index = 1;
             //Loop for iterating over the letter portion of the variable
             while (true)
             {
