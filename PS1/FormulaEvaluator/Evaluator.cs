@@ -21,7 +21,7 @@ namespace FormulaEvaluator
         public static int Evaluate(String exp, Lookup variableEvaluator)
         {
             //Strip all the whitespace out of the string.
-            Regex.Replace(exp, @"\s", "");
+            exp = Regex.Replace(exp, @"\s+", "");
             //Split the passed string into tokens
             string[] tokens = Regex.Split(exp, "(\\()|(\\))|(-)|(\\+)|(\\*)|(/)");
 
@@ -295,12 +295,24 @@ namespace FormulaEvaluator
             {
                 return true;
             }
-            for (int i = 0; i < token.Length; i++)
+            if (token.Equals("("))
             {
-                if (!Char.IsDigit(token[i]))
-                {
-                    return false;
-                }
+                return true;
+            }
+            if (token.Equals(")"))
+            {
+                return true;
+            }
+            //Special case for 0
+            if (token.Equals("0"))
+            {
+                return true;
+            }
+            int integer = 0;
+            int.TryParse(token, out integer);
+            if (integer != 0)
+            {
+                return true;
             }
             return false;
         }
