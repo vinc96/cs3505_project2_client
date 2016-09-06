@@ -38,8 +38,14 @@ namespace FormulaEvaluator
                     continue;
                 }
 
+                //If we hit an invalid token, escape.
+                if (!IsValidToken(tokens[i]))
+                {
+                    throw new ArgumentException("Invalid Tokens");
+                }
+
                 //Integer/Variable handling:
-                int integer;
+                    int integer;
                 bool isInteger = false;
                 if (IsVariable(tokens[i]))
                 {
@@ -98,10 +104,88 @@ namespace FormulaEvaluator
                     operators.Push(tokens[i]);
                 }
 
+                //* or / operator handling
+                if (tokens[i].Equals("*") || tokens[i].Equals("/"))
+                {
+                    operators.Push(tokens[i]);
+                }
+
+                //Parenthisis handling
+                if (tokens[i].Equals("("))
+                {
+                    operators.Push(tokens[i]);
+                }
+                if (tokens[i].Equals(")"))
+                {
+                    if (operators.IsOnTop("+") || operators.IsOnTop("-"))
+                    {
+                        try
+                        {
+                            values.Push(Arithmator(operators.Pop(), values.Pop(), values.Pop()));
+                        }
+                        catch (InvalidOperationException)
+                        {
+                            throw new ArgumentException("Error: Invalid Expression (Too many plus or minus signs");
+                        }
+                    }
+
+                    if (!operators.Pop().Equals("("))
+                    {
+                        throw new ArgumentException("Error: Misplaced Parenthesis");
+                    }
+
+                    if (operators.IsOnTop("*") || operators.IsOnTop("/"))
+                    {
+                        try
+                        {
+                            values.Push(Arithmator(operators.Pop(), values.Pop(), values.Pop()));
+                        }
+                        catch (InvalidOperationException)
+                        {
+                            throw new ArgumentException("Error: Invalid Expression (Too many multiply or divide signs");
+                        }
+                        catch (DivideByZeroException)
+                        {
+                            throw new ArgumentException("Error: Invalid Expression (Attemtped to divide by 0)");
+                        }
+                    }
+
+                }
             }
-
-
-            return 0; //TODO: whadayathink
+            
+            //End behavior
+            if (operators.Count == 0)
+            {
+                if (values.Count == 1)
+                {
+                    return values.Pop();
+                }
+            }
+            else if (operators.Count == 1)
+            {
+                if (operators.IsOnTop("+") || operators.IsOnTop("-"))
+                {
+                    try
+                    {
+                        values.Push(Arithmator(operators.Pop(), values.Pop(), values.Pop()));
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        throw new ArgumentException("Error: Invalid Expression (Too many plus or minus signs");
+                    }
+                    return values.Pop();
+                }
+                else
+                {
+                    throw new ArgumentException("Error: Invalid Expression (Left over * or /)");
+                }
+            }
+            else
+            {
+                throw new ArgumentException("Leftover Operators");
+            }
+            //REMOVE IF POSSIBLE, PUT THERE TO COMPILE
+            return -1337;
         }
         /// <summary>
         /// Simply takes an operator, a value for a and b, and performs the specified operation on them, in the order they were given. Has no inbuilt error handling, all exceptions will be passed up the stack. Throws ArgumentException if it's passed an invalid operator.
@@ -187,6 +271,38 @@ namespace FormulaEvaluator
             {
                 return false;
             }
+        }
+
+        private static bool IsValidToken(string token)
+        {
+            if (IsVariable(token))
+            {
+                return true;
+            }
+            if (token.Equals("+"))
+            {
+                return true;
+            }
+            if (token.Equals("-"))
+            {
+                return true;
+            }
+            if (token.Equals("*"))
+            {
+                return true;
+            }
+            if (token.Equals("/"))
+            {
+                return true;
+            }
+            for (int i = 0; i < token.Length; i++)
+            {
+                if (!Char.IsDigit(token[i]))
+                {
+                    return false;
+                }
+            }
+            return false;
         }
     }
 
