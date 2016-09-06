@@ -72,16 +72,50 @@ namespace FormulaEvaluatorTest
                 Console.WriteLine("\n" + e.ToString());
                 Console.WriteLine("Close no open Parenthesis: TEST PASSED.");
             }
-            //We don't allow two sequential operators
+            //We don't allow two sequential operators (+)
             try
             {
                 Evaluator.Evaluate("1 + + 1", EmptyDeligate);
-                Console.WriteLine("\nSequential Operators: TEST FAILED.");
+                Console.WriteLine("\nSequential Operators (+): TEST FAILED.");
             }
             catch (ArgumentException e)
             {
                 Console.WriteLine("\n" + e.ToString());
-                Console.WriteLine("Sequential Operators: TEST PASSED.");
+                Console.WriteLine("Sequential Operators (+): TEST PASSED.");
+            }
+            //We don't allow two sequential operators (-)
+            try
+            {
+                Evaluator.Evaluate("1 -- 1", EmptyDeligate);
+                Console.WriteLine("\nSequential Operators (-): TEST FAILED.");
+            }
+            catch (ArgumentException e)
+            {
+                Console.WriteLine("\n" + e.ToString());
+                Console.WriteLine("Sequential Operators (-): TEST PASSED.");
+            }
+            //We don't allow two sequential operators (*)
+            try
+            {
+                Evaluator.Evaluate("1 ** 1", EmptyDeligate);
+                Console.WriteLine("\nSequential Operators (*): TEST FAILED.");
+            }
+            catch (ArgumentException e)
+            {
+                Console.WriteLine("\n" + e.ToString());
+                Console.WriteLine("Sequential Operators (*): TEST PASSED.");
+            }
+
+            //We don't allow two sequential operators (/)
+            try
+            {
+                Evaluator.Evaluate("1 // 1", EmptyDeligate);
+                Console.WriteLine("\nSequential Operators (/): TEST FAILED.");
+            }
+            catch (ArgumentException e)
+            {
+                Console.WriteLine("\n" + e.ToString());
+                Console.WriteLine("Sequential Operators (/): TEST PASSED.");
             }
             //We don't allow invalid variables, despite looking similar to what we use.
             try
