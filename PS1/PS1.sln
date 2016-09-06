@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FormulaEvaluator", "FormulaEvaluator\FormulaEvaluator.csproj", "{859B1407-0CA5-4DA4-8BB7-659371848940}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FormulaEvaluatorTest", "FormulaEvaluatorTest\FormulaEvaluatorTest.csproj", "{50FBA57A-B428-4512-974C-73985EF88601}"
+	ProjectSection(ProjectDependencies) = postProject
+		{859B1407-0CA5-4DA4-8BB7-659371848940} = {859B1407-0CA5-4DA4-8BB7-659371848940}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
