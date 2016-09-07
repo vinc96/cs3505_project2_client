@@ -151,6 +151,10 @@ namespace FormulaEvaluatorTest
                 Console.WriteLine("Single Operand: TEST PASSED.");
             }
         }
+        static void StandardTests()
+        {
+
+        }
 
     }
 }
