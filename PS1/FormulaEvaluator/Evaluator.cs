@@ -93,7 +93,9 @@ namespace FormulaEvaluator
                     {
                         try
                         {
-                            values.Push(Arithmator(operators.Pop(), values.Pop(), values.Pop()));
+                            int b = values.Pop();
+                            int a = values.Pop();
+                            values.Push(Arithmator(operators.Pop(), a, b));
                         }
                         catch (InvalidOperationException)
                         {
@@ -120,7 +122,9 @@ namespace FormulaEvaluator
                     {
                         try
                         {
-                            values.Push(Arithmator(operators.Pop(), values.Pop(), values.Pop()));
+                            int b = values.Pop();
+                            int a = values.Pop();
+                            values.Push(Arithmator(operators.Pop(), a, b));
                         }
                         catch (InvalidOperationException)
                         {
@@ -137,7 +141,9 @@ namespace FormulaEvaluator
                     {
                         try
                         {
-                            values.Push(Arithmator(operators.Pop(), values.Pop(), values.Pop()));
+                            int b = values.Pop();
+                            int a = values.Pop();
+                            values.Push(Arithmator(operators.Pop(), a, b));
                         }
                         catch (InvalidOperationException)
                         {
@@ -170,7 +176,9 @@ namespace FormulaEvaluator
                 {
                     try
                     {
-                        values.Push(Arithmator(operators.Pop(), values.Pop(), values.Pop()));
+                        int b = values.Pop();
+                        int a = values.Pop();
+                        values.Push(Arithmator(operators.Pop(), a, b));
                     }
                     catch (InvalidOperationException)
                     {

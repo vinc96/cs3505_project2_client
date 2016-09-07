@@ -155,12 +155,40 @@ namespace FormulaEvaluatorTest
         {
             //Trivial Addition
             Console.WriteLine("Trivial Addition: " + (Evaluator.Evaluate("15 + 35", EmptyDeligate) == 50).ToString());
+            Console.WriteLine("Trivial Addition: " + (Evaluator.Evaluate("559 + (10 - 19)", EmptyDeligate) == 550).ToString());
             //Trivial Subtraction
-            Console.WriteLine("Trivial Subtraction: " + (Evaluator.Evaluate("40 - 10", EmptyDeligate) == 30).ToString());
+            Console.WriteLine("Trivial Subtraction 1: " + (Evaluator.Evaluate("40 - 10", EmptyDeligate) == 30).ToString());
+            Console.WriteLine("Trivial Subtraction 2: " + (Evaluator.Evaluate("10 - 30", EmptyDeligate) == -20).ToString());
             //Trivial Division
-            Console.WriteLine("Trivial Division: " + (Evaluator.Evaluate("12 / 3", EmptyDeligate) == 4).ToString());
+            Console.WriteLine("Trivial Division 1: " + (Evaluator.Evaluate("12 / 3", EmptyDeligate) == 4).ToString());
+            Console.WriteLine("Trivial Division 2: " + (Evaluator.Evaluate("55 / (0 - 5)", EmptyDeligate) == -11).ToString());
             //Trivial Multiplication
             Console.WriteLine("Trivial Multiplication: " + (Evaluator.Evaluate("30 * 10", EmptyDeligate) == 300).ToString());
+            Console.WriteLine("Trivial Multiplication: " + (Evaluator.Evaluate("3 * (3 - 5)", EmptyDeligate) == -6).ToString());
+            //Order of operations: multiplication vs addition
+            Console.WriteLine("Order of operations: multiplication vs addition 1: " + (Evaluator.Evaluate("10 * 10 + 5", EmptyDeligate) == 105).ToString());
+            Console.WriteLine("Order of operations: multiplication vs addition 2: " + (Evaluator.Evaluate("2 * 3 + 10", EmptyDeligate) == 16).ToString());
+            //Order of operations: multiplication vs subtraction
+            Console.WriteLine("Order of operations: multiplication vs subtraction 1: " + (Evaluator.Evaluate("10 * 10 - 5", EmptyDeligate) == 95).ToString());
+            Console.WriteLine("Order of operations: multiplication vs subtraction 2: " + (Evaluator.Evaluate("2 * 3 - 10", EmptyDeligate) == -4).ToString());
+            //Order of operations: division vs addition
+            Console.WriteLine("Order of operations: division vs addition 1: " + (Evaluator.Evaluate("10 / 10 + 5", EmptyDeligate) == 6).ToString());
+            Console.WriteLine("Order of operations: division vs addition 2: " + (Evaluator.Evaluate("2 / 3 + 10", EmptyDeligate) == 10).ToString());
+            //Order of operations: division vs subtraction
+            Console.WriteLine("Order of operations: division vs subtraction 1: " + (Evaluator.Evaluate("10 / 10 - 5", EmptyDeligate) == -4).ToString());
+            Console.WriteLine("Order of operations: division vs subtraction 2: " + (Evaluator.Evaluate("2 / 3 - 10", EmptyDeligate) == -10).ToString());
+            //Order of operations: multiplication vs Paren addition
+            Console.WriteLine("Order of operations: multiplication vs Paren addition 1: " + (Evaluator.Evaluate("10 * (10 + 5)", EmptyDeligate) == 150).ToString());
+            Console.WriteLine("Order of operations: multiplication vs Paren addition 2: " + (Evaluator.Evaluate("2 * (3 + 10)", EmptyDeligate) == 26).ToString());
+            //Order of operations: multiplication vs Paren subtraction
+            Console.WriteLine("Order of operations: multiplication vs Paren subtraction 1: " + (Evaluator.Evaluate("10 * (10 - 5)", EmptyDeligate) == 50).ToString());
+            Console.WriteLine("Order of operations: multiplication vs Paren subtraction 2: " + (Evaluator.Evaluate("2 * (3 - 10)", EmptyDeligate) == -14).ToString());
+            //Order of operations: division vs Paren addition
+            Console.WriteLine("Order of operations: division vs Paren addition 1: " + (Evaluator.Evaluate("20 / (10 + 5)", EmptyDeligate) == 1).ToString());
+            Console.WriteLine("Order of operations: division vs Paren addition 2: " + (Evaluator.Evaluate("2 / (3 + 10)", EmptyDeligate) == 0).ToString());
+            //Order of operations: division vs Paren subtraction
+            Console.WriteLine("Order of operations: division vs Paren subtraction 1: " + (Evaluator.Evaluate("10 / (10 - 5)", EmptyDeligate) == 2).ToString());
+            Console.WriteLine("Order of operations: division vs Paren subtraction 2: " + (Evaluator.Evaluate("14 / (3 - 10)", EmptyDeligate) == -2).ToString());
         }
 
     }
