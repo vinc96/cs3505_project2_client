@@ -45,7 +45,7 @@ namespace FormulaEvaluator
                 }
 
                 //Integer/Variable handling:
-                    int integer;
+                int integer;
                 bool isInteger = false;
                 if (IsVariable(tokens[i]))
                 {
@@ -61,16 +61,7 @@ namespace FormulaEvaluator
                 }
                 else
                 {
-                    int.TryParse(tokens[i], out integer);
-                    //Determine if we've successfully parsed the integer
-                    if (tokens[i].Equals("0"))
-                    {
-                        isInteger = true;
-                    }
-                    else if (integer != 0)
-                    {
-                        isInteger = true;
-                    }
+                    isInteger = int.TryParse(tokens[i], out integer);
                 }
                 if (isInteger)
                 {
@@ -320,18 +311,9 @@ namespace FormulaEvaluator
             {
                 return true;
             }
-            //Special case for 0
-            if (token.Equals("0"))
-            {
-                return true;
-            }
-            int integer = 0;
-            int.TryParse(token, out integer);
-            if (integer != 0)
-            {
-                return true;
-            }
-            return false;
+            //Numbers
+            int doesntmatter;
+            return int.TryParse(token, out doesntmatter);
         }
     }
 

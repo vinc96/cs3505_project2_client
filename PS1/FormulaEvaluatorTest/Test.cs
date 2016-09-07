@@ -13,7 +13,7 @@ namespace FormulaEvaluatorTest
         {
             Console.WriteLine("Begin Tests");
             ExceptionTests();
-
+            StandardTests();
             Console.WriteLine("End Tests");
             Console.Read();
         }
@@ -153,7 +153,14 @@ namespace FormulaEvaluatorTest
         }
         static void StandardTests()
         {
-
+            //Trivial Addition
+            Console.WriteLine("Trivial Addition: " + (Evaluator.Evaluate("15 + 35", EmptyDeligate) == 50).ToString());
+            //Trivial Subtraction
+            Console.WriteLine("Trivial Subtraction: " + (Evaluator.Evaluate("40 - 10", EmptyDeligate) == 30).ToString());
+            //Trivial Division
+            Console.WriteLine("Trivial Division: " + (Evaluator.Evaluate("12 / 3", EmptyDeligate) == 4).ToString());
+            //Trivial Multiplication
+            Console.WriteLine("Trivial Multiplication: " + (Evaluator.Evaluate("30 * 10", EmptyDeligate) == 300).ToString());
         }
 
     }
