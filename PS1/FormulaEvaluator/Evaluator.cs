@@ -288,7 +288,11 @@ namespace FormulaEvaluator
                 return false;
             }
         }
-
+        /// <summary>
+        /// Returns true if this token is valid for parsing, returns false if the token is invalid.
+        /// </summary>
+        /// <param name="token">The token to verify.</param>
+        /// <returns></returns>
         private static bool IsValidToken(string token)
         {
             if (IsVariable(token))

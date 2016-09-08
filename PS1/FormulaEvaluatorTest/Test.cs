@@ -189,6 +189,19 @@ namespace FormulaEvaluatorTest
             //Order of operations: division vs Paren subtraction
             Console.WriteLine("Order of operations: division vs Paren subtraction 1: " + (Evaluator.Evaluate("10 / (10 - 5)", EmptyDeligate) == 2).ToString());
             Console.WriteLine("Order of operations: division vs Paren subtraction 2: " + (Evaluator.Evaluate("14 / (3 - 10)", EmptyDeligate) == -2).ToString());
+            //Repeated addition
+            Console.WriteLine("Repeated addition 1: " + (Evaluator.Evaluate("1 + 2 + 3", EmptyDeligate) == 6).ToString());
+            Console.WriteLine("Repeated addition 2: " + (Evaluator.Evaluate("3 + 4 + 5", EmptyDeligate) == 12).ToString());
+            //Repeated subtraction
+            Console.WriteLine("Repeated subtraction 1: " + (Evaluator.Evaluate("1 - 2 - 3", EmptyDeligate) == -4).ToString());
+            Console.WriteLine("Repeated subtraction 2: " + (Evaluator.Evaluate("3 - 4 - 5", EmptyDeligate) == -6).ToString());
+            //Repeated multiplication
+            Console.WriteLine("Repeated multiplication 1: " + (Evaluator.Evaluate("1 * 2 * 3", EmptyDeligate) == 6).ToString());
+            Console.WriteLine("Repeated multiplication 2: " + (Evaluator.Evaluate("3 * 4 * 5", EmptyDeligate) == 60).ToString());
+            //Repeated division
+            Console.WriteLine("Repeated division 1: " + (Evaluator.Evaluate("1 / 2 / 3", EmptyDeligate) == 0).ToString());
+            Console.WriteLine("Repeated division 2: " + (Evaluator.Evaluate("5 / 4 / 1", EmptyDeligate) == 1).ToString());
+
         }
 
     }
