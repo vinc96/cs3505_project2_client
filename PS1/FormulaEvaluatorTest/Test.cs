@@ -26,6 +26,14 @@ namespace FormulaEvaluatorTest
         {
             return 0;
         }
+        static int Always5Deligate(String token)
+        {
+            return 5;
+        }
+        static int Always10Deligate(String token)
+        {
+            return 10;
+        }
         static void ExceptionTests()
         {
             //We have to have something to process
@@ -201,8 +209,10 @@ namespace FormulaEvaluatorTest
             //Repeated division
             Console.WriteLine("Repeated division 1: " + (Evaluator.Evaluate("1 / 2 / 3", EmptyDeligate) == 0).ToString());
             Console.WriteLine("Repeated division 2: " + (Evaluator.Evaluate("5 / 4 / 1", EmptyDeligate) == 1).ToString());
-
+            //Using variables
+            Console.WriteLine("Variable Use 1: " + (Evaluator.Evaluate("a1 + 15", Always0Deligate) == 15).ToString());
+            Console.WriteLine("Variable Use 2: " + (Evaluator.Evaluate("ab12 - 15", Always5Deligate) == -10).ToString());
+            Console.WriteLine("Variable Use 3: " + (Evaluator.Evaluate("AaAAaabB1 * 15", Always10Deligate) == 150).ToString());
         }
-
     }
 }
