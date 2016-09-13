@@ -219,12 +219,13 @@ namespace SpreadsheetUtilities
         {
             if (pairs.ContainsKey(s))
             {
-                pairs[s].dependents.Remove(t);
-                size--;
-            }
-            if (pairs.ContainsKey(t))
-            {
-                pairs[t].dependees.Remove(s);
+                if (pairs[s].dependents.Contains(t))
+                {
+                    pairs[s].dependents.Remove(t);
+                    //We assume that, if we have an item listed as a dependent, that item has a corresponding value in the dictionary.
+                    pairs[t].dependees.Remove(s);
+                    size--;
+                } 
             }
         }
 

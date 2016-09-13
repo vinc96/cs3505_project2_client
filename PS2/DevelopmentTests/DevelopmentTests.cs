@@ -260,6 +260,40 @@ namespace PS2GradingTests
             Assert.IsTrue(cDees.SetEquals(new HashSet<string>() { "x", "y", "z" }));
         }
 
+        /// <summary>
+        /// Removing from a DG, where the first element exists, but the second does not.
+        /// </summary>
+        [TestMethod()]
+        public void nonEmptyTest9()
+        {
+            DependencyGraph t = new DependencyGraph();
+            t.AddDependency("a", "b");
+            t.AddDependency("b", "c");
+            t.AddDependency("b", "a");
+            t.AddDependency("d", "c");
+            t.RemoveDependency("a", "DNE");
+            Assert.AreEqual(4, t.Size);
+            Assert.IsTrue(t.HasDependees("b"));
+            Assert.IsTrue(t.HasDependents("a"));
+        }
+
+        /// <summary>
+        /// Removing from a DG, where the second element exists, but the first does not.
+        /// </summary>
+        [TestMethod()]
+        public void nonEmptyTest10()
+        {
+            DependencyGraph t = new DependencyGraph();
+            t.AddDependency("a", "b");
+            t.AddDependency("b", "c");
+            t.AddDependency("b", "a");
+            t.AddDependency("d", "c");
+            t.RemoveDependency("DNE", "b");
+            Assert.AreEqual(4, t.Size);
+            Assert.IsTrue(t.HasDependees("b"));
+            Assert.IsTrue(t.HasDependents("a"));
+        }
+
         // ************************** STRESS TESTS ******************************** //
         /// <summary>
         ///Using lots of data
