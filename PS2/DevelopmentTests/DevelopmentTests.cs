@@ -293,6 +293,48 @@ namespace PS2GradingTests
             Assert.IsTrue(t.HasDependees("b"));
             Assert.IsTrue(t.HasDependents("a"));
         }
+        /// <summary>
+        /// Calling ReplaceDependents on an object that does not exist creates that object.
+        /// </summary>
+        [TestMethod()]
+        public void nonEmptyTest11()
+        {
+            DependencyGraph t = new DependencyGraph();
+            t.AddDependency("a", "b");
+            t.AddDependency("b", "c");
+            t.AddDependency("b", "a");
+            t.AddDependency("d", "c");
+            HashSet<String> newDependents = new HashSet<string>();
+            newDependents.Add("x");
+            newDependents.Add("y");
+            newDependents.Add("z");
+            t.ReplaceDependents("w", newDependents);
+            Assert.IsTrue(t.HasDependents("w"));
+            Assert.IsTrue(t.HasDependees("x"));
+            Assert.IsTrue(t.HasDependees("y"));
+            Assert.IsTrue(t.HasDependees("z"));
+        }
+        /// <summary>
+        /// Calling ReplaceDependendees on an object that does not exist creates that object.
+        /// </summary>
+        [TestMethod()]
+        public void nonEmptyTest12()
+        {
+            DependencyGraph t = new DependencyGraph();
+            t.AddDependency("a", "b");
+            t.AddDependency("b", "c");
+            t.AddDependency("b", "a");
+            t.AddDependency("d", "c");
+            HashSet<String> newDependees = new HashSet<string>();
+            newDependees.Add("x");
+            newDependees.Add("y");
+            newDependees.Add("z");
+            t.ReplaceDependees("w", newDependees);
+            Assert.IsTrue(t.HasDependees("w"));
+            Assert.IsTrue(t.HasDependents("x"));
+            Assert.IsTrue(t.HasDependents("y"));
+            Assert.IsTrue(t.HasDependents("z"));
+        }
 
         // ************************** STRESS TESTS ******************************** //
         /// <summary>

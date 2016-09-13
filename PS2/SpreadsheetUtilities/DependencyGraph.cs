@@ -1,5 +1,6 @@
 ﻿// Skeleton implementation written by Joe Zachary for CS 3500, September 2013.
 // Version 1.1 (Fixed error in comment for RemoveDependency.)
+// Code implemented by Josh Christensen (u0978248)
 
 using System;
 using System.Collections.Generic;
@@ -236,13 +237,16 @@ namespace SpreadsheetUtilities
         /// </summary>
         public void ReplaceDependents(string s, IEnumerable<string> newDependents)
         {
+            //REMOVE LATER: WHAT HAPPENS WHEN s DOES NOT EXIST?
             if(pairs.ContainsKey(s))
             {
                 List<string> dependents = pairs[s].dependents.ToList();
+                //Remove all the existing dependents of s
                 foreach (string t in dependents)
                 {
                     this.RemoveDependency(s, t);
                 }
+                //Add all the new dependents of s
                 foreach (string t in newDependents)
                 {
                     this.AddDependency(s, t);
@@ -257,13 +261,16 @@ namespace SpreadsheetUtilities
         /// </summary>
         public void ReplaceDependees(string s, IEnumerable<string> newDependees)
         {
+            //REMOVE LATER: WHAT HAPPENS WHEN s DOES NOT EXIST?
             if (pairs.ContainsKey(s))
             {
                 List<string> dependees = pairs[s].dependees.ToList();
+                //Remove all the dependencies of the form (r, s) where r is any dependee of s
                 foreach (string t in dependees)
                 {
                     this.RemoveDependency(t, s);
                 }
+                //Add in the new dependency pairs.
                 foreach (string t in newDependees)
                 {
                     this.AddDependency(t, s);
