@@ -256,11 +256,11 @@ namespace SpreadsheetUtilities
                 {
                     this.RemoveDependency(s, t);
                 }
-                //Add all the new dependents of s
-                foreach (string t in newDependents)
-                {
-                    this.AddDependency(s, t);
-                }
+            }
+            //Add all the new dependents of s
+            foreach (string t in newDependents)
+            {
+                this.AddDependency(s, t);
             }
         }
 
@@ -280,12 +280,11 @@ namespace SpreadsheetUtilities
                 {
                     this.RemoveDependency(t, s);
                 }
-                //Add in the new dependency pairs.
-                foreach (string t in newDependees)
-                {
-                    this.AddDependency(t, s);
-                }
-
+            }
+            //Add in the new dependency pairs.
+            foreach (string t in newDependees)
+            {
+                this.AddDependency(t, s);
             }
         }
     }
