@@ -351,6 +351,38 @@ namespace PS2GradingTests
             Assert.IsTrue(t.HasDependents(""));
             Assert.IsTrue(t.HasDependees("c"));
         }
+        /// <summary>
+        /// We ought to be able to replace dependees with an empty set.
+        /// </summary>
+        [TestMethod()]
+        public void EmptyReplaceDependees()
+        {
+            DependencyGraph t = new DependencyGraph();
+            t.AddDependency("a", "b");
+            t.AddDependency("b", "c");
+            t.AddDependency("b", "a");
+            t.AddDependency("d", "c");
+            HashSet<String> newDependees = new HashSet<string>();
+            t.ReplaceDependees("b", newDependees);
+            Assert.IsFalse(t.HasDependees("b"));
+        }
+
+        /// <summary>
+        /// We ought to be able to replace dependents with an empty set.
+        /// </summary>
+        [TestMethod()]
+        public void EmptyReplaceDependents()
+        {
+            DependencyGraph t = new DependencyGraph();
+            t.AddDependency("a", "b");
+            t.AddDependency("b", "c");
+            t.AddDependency("b", "a");
+            t.AddDependency("d", "c");
+            HashSet<String> newDependents = new HashSet<string>();
+            t.ReplaceDependents("c", newDependents);
+            Assert.IsFalse(t.HasDependents("c"));
+        }
+
 
 
         // ************************** STRESS TESTS ******************************** //

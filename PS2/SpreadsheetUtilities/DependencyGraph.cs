@@ -40,7 +40,10 @@ namespace SpreadsheetUtilities
     public class DependencyGraph
     {
         /// <summary>
-        /// A dependent member object, consisting of a couple of HashSets
+        /// A dependent member object, consisting of a couple of HashSets. Remember, 
+        /// the contents of this struct must be initialized when they are first used. 
+        /// It contains two HashSets: One for the dependees, one for the dependents, 
+        /// and should be stored in a dictionary keyed to the name of the node.
         /// </summary>
         private struct DepenedentMember
         {
@@ -49,12 +52,12 @@ namespace SpreadsheetUtilities
         }
         
         /// <summary>
-        /// Dictionary, containing all the pairs in this DependencyGraph
+        /// Dictionary, containing all the pairs in this DependencyGraph in the form of DependentMember structs.
         /// </summary>
         Dictionary<String, DepenedentMember> pairs = new Dictionary<String, DepenedentMember>();
 
         /// <summary>
-        /// Represents how many ordered pairs there are in this Dependency Graph.
+        /// Represents how many ordered pairs there are in this Dependency Graph. 
         /// </summary>
         int size;
 
@@ -88,10 +91,12 @@ namespace SpreadsheetUtilities
             get {
                 if (pairs.ContainsKey(s))
                 {
+                    //If an element exist, return the size of it's dependees hashset.
                     return pairs[s].dependees.Count;
                 }
                 else
                 {
+                    //Otherwise, return 0.
                     return 0;
                 }
             }
@@ -105,6 +110,7 @@ namespace SpreadsheetUtilities
         {
             if (pairs.ContainsKey(s))
             {
+                //Non-empty if the dependent count is nonzero. 
                 return pairs[s].dependents.Count != 0;
             }
             else
@@ -121,6 +127,7 @@ namespace SpreadsheetUtilities
         {
             if (pairs.ContainsKey(s))
             {
+                //Non-empty if the dependee count is nonzero.
                 return pairs[s].dependees.Count != 0;
             }
             else
@@ -247,7 +254,6 @@ namespace SpreadsheetUtilities
         /// </summary>
         public void ReplaceDependents(string s, IEnumerable<string> newDependents)
         {
-            //REMOVE LATER: WHAT HAPPENS WHEN s DOES NOT EXIST?
             if(pairs.ContainsKey(s))
             {
                 List<string> dependents = pairs[s].dependents.ToList();
@@ -271,7 +277,6 @@ namespace SpreadsheetUtilities
         /// </summary>
         public void ReplaceDependees(string s, IEnumerable<string> newDependees)
         {
-            //REMOVE LATER: WHAT HAPPENS WHEN s DOES NOT EXIST?
             if (pairs.ContainsKey(s))
             {
                 List<string> dependees = pairs[s].dependees.ToList();
