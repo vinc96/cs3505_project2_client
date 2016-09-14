@@ -264,7 +264,7 @@ namespace PS2GradingTests
         /// Removing from a DG, where the first element exists, but the second does not.
         /// </summary>
         [TestMethod()]
-        public void nonEmptyTest9()
+        public void PartialRemoveTestSecondParam()
         {
             DependencyGraph t = new DependencyGraph();
             t.AddDependency("a", "b");
@@ -281,7 +281,7 @@ namespace PS2GradingTests
         /// Removing from a DG, where the second element exists, but the first does not.
         /// </summary>
         [TestMethod()]
-        public void nonEmptyTest10()
+        public void PartialRemoveTestFirstParam()
         {
             DependencyGraph t = new DependencyGraph();
             t.AddDependency("a", "b");
@@ -297,7 +297,7 @@ namespace PS2GradingTests
         /// Calling ReplaceDependents on an object that does not exist creates that object.
         /// </summary>
         [TestMethod()]
-        public void nonEmptyTest11()
+        public void ReplaceDependentsNonexistentParam()
         {
             DependencyGraph t = new DependencyGraph();
             t.AddDependency("a", "b");
@@ -318,7 +318,7 @@ namespace PS2GradingTests
         /// Calling ReplaceDependendees on an object that does not exist creates that object.
         /// </summary>
         [TestMethod()]
-        public void nonEmptyTest12()
+        public void ReplaceDependeesNonexistentParam()
         {
             DependencyGraph t = new DependencyGraph();
             t.AddDependency("a", "b");
@@ -335,6 +335,23 @@ namespace PS2GradingTests
             Assert.IsTrue(t.HasDependents("y"));
             Assert.IsTrue(t.HasDependents("z"));
         }
+
+        /// <summary>
+        ///Empty strings are valid inputs
+        ///</summary>
+        [TestMethod()]
+        public void EmptyStringTest()
+        {
+            DependencyGraph t = new DependencyGraph();
+            t.AddDependency("", "b");
+            t.AddDependency("", "c");
+            t.AddDependency("d", "c");
+            Assert.IsFalse(t.HasDependees(""));
+            Assert.IsTrue(t.HasDependees("b"));
+            Assert.IsTrue(t.HasDependents(""));
+            Assert.IsTrue(t.HasDependees("c"));
+        }
+
 
         // ************************** STRESS TESTS ******************************** //
         /// <summary>

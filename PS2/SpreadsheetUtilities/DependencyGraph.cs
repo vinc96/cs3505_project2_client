@@ -225,6 +225,16 @@ namespace SpreadsheetUtilities
                     pairs[s].dependents.Remove(t);
                     //We assume that, if we have an item listed as a dependent, that item has a corresponding value in the dictionary.
                     pairs[t].dependees.Remove(s);
+                    //If either s or t is now a complete orphan (no dependents or dependees), remove it to save memory.
+                    if (!(this.HasDependees(s) || this.HasDependents(s)))
+                    {
+                        pairs.Remove(s);
+                    }
+                    if (!(this.HasDependees(t) || this.HasDependents(t)))
+                    {
+                        pairs.Remove(t);
+                    }
+
                     size--;
                 } 
             }
