@@ -1,4 +1,5 @@
-﻿using SpreadsheetUtilities;
+﻿//Initial Tests provided by U of U CS3500 course, Modified by Joshua Christensen (u0978248) 
+using SpreadsheetUtilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -261,6 +262,21 @@ namespace PS2GradingTests
         }
 
         /// <summary>
+        /// Ensures removing a nonexistent pair from a full DG does what it should
+        /// </summary>
+        [TestMethod()]
+        public void FullCanRemoveDNE()
+        {
+            DependencyGraph t = new DependencyGraph();
+            t.AddDependency("a", "b");
+            t.AddDependency("b", "c");
+            t.AddDependency("b", "a");
+            t.AddDependency("d", "c");
+            t.RemoveDependency("DNE", "DNE");
+            Assert.AreEqual(4, t.Size);
+        }
+
+        /// <summary>
         /// Removing from a DG, where the first element exists, but the second does not.
         /// </summary>
         [TestMethod()]
@@ -382,7 +398,74 @@ namespace PS2GradingTests
             t.ReplaceDependents("c", newDependents);
             Assert.IsFalse(t.HasDependents("c"));
         }
+        /// <summary>
+        /// An object that DNE should still return a zero for # of dependents in a DG that has items in it.
+        /// </summary>
+        [TestMethod()]
+        public void FullDGIndexDNE()
+        {
+            DependencyGraph t = new DependencyGraph();
+            t.AddDependency("a", "b");
+            t.AddDependency("b", "c");
+            t.AddDependency("b", "a");
+            t.AddDependency("d", "c");
+            Assert.AreEqual(0, t["DNE"]);
+        }
+        /// <summary>
+        /// Even in a full DG, an object that does not exist must return false if we look for dependents.
+        /// </summary>
+        [TestMethod()]
+        public void FullDGHasDependentsDNE()
+        {
+            DependencyGraph t = new DependencyGraph();
+            t.AddDependency("a", "b");
+            t.AddDependency("b", "c");
+            t.AddDependency("b", "a");
+            t.AddDependency("d", "c");
+            Assert.IsFalse(t.HasDependents("DNE"));
+        }
 
+        /// <summary>
+        /// Even in a full DG, an object that does not exist must return false if we look for dependees.
+        /// </summary>
+        [TestMethod()]
+        public void FullDGHasDependendeesDNE()
+        {
+            DependencyGraph t = new DependencyGraph();
+            t.AddDependency("a", "b");
+            t.AddDependency("b", "c");
+            t.AddDependency("b", "a");
+            t.AddDependency("d", "c");
+            Assert.IsFalse(t.HasDependees("DNE"));
+        }
+        
+        /// <summary>
+        /// Even in a full DG, an object that does not exist must return an empty dependee enumerable.
+        /// </summary>
+        [TestMethod()]
+        public void FullGDDNEDependentEmptyEnumerable()
+        {
+            DependencyGraph t = new DependencyGraph();
+            t.AddDependency("a", "b");
+            t.AddDependency("b", "c");
+            t.AddDependency("b", "a");
+            t.AddDependency("d", "c");
+            Assert.IsFalse(t.GetDependents("DNE").GetEnumerator().MoveNext());
+        }
+
+        /// <summary>
+        /// Even in a full DG, an object that does not exist must return an empty dependee enumerable.
+        /// </summary>
+        [TestMethod()]
+        public void FullGDDNEDependeesEmptyEnumerable()
+        {
+            DependencyGraph t = new DependencyGraph();
+            t.AddDependency("a", "b");
+            t.AddDependency("b", "c");
+            t.AddDependency("b", "a");
+            t.AddDependency("d", "c");
+            Assert.IsFalse(t.GetDependees("DNE").GetEnumerator().MoveNext());
+        }
 
 
         // ************************** STRESS TESTS ******************************** //
