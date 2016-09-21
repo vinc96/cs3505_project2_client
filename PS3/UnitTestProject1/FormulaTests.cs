@@ -5,7 +5,7 @@ using SpreadsheetUtilities;
 namespace UnitTestProject1
 {
     [TestClass]
-    public class UnitTest1
+    public class FormulaTests
     {
         //Exception Cases
 
@@ -142,7 +142,7 @@ namespace UnitTestProject1
         [ExpectedException(typeof(FormulaFormatException))]
         public void OpenParenTailShortConstructor()
         {
-            Formula f1 = new Formula("( + 2 + 1)");
+            Formula f1 = new Formula("() + 2 + 1)");
         }
 
         //Any token following an openparen must be a number, var, or openparen (long constructor)
@@ -150,7 +150,7 @@ namespace UnitTestProject1
         [ExpectedException(typeof(FormulaFormatException))]
         public void OpenParenTailLongConstructor()
         {
-            Formula f1 = new Formula("( + 2 + 1)", s => s, s => true);
+            Formula f1 = new Formula("() + 2 + 1)", s => s, s => true);
         }
 
         //Any token following an openparen must be a number, var, or openparen (Short constructor)
@@ -216,6 +216,8 @@ namespace UnitTestProject1
         {
             Formula f1 = new Formula("(2 + 1) A1", s => s, s => true);
         }
+
+
 
         //Constructor Behavior (normal)
 

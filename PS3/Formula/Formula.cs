@@ -36,6 +36,11 @@ namespace SpreadsheetUtilities
     /// </summary>
     public class Formula
     {
+        ///An array of strings containing the normalized formula for this object. Populated during construction.
+        List<string> normalizedFormula;
+
+        ///A set containing valid arithmetic operators. Done to shorten conditionals. 
+        HashSet<string> validOps;
         /// <summary>
         /// Creates a Formula from a string that consists of an infix expression written as
         /// described in the class comment.  If the expression is syntactically invalid,
@@ -73,6 +78,158 @@ namespace SpreadsheetUtilities
         /// </summary>
         public Formula(String formula, Func<string,string> normalize, Func<string,bool> isValid)
         {
+            
+            normalizedFormula = new List<string>(); //Initialize our list of tokens.
+
+            validOps = new HashSet<string>(); //Initialize our valid operators.
+            validOps.Add("+");
+            validOps.Add("-");
+            validOps.Add("*");
+            validOps.Add("/");
+
+            double currentDouble; //If we're working with a double when looking at a specific token, it's stored here.
+
+            int openParenSoFar = 0; //The paren pairs we've seen so far.
+            int closedParenSoFar = 0;
+
+            //Remembers if the last token was a number, variable, or a close paren.
+            //If this is false, the last token was an open paren, or an operator.
+            bool lastTokenNumVarCloseParen; 
+
+            IEnumerator<string> tokens = GetTokens(formula).GetEnumerator();
+
+            //Code for the first element
+            if (!tokens.MoveNext())
+            {
+                throw new FormulaFormatException("You must have at least one token");
+            }
+            else
+            {
+                if (!(Double.TryParse(tokens.Current, out currentDouble)  || IsVariable(tokens.Current) || tokens.Current.Equals("(")))
+                {
+                    throw new FormulaFormatException("The formula must start with a variable, a number, or an open parenthesis. " + 
+                                                        "It starts with:" + tokens.Current);
+                }
+                else
+                {
+                    //Case for variables.
+                    if (IsVariable(tokens.Current))
+                    {
+                        lastTokenNumVarCloseParen = true;
+                        string normalizedToken = normalize(tokens.Current);
+                        if (isValid(normalizedToken) && IsVariable(normalizedToken))
+                        {
+                            normalizedFormula.Add(normalizedToken);
+                        }
+                        else
+                        {
+                            throw new FormulaFormatException("Normalized token is not valid:" + normalizedToken);
+                        }
+                    } else if (tokens.Current.Equals("(")) { //case for open parenthesis
+                        lastTokenNumVarCloseParen = false;
+                        openParenSoFar++;
+                        normalizedFormula.Add(tokens.Current);
+                        
+                    }
+                    else
+                    {
+                        //If we get to this point, it's a double.
+                        lastTokenNumVarCloseParen = true;
+                        normalizedFormula.Add(currentDouble.ToString());
+                    }
+                }
+            }
+
+            int tokenListLengthStart; //The length of the token list at the beginning of each loop. Declared her to avoid allocation overhead.
+            while (tokens.MoveNext())
+            {
+                tokenListLengthStart = normalizedFormula.Count;
+
+                if (tokens.Current.Equals(")"))
+                {
+                    //If the previous element was an op or open paren, throw.
+                    if (!lastTokenNumVarCloseParen)
+                    {
+                        throw new FormulaFormatException("You have a close paren following an operator or open paren.");
+                    }
+
+                    closedParenSoFar++;
+                    if (closedParenSoFar > openParenSoFar)
+                    {
+                        throw new FormulaFormatException("You have a close paren without an opening one.");
+                    }
+                    lastTokenNumVarCloseParen = true;
+                    normalizedFormula.Add(tokens.Current);
+                }
+
+                if (tokens.Current.Equals("("))
+                {
+                    //If the previous element was a var, num, or close paren, throw.
+                    if (lastTokenNumVarCloseParen)
+                    {
+                        throw new FormulaFormatException("You have an open paren following a close paren, variable, or number.");
+                    }
+                    openParenSoFar++;
+                    lastTokenNumVarCloseParen = false;
+                    normalizedFormula.Add(tokens.Current);
+                }
+
+                if (IsVariable(tokens.Current))
+                {
+                    if (lastTokenNumVarCloseParen)
+                    {
+                        throw new FormulaFormatException("You have a variable following another number, variable or close paren.");
+                    }
+                    string normalizedToken = normalize(tokens.Current);
+                    if (isValid(normalizedToken) && IsVariable(normalizedToken))
+                    {
+                        lastTokenNumVarCloseParen = true;
+                        normalizedFormula.Add(normalizedToken);
+                    }
+                    else
+                    {
+                        throw new FormulaFormatException("Normalized token is not valid:" + normalizedToken);
+                    }
+                }
+
+                if (Double.TryParse(tokens.Current, out currentDouble))
+                {
+                    if (lastTokenNumVarCloseParen)
+                    {
+                        throw new FormulaFormatException("You have a number following another number, variable or close paren.");
+                    }
+                    lastTokenNumVarCloseParen = true;
+                    normalizedFormula.Add(currentDouble.ToString());
+                }
+
+                if (validOps.Contains(tokens.Current))
+                {
+                    if (!lastTokenNumVarCloseParen)
+                    {
+                        throw new FormulaFormatException("You have an operator following another operator, or an open paren.");
+                    }
+                    lastTokenNumVarCloseParen = false;
+                    normalizedFormula.Add(tokens.Current);
+                }
+
+                //If we haven't added a new token by this point, then we encountered an invalid token, and we need to throw
+                if (tokenListLengthStart == normalizedFormula.Count)
+                {
+                    throw new FormulaFormatException("Invalid Tokens:" + tokens.Current);
+                }
+            }
+
+            //The number of open parenthesis has to match the number of close ones:
+            if (openParenSoFar != closedParenSoFar)
+            {
+                throw new FormulaFormatException("Number of open parenthisis need to match the number of close parenthisis");
+            }
+
+            //The last token can only be a number, variable or close parenthisis
+            if (!lastTokenNumVarCloseParen)
+            {
+                throw new FormulaFormatException("Invalid value for final token:" + tokens.Current);
+            }
 
         }
 
@@ -237,6 +394,7 @@ namespace SpreadsheetUtilities
             
             return true; //If we haven't broken the rules, its valid.
         }
+
     }
 
     /// <summary>
