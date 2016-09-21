@@ -272,7 +272,15 @@ namespace SpreadsheetUtilities
         /// </summary>
         public IEnumerable<String> GetVariables()
         {
-            return null;
+            HashSet<string> normalizedVars = new HashSet<string>();
+            foreach (string str  in normalizedFormula)
+            {
+                if (IsVariable(str))
+                {
+                    normalizedVars.Add(str);
+                }
+            }
+            return normalizedVars;
         }
 
         /// <summary>

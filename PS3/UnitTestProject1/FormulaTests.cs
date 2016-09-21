@@ -1,13 +1,14 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SpreadsheetUtilities;
+using System.Collections.Generic;
 
 namespace UnitTestProject1
 {
     [TestClass]
     public class FormulaTests
     {
-        //Exception Cases
+        //Exception Cases*********************************************************************************
 
         //Invalid variable names should throw exceptions
         [TestMethod]
@@ -78,7 +79,7 @@ namespace UnitTestProject1
         [ExpectedException(typeof(FormulaFormatException))]
         public void CloseParenShortConstructor()
         {
-            Formula f1 = new Formula("1 + 2)");
+            Formula f1 = new Formula("1 + 2) + 1");
         }
 
         //We have to open parenthesis before we close them (long constructor)
@@ -86,7 +87,7 @@ namespace UnitTestProject1
         [ExpectedException(typeof(FormulaFormatException))]
         public void CloseParenLongConstructor()
         {
-            Formula f1 = new Formula("1 + 2)", s => s, s => true);
+            Formula f1 = new Formula("1 + 2) + 1", s => s, s => true);
         }
 
         //We have to close parenthesis that we open (Short constructor)
@@ -219,7 +220,7 @@ namespace UnitTestProject1
 
 
 
-        //Constructor Behavior (normal)
+        //Normal Constructor Behavior.********************************************************************************
 
         //A single variable is valid. Fails if it throws exception. (Short Constructor)
         [TestMethod]
@@ -387,6 +388,136 @@ namespace UnitTestProject1
         public void CrazyEqnLongConstructor()
         {
             Formula f1 = new Formula("1 + 145 - 345/(224-2) + 554/22 - (445) + 1456 + (1 - 99) / 2", s => s, s => true);
+        }
+
+        //Evaluate Failure Cases:************************************************************************************
+
+        
+
+        //GetVariables:
+
+        //A trivial case of this method, just for safety.
+        [TestMethod]
+        public void PublicSimpleGetVariablesBehavior()
+        {
+            Formula f1 = new Formula("A1 + A2 - A3 / A4 * A5");
+            int A1Count = 0, A2Count = 0, A3Count = 0, A4Count = 0, A5Count = 0;
+            IEnumerable<string> Enumerator = f1.GetVariables();
+            foreach (string str in Enumerator)
+            {
+                if (str.Equals("A1"))
+                {
+                    A1Count++;
+                }
+                if (str.Equals("A2"))
+                {
+                    A2Count++;
+                }
+                if (str.Equals("A3"))
+                {
+                    A3Count++;
+                }
+                if (str.Equals("A4"))
+                {
+                    A4Count++;
+                }
+                if (str.Equals("A5"))
+                {
+                    A5Count++;
+                }
+            }
+
+            Assert.AreEqual(1, A1Count);
+            Assert.AreEqual(1, A2Count);
+            Assert.AreEqual(1, A3Count);
+            Assert.AreEqual(1, A4Count);
+            Assert.AreEqual(1, A5Count);
+        }
+
+        //If we're using the identity normalizer, we can have distinct lower and uppercase varaibles
+        [TestMethod]
+        public void PublicIdentityNormalizerGetVariablesBehavior()
+        {
+            Formula f1 = new Formula("A1 + a1 - A1 / a1 * A1", s => s, s => true);
+            int A1Count = 0, A2Count = 0;
+            IEnumerable<string> Enumerator = f1.GetVariables();
+            foreach (string str in Enumerator)
+            {
+                if (str.Equals("A1"))
+                {
+                    A1Count++;
+                }
+                if (str.Equals("a1"))
+                {
+                    A2Count++;
+                }
+            }
+            Assert.AreEqual(1, A1Count);
+            Assert.AreEqual(1, A2Count);
+        }
+
+        //A formula all consisting of the same variable in different forms. We should return one token.
+        [TestMethod]
+        public void PublicDuplicateGetVariablesBehavior()
+        {
+            Formula f1 = new Formula("A1 + a1 - A1 / a1 * A1", s => s.ToUpper(), s=>true);
+            int A1Count = 0;
+            IEnumerable<string> Enumerator = f1.GetVariables();
+            foreach (string str in Enumerator)
+            {
+                if (str.Equals("A1"))
+                {
+                    A1Count++;
+                }
+            }
+            Assert.AreEqual(1, A1Count);
+            
+        }
+
+        //A mix of duplicate variables and uniques
+        [TestMethod]
+        public void PublicMixedGetVariablesBehavior()
+        {
+            Formula f1 = new Formula("A1 + A2 - a2 / A3 * A3", s=>s.ToUpper(), s=>true);
+            int A1Count = 0, A2Count = 0, A3Count = 0;
+            IEnumerable<string> Enumerator = f1.GetVariables();
+            foreach (string str in Enumerator)
+            {
+                if (str.Equals("A1"))
+                {
+                    A1Count++;
+                }
+                if (str.Equals("A2"))
+                {
+                    A2Count++;
+                }
+                if (str.Equals("A3"))
+                {
+                    A3Count++;
+                }
+            }
+
+            Assert.AreEqual(1, A1Count);
+            Assert.AreEqual(1, A2Count);
+            Assert.AreEqual(1, A3Count);
+        }
+
+        //We should adhere to the rules of the normalizer
+        [TestMethod]
+        public void PublicCheckNormalizerGetVariablesBehavior()
+        {
+            Formula f1 = new Formula("A2 + A3 - A4 / A5 * A6", s => "A1", s => true);
+            int A1Count = 0;
+            IEnumerable<string> Enumerator = f1.GetVariables();
+            foreach (string str in Enumerator)
+            {
+                if (str.Equals("A1"))
+                {
+                    A1Count++;
+                }
+            }
+            Assert.AreEqual(1, A1Count);
+
         }
     }
 }
