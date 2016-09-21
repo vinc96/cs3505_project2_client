@@ -132,9 +132,13 @@ namespace FormulaEvaluator
                         }
                     }
 
-                    if (!operators.Pop().Equals("("))
+                    if (!operators.IsOnTop("("))
                     {
                         throw new ArgumentException("Error: Misplaced Parenthesis");
+                    }
+                    else
+                    {
+                        operators.Pop();
                     }
 
                     if (operators.IsOnTop("*") || operators.IsOnTop("/"))
@@ -184,7 +188,14 @@ namespace FormulaEvaluator
                     {
                         throw new ArgumentException("Error: Invalid Expression (There exists an operator with only one operand)");
                     }
-                    return values.Pop();
+                    if (values.Count == 1)
+                    {
+                        return values.Pop();
+                    }
+                    else
+                    {
+                        throw new ArgumentException("Error: Too Many Values.");
+                    }
                 }
                 else
                 {

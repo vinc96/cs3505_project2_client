@@ -391,8 +391,44 @@ namespace UnitTestProject1
         }
 
         //Evaluate Failure Cases:************************************************************************************
-
         
+        //Divide by zero (simple):
+        [TestMethod]
+        public void PublicEvaluateDivideByZero()
+        {
+            Formula f1 = new Formula("1 + 2 + 3 / 0");
+            FormulaError result = (FormulaError)f1.Evaluate(s => 1);
+            Assert.AreEqual("Error: Divide by Zero", result.Reason);
+
+        }
+
+        //Divide by zero (As a result of some operation):
+        [TestMethod]
+        public void PublicEvaluateDivideByZeroOperation()
+        {
+            Formula f1 = new Formula("10 / (1 + 2 + 3 - 6)");
+            FormulaError result = (FormulaError) f1.Evaluate(s => 1);
+            Assert.AreEqual("Error: Divide by Zero", result.Reason);
+
+        }
+
+        //Divide by zero (Because some variable evaluated to 0):
+        [TestMethod]
+        public void PublicEvaluateDivideByZeroVariable()
+        {
+            Formula f1 = new Formula("1 + 2 + 3 / A2");
+            FormulaError result = (FormulaError)f1.Evaluate(s => 0);
+            Assert.AreEqual("Error: Divide by Zero", result.Reason);
+        }
+
+        //Variables don't exist
+        [TestMethod]
+        public void PublicEvaluateVarDNE()
+        {
+            Formula f1 = new Formula("1 + 2 + 3 / A2");
+            FormulaError result = (FormulaError)f1.Evaluate(s => { throw new ArgumentException(); });
+            Assert.AreEqual("Variable A2 Does Not Exist", result.Reason);
+        }
 
         //GetVariables:
 
