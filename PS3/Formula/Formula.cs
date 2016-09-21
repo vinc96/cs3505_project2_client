@@ -73,6 +73,7 @@ namespace SpreadsheetUtilities
         /// </summary>
         public Formula(String formula, Func<string,string> normalize, Func<string,bool> isValid)
         {
+
         }
 
         /// <summary>
@@ -212,6 +213,29 @@ namespace SpreadsheetUtilities
                 }
             }
 
+        }
+        /// <summary>
+        /// Returns true if the string passed to this function is a valid variable (IE: Is a letter or underscore 
+        /// followed by zero or more letters, digits, or underscores.
+        /// </summary>
+        /// <param name="variablename"> The string to check.</param>
+        /// <returns>True if the the string passed was a valid variable name, false if not.</returns>
+        private static bool IsVariable(String varname)
+        {
+            if (!(varname[0].Equals("_") || Char.IsLetter(varname[0])))
+            {
+                return false; //The variable must start with an underscore or letter.
+            }
+
+            for (int i = 1; i < varname.Length; i++)
+            {
+                if (!(varname[0].Equals("_") || Char.IsLetterOrDigit(varname[0])))
+                {
+                    return false; //Return false if we encounter anything that's not a letter, digit, or underscore.
+                }
+            }
+            
+            return true; //If we haven't broken the rules, its valid.
         }
     }
 
