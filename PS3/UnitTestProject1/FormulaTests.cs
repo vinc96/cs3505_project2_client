@@ -267,6 +267,34 @@ namespace UnitTestProject1
             Formula f1 = new Formula("A1", s => s, s => true);
         }
 
+        //Variables can start with underscores. Fails if it throws exception. (Short Constructor)
+        [TestMethod]
+        public void PublicUnderscoreVariableShortConstructor()
+        {
+            Formula f1 = new Formula("_A1");
+        }
+
+        //Variables can start with underscores. Fails if it throws exception. (Long Constructor)
+        [TestMethod]
+        public void PublicUnderscoreVariableLongConstructor()
+        {
+            Formula f1 = new Formula("_A1", s => s, s => true);
+        }
+
+        //Variables can contain underscores. Fails if it throws exception. (Short Constructor)
+        [TestMethod]
+        public void PublicContainsUnderscoreVariableShortConstructor()
+        {
+            Formula f1 = new Formula("A1_2");
+        }
+
+        //Variables can contain underscores. Fails if it throws exception. (Long Constructor)
+        [TestMethod]
+        public void PublicContainsUnderscoreVariableLongConstructor()
+        {
+            Formula f1 = new Formula("A1_2", s => s, s => true);
+        }
+
         //A single number is valid. Fails if it throws exception. (Short Constructor)
         [TestMethod]
         public void SingleNumberShortConstructor()
@@ -442,8 +470,8 @@ namespace UnitTestProject1
         public void PublicEvaluateDivideByZero()
         {
             Formula f1 = new Formula("1 + 2 + 3 / 0");
-            Double result = (Double)f1.Evaluate(s => 1);
-            //Assert.AreEqual("Error: Divide by Zero", result.Reason);
+            FormulaError result = (FormulaError)f1.Evaluate(s => 1);
+            Assert.AreEqual("Error: Divide by Zero", result.Reason);
 
         }
 
@@ -452,8 +480,8 @@ namespace UnitTestProject1
         public void PublicEvaluateDivideByZeroOperation()
         {
             Formula f1 = new Formula("10 / (1 + 2 + 3 - 6)");
-            Double result = (Double) f1.Evaluate(s => 1);
-            //Assert.AreEqual("Error: Divide by Zero", result.Reason);
+            FormulaError result = (FormulaError) f1.Evaluate(s => 1);
+            Assert.AreEqual("Error: Divide by Zero", result.Reason);
 
         }
 
@@ -669,6 +697,7 @@ namespace UnitTestProject1
             Assert.AreEqual(8.6, result, 1e-9);
         }
         //Repeated Addition
+        [TestMethod]
         public void PublicEvaluateRepeatedAddition()
         {
             Formula f1 = new Formula("4.25 + 8.34 + 55.2 + 10000000 + 23.2345");
@@ -676,6 +705,7 @@ namespace UnitTestProject1
             Assert.AreEqual(10000091.0245, result, 1e-9);
         }
         //Repeated Subtraction
+        [TestMethod]
         public void PublicEvaluateRepeatedSubtraction()
         {
             Formula f1 = new Formula("4.25 - 8.34 - 55.2 - 10000000 - 23.2345");
@@ -683,6 +713,7 @@ namespace UnitTestProject1
             Assert.AreEqual(-10000082.5245, result, 1e-9);
         }
         //Repeated Multiplication
+        [TestMethod]
         public void PublicEvaluateRepeatedMultiplication()
         {
             Formula f1 = new Formula("4.25 * 8.34 * 55.2 * 10000000 * 23.2345");
@@ -690,6 +721,7 @@ namespace UnitTestProject1
             Assert.AreEqual(454597862580, result, 1e-9);
         }
         //Repeated Division
+        [TestMethod]
         public void PublicEvaluateRepeatedDivision()
         {
             Formula f1 = new Formula("4.25 / 8.34 / 5.2 / 12 / 2.2345");
@@ -697,6 +729,7 @@ namespace UnitTestProject1
             Assert.AreEqual(-0.00365475215, result, 1e-9);
         }
         //Using Variables 1:
+        [TestMethod]
         public void PublicEvaluateUsingVariables1()
         {
             Formula f1 = new Formula("a3 + 4 + 3B / 2");
@@ -704,6 +737,7 @@ namespace UnitTestProject1
             Assert.AreEqual(5.5, result, 1e-9);
         }
         //Using Variables 2:
+        [TestMethod]
         public void PublicEvaluateUsingVariables2()
         {
             Formula f1 = new Formula("_XyC * 10 * cFaD - 22");
@@ -711,6 +745,7 @@ namespace UnitTestProject1
             Assert.AreEqual(1668, result, 1e-9);
         }
         //Using Variables 3:
+        [TestMethod]
         public void PublicEvaluateUsingVariables3()
         {
             Formula f1 = new Formula("_XyC * cFaD * ThisISTechnicallyAValidVARIABLE");
@@ -718,6 +753,146 @@ namespace UnitTestProject1
             Assert.AreEqual(11.1568367136, result, 1e-9);
         }
 
+        //ToString ****************************************************************************************
+
+        //Trivial case of ToString:
+        [TestMethod]
+        public void PublicTrivialToString()
+        {
+            Formula f1 = new Formula("A1 + A2 - B3 * A4 / B5");
+            Formula f2 = new Formula(f1.ToString());
+            Assert.AreEqual(f1, f2);
+        }
+
+        //Trivial case of ToString with uppercase and lower case:
+        [TestMethod]
+        public void PublicTrivialUpperAndLowerToString()
+        {
+            Formula f1 = new Formula("A1 + a2 - A3 * b4 / B5");
+            Formula f2 = new Formula(f1.ToString());
+            Assert.AreEqual(f1, f2);
+        }
+
+        //The returned string must contain no spaces:
+        [TestMethod]
+        public void PublicNoSpacesToString()
+        {
+            Formula f1 = new Formula("A1 + A2 - A3 * A4 / A5");
+            string stringified = f1.ToString();
+
+            foreach (char c in stringified)
+            {
+                Assert.AreNotEqual(' ', c); //there should be no spaces
+            }
+        }
+
+        //All tokens in the string must be normalized
+        [TestMethod]
+        public void PublicAllNormalizedToString()
+        {
+            Formula f1 = new Formula("A1 + A2 - A3 * A4 / A5", s=>s.ToLower(), s=>true);
+            Formula f2 = new Formula(f1.ToString());
+            Assert.AreEqual("a1+a2-a3 *a4/a5", f1.ToString());
+            Assert.AreEqual(f1, f2);
+        }
+
+        //Equals***************************************************************************
+
+        //If an object is null, it cant be equal to a formula object
+        [TestMethod]
+        public void PublicNullObjectEquals()
+        {
+            Formula f1 = new Formula("A1 + 5 / 2 + 3");
+            Assert.IsFalse(f1.Equals(null));
+        }
+
+        //If an object is not a formula object, it cant be equal to a formula object
+        //Tricky, because the string equals the normalized formula
+        [TestMethod]
+        public void PublicNotForumlaObjectEquals()
+        {
+            Formula f1 = new Formula("A1 + 5 / 2 + 3");
+            Assert.IsFalse(f1.Equals("A1+5/2+3"));
+        }
+
+        //Tokens must be in the same order if they are to be equal
+        [TestMethod]
+        public void PublicOutOfOrderEquals()
+        {
+            Formula f1 = new Formula("2 + 3 + A2");
+            Formula f2 = new Formula("3 + 2 + A2");
+            Assert.IsFalse(f1.Equals(f2));
+        }
+
+        //Numbers are compared numerically
+        [TestMethod]
+        public void PublicNumericComparrisonEquals()
+        {
+            Formula f1 = new Formula("20.000000 + A2 / 3");
+            Formula f2 = new Formula("20 + A2 / 3");
+            Formula f3 = new Formula("2e1 + A2 / 3");
+            Assert.IsTrue(f1.Equals(f2));
+            Assert.IsTrue(f2.Equals(f3));
+        }
+
+        //Variables are compared using their normalized versions (True case)
+        [TestMethod]
+        public void PublicNormalizedVarsComparrisonEqualsTrueCase()
+        {
+            Formula f1 = new Formula("A1 + A2 - B1 * B2 / C1");
+            Formula f2 = new Formula("a1 + a2 - b1 * b2 / c1", s=>s.ToUpper(), s=>true);
+            Formula f3 = new Formula("a1 + A2 - b1 * B2 / c1", s => s.ToUpper(), s => true);
+            Assert.IsTrue(f1.Equals(f2));
+            Assert.IsTrue(f2.Equals(f3));
+        }
+
+        //Variables are compared using their normalized versions (False case)
+        [TestMethod]
+        public void PublicNormalizedVarsComparrisonEqualsFalseCase()
+        {
+            Formula f1 = new Formula("A1 + A2 - B1 * B2 / C1");
+            Formula f2 = new Formula("a1 + a2 - b1 * b2 / c1");
+            Formula f3 = new Formula("a1 + A2 - b1 * B2 / c1");
+            Assert.IsFalse(f1.Equals(f2));
+            Assert.IsFalse(f1.Equals(f3));
+            Assert.IsFalse(f2.Equals(f3));
+        }
+
+        //Equations have to have the same tokens to be equal (operand case)
+        [TestMethod]
+        public void PublicSameTokensEqualsOperandCase()
+        {
+            Formula f1 = new Formula("1 + 2 - 3 * A1 / A2");
+            Formula f2 = new Formula("1 + 2 - 3 * A1 / A3");
+            Assert.IsFalse(f1.Equals(f2));
+        }
+
+        //Equations have to have the same tokens to be equal (Operator case)
+        [TestMethod]
+        public void PublicSameTokensEqualsOperatorCase()
+        {
+            Formula f1 = new Formula("1 - 2 + 3 * A1 / A2");
+            Formula f2 = new Formula("1 + 2 - 3 * A1 / A2");
+            Assert.IsFalse(f1.Equals(f2));
+        }
+
+        //Spaces ought to be ignored.
+        [TestMethod]
+        public void PublicSpacesIgnoredEquals()
+        {
+            Formula f1 = new Formula("_XaF        +       1    / 2 - A3f_x");
+            Formula f2 = new Formula("_XaF+1/2-A3f_x");
+            Assert.IsTrue(f1.Equals(f2));
+        }
+
+        //If our normalizer converts everything to the same variable, equals ought to still work.
+        [TestMethod]
+        public void PublicRepeatEqualizer()
+        {
+            Formula f1 = new Formula("A1 + A2 - B1 * B2 / C1", s=>"SAME", s=>true);
+            Formula f2 = new Formula("A1 + A2 - B1 * B2 / C1", s => "SAME", s => true);
+            Assert.IsTrue(f1.Equals(f2));
+        }
 
         //GetVariables:
 

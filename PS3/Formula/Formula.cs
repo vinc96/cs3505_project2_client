@@ -38,10 +38,10 @@ namespace SpreadsheetUtilities
     public class Formula
     {
         ///An array of strings containing the normalized formula for this object. Populated during construction.
-        List<string> normalizedFormula;
+        private List<string> normalizedFormula;
 
         ///A set containing valid arithmetic operators. Done to shorten conditionals. 
-        HashSet<string> validOps;
+        private HashSet<string> validOps;
         /// <summary>
         /// Creates a Formula from a string that consists of an infix expression written as
         /// described in the class comment.  If the expression is syntactically invalid,
@@ -419,7 +419,13 @@ namespace SpreadsheetUtilities
         /// </summary>
         public override string ToString()
         {
-            return null;
+            string returnValue = "";
+
+            foreach (string token in normalizedFormula)
+            {
+                returnValue = returnValue+token;
+            }
+            return returnValue;
         }
 
         /// <summary>
@@ -440,7 +446,36 @@ namespace SpreadsheetUtilities
         /// </summary>
         public override bool Equals(object obj)
         {
-            return false;
+            //Check null references
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+            //Check object type
+            if (!this.GetType().Equals(obj.GetType()))
+            {
+                return false; //Type mismatch
+            }
+            
+            Formula otherFormula = (Formula) obj;
+            
+            //Now, check the internal representations
+            if (this.normalizedFormula.Count != otherFormula.normalizedFormula.Count)
+            {
+                return false; //Length Mismatch
+            }
+
+            //Check every single element
+            for (int i = 0; i < normalizedFormula.Count; i++)
+            {
+                if (!this.normalizedFormula[i].Equals(otherFormula.normalizedFormula[i]))
+                {
+                    return false; //We encountered an element that's not the same.
+                }
+            }
+
+            //If we haven't been proven wrong, the objects are equal.
+            return true;
         }
 
         /// <summary>
@@ -511,14 +546,14 @@ namespace SpreadsheetUtilities
         /// <returns>True if the the string passed was a valid variable name, false if not.</returns>
         private static bool IsVariable(String varname)
         {
-            if (!(varname[0].Equals("_") || Char.IsLetter(varname[0])))
+            if (!(varname[0].Equals('_') || Char.IsLetter(varname[0])))
             {
                 return false; //The variable must start with an underscore or letter.
             }
 
             for (int i = 1; i < varname.Length; i++)
             {
-                if (!(varname[0].Equals("_") || Char.IsLetterOrDigit(varname[0])))
+                if (!(varname[0].Equals('_') || Char.IsLetterOrDigit(varname[0])))
                 {
                     return false; //Return false if we encounter anything that's not a letter, digit, or underscore.
                 }
@@ -529,7 +564,8 @@ namespace SpreadsheetUtilities
         /// <summary>
         /// Simply takes an operator, a value for a and b, and performs the specified operation on them, in the 
         /// order they were given. Has no inbuilt error handling, all exceptions will be passed up the stack. 
-        /// Throws ArgumentException if it's passed an invalid operator.
+        /// Throws ArgumentException if it's passed an invalid operator, throws DivideByZeroException if 
+        /// the operator is divide, and the second value is a zero.
         /// </summary>
         /// <param name="op">The operator to perform arthmetic with. Must be a +,-,* or a /. </param>
         /// <param name="a">The first value to perform math on. Ex: a/b, a*b, a+b.</param>
@@ -542,7 +578,15 @@ namespace SpreadsheetUtilities
                 case "+": return a + b;
                 case "-": return a - b;
                 case "*": return a * b;
-                case "/": return a / b;
+                case "/":
+                    if (b == 0)
+                    {
+                        throw new DivideByZeroException();
+                    }
+                    else
+                    {
+                        return a / b;
+                    }
                 default:
                     throw new ArgumentException("Invalid Operator.");
             }
