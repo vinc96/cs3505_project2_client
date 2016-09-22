@@ -77,9 +77,9 @@ namespace SpreadsheetUtilities
         /// new Formula("x+y3", N, V) should throw an exception, since V(N("x")) is false
         /// new Formula("2x+y3", N, V) should throw an exception, since "2x+y3" is syntactically incorrect.
         /// </summary>
-        public Formula(String formula, Func<string,string> normalize, Func<string,bool> isValid)
+        public Formula(String formula, Func<string, string> normalize, Func<string, bool> isValid)
         {
-            
+
             normalizedFormula = new List<string>(); //Initialize our list of tokens.
 
             validOps = new HashSet<string>(); //Initialize our valid operators.
@@ -95,7 +95,7 @@ namespace SpreadsheetUtilities
 
             //Remembers if the last token was a number, variable, or a close paren.
             //If this is false, the last token was an open paren, or an operator.
-            bool lastTokenNumVarCloseParen; 
+            bool lastTokenNumVarCloseParen;
 
             IEnumerator<string> tokens = GetTokens(formula).GetEnumerator();
 
@@ -106,9 +106,9 @@ namespace SpreadsheetUtilities
             }
             else
             {
-                if (!(Double.TryParse(tokens.Current, out currentDouble)  || IsVariable(tokens.Current) || tokens.Current.Equals("(")))
+                if (!(Double.TryParse(tokens.Current, out currentDouble) || IsVariable(tokens.Current) || tokens.Current.Equals("(")))
                 {
-                    throw new FormulaFormatException("The formula must start with a variable, a number, or an open parenthesis. " + 
+                    throw new FormulaFormatException("The formula must start with a variable, a number, or an open parenthesis. " +
                                                         "It starts with:" + tokens.Current);
                 }
                 else
@@ -126,11 +126,13 @@ namespace SpreadsheetUtilities
                         {
                             throw new FormulaFormatException("Normalized token is not valid:" + normalizedToken);
                         }
-                    } else if (tokens.Current.Equals("(")) { //case for open parenthesis
+                    }
+                    else if (tokens.Current.Equals("("))
+                    { //case for open parenthesis
                         lastTokenNumVarCloseParen = false;
                         openParenSoFar++;
                         normalizedFormula.Add(tokens.Current);
-                        
+
                     }
                     else
                     {
@@ -257,7 +259,128 @@ namespace SpreadsheetUtilities
         /// </summary>
         public object Evaluate(Func<string, double> lookup)
         {
-            return null;
+            //Set up stacks and start distributing the tokens into them
+            Stack<double> values = new Stack<double>();
+            Stack<string> operators = new Stack<string>();
+
+            //Loop over the tokens
+            foreach (string token in normalizedFormula)
+            {
+                //Integer/Variable handling:
+                double number;
+                bool isDouble = false;
+                if (IsVariable(token))
+                {
+                    try
+                    {
+                        number = lookup(token);
+                    }
+                    catch (ArgumentException)
+                    {
+                        return new FormulaError("Variable " + token + " Does Not Exist");
+                    }
+                    isDouble = true;
+                }
+                else
+                {
+                    isDouble = double.TryParse(token, out number);
+                }
+                if (isDouble)
+                {
+                    if (IsOnTop(operators, "*") || IsOnTop(operators, "/"))
+                    {
+                        try
+                        {
+                            values.Push(Arithmator(operators.Pop(), values.Pop(), number));
+                        }
+                        catch (DivideByZeroException)
+                        {
+                            return new FormulaError("Error: Divide by Zero");
+                        }
+                    }
+                    else
+                    {
+                        values.Push(number);
+                    }
+                }
+
+                //+ or - Operator Handling
+                if (token.Equals("+") || token.Equals("-"))
+                {
+                    if (IsOnTop(operators, "+") || IsOnTop(operators, "-"))
+                    {
+
+                        double b = values.Pop();
+                        double a = values.Pop();
+                        values.Push(Arithmator(operators.Pop(), a, b));
+
+                    }
+                    operators.Push(token);
+                }
+
+                //* or / operator handling
+                if (token.Equals("*") || token.Equals("/"))
+                {
+                    operators.Push(token);
+                }
+
+                //Parenthisis handling
+                if (token.Equals("("))
+                {
+                    operators.Push(token);
+                }
+                if (token.Equals(")"))
+                {
+                    if (IsOnTop(operators, "+") || IsOnTop(operators, "-"))
+                    {
+
+                        double b = values.Pop();
+                        double a = values.Pop();
+                        values.Push(Arithmator(operators.Pop(), a, b));
+
+
+                    }
+
+                    if (!IsOnTop(operators, "("))
+                    {
+                        throw new ArgumentException("Error: Misplaced Parenthesis");
+                    }
+                    else
+                    {
+                        operators.Pop(); //Pop the openparen from the operators stack
+                    }
+
+                    if (IsOnTop(operators, "*") || IsOnTop(operators, "/"))
+                    {
+                        try
+                        {
+                            double b = values.Pop();
+                            double a = values.Pop();
+                            values.Push(Arithmator(operators.Pop(), a, b));
+                        }
+                        catch (DivideByZeroException)
+                        {
+                            return new FormulaError("Error: Divide by Zero");
+                        }
+                    }
+
+                }
+            }
+
+            //End behavior
+            if (operators.Count == 0)
+            {
+                return values.Pop();
+            }
+            else
+            {
+
+                double b = values.Pop();
+                double a = values.Pop();
+                values.Push(Arithmator(operators.Pop(), a, b));
+                return values.Pop();
+
+            }
         }
 
         /// <summary>
@@ -274,7 +397,7 @@ namespace SpreadsheetUtilities
         public IEnumerable<String> GetVariables()
         {
             HashSet<string> normalizedVars = new HashSet<string>();
-            foreach (string str  in normalizedFormula)
+            foreach (string str in normalizedFormula)
             {
                 if (IsVariable(str))
                 {
@@ -400,10 +523,48 @@ namespace SpreadsheetUtilities
                     return false; //Return false if we encounter anything that's not a letter, digit, or underscore.
                 }
             }
-            
+
             return true; //If we haven't broken the rules, its valid.
         }
-
+        /// <summary>
+        /// Simply takes an operator, a value for a and b, and performs the specified operation on them, in the 
+        /// order they were given. Has no inbuilt error handling, all exceptions will be passed up the stack. 
+        /// Throws ArgumentException if it's passed an invalid operator.
+        /// </summary>
+        /// <param name="op">The operator to perform arthmetic with. Must be a +,-,* or a /. </param>
+        /// <param name="a">The first value to perform math on. Ex: a/b, a*b, a+b.</param>
+        /// <param name="b">The second value to perform math on. Ex: a/b, a*b, a+b.</param>
+        /// <returns>A value resulting in the specified double arithmetic. </returns>
+        private static double Arithmator(string op, double a, double b)
+        {
+            switch (op)
+            {
+                case "+": return a + b;
+                case "-": return a - b;
+                case "*": return a * b;
+                case "/": return a / b;
+                default:
+                    throw new ArgumentException("Invalid Operator.");
+            }
+        }
+        /// <summary>
+        /// Checks to see if a specified stack has a specified element on the top of it.
+        /// </summary>
+        /// <typeparam name="T">The type of the stack</typeparam>
+        /// <param name="Stack">The stack to look in</param>
+        /// <param name="Value">The item to look for.</param>
+        /// <returns></returns>
+        private static bool IsOnTop<T>(Stack<T> Stack, T Element)
+        {
+            try
+            {
+                return Stack.Peek().Equals(Element);
+            }
+            catch (InvalidOperationException)
+            {
+                return false;
+            }
+        }
     }
 
     /// <summary>
