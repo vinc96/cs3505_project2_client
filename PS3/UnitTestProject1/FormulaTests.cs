@@ -1,4 +1,5 @@
-﻿using System;
+﻿//Written By Joshua Christensen (u0978248)
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SpreadsheetUtilities;
 using System.Collections.Generic;
@@ -56,6 +57,22 @@ namespace UnitTestProject1
         public void InvalidtokensLongConstructor()
         {
             Formula f1 = new Formula("3 + $", s => s, s => true);
+        }
+
+        //Invalid variables should throw exceptions (Using a decmal, which is illegal in a var name) (Short Constructor)
+        [TestMethod]
+        [ExpectedException(typeof(FormulaFormatException))]
+        public void InvalidVarNameShortConstructor()
+        {
+            Formula f1 = new Formula("2 + A2.3");
+        }
+
+        //Invalid variables should throw exceptions (Using a decmal, which is illegal in a var name) (Long Constructor)
+        [TestMethod]
+        [ExpectedException(typeof(FormulaFormatException))]
+        public void InvalidVarNameLongConstructor()
+        {
+            Formula f1 = new Formula("2 + A2.3", s => s, s => true);
         }
 
         //We need at least one token (Short constructor)
@@ -218,7 +235,21 @@ namespace UnitTestProject1
             Formula f1 = new Formula("(2 + 1) A1", s => s, s => true);
         }
 
+        //We shouldn't be able to parse anything larger than Double's max value (1.7e308) (Short constructor)
+        [TestMethod]
+        [ExpectedException(typeof(FormulaFormatException))]
+        public void PublicDoubleMaxValueParseFailureShortConstructor()
+        {
+            Formula f1 = new Formula("1 + 2e308");
+        }
 
+        //We shouldn't be able to parse anything larger than Double's max value (1.7e308) (Long constructor)
+        [TestMethod]
+        [ExpectedException(typeof(FormulaFormatException))]
+        public void PublicDoubleMaxValueParseFailureLongConstructor()
+        {
+            Formula f1 = new Formula("1 + 2e308");
+        }
 
         //Normal Constructor Behavior.********************************************************************************
 
@@ -248,6 +279,20 @@ namespace UnitTestProject1
         public void SingleNumberLongConstructor()
         {
             Formula f1 = new Formula("1", s => s, s => true);
+        }
+
+        //A single number in scientific notation is valid. Fails if it throws exception. (Short Constructor)
+        [TestMethod]
+        public void SingleNumberSciNotationShortConstructor()
+        {
+            Formula f1 = new Formula("1e23");
+        }
+
+        //A single number in scientific notation is valid. Fails if it throws exception. (Long Constructor)
+        [TestMethod]
+        public void SingleNumberSciNotationLongConstructor()
+        {
+            Formula f1 = new Formula("1e23", s => s, s => true);
         }
 
         //Basic addition is valid. Fails if it throws exception. (Short Constructor)
@@ -431,7 +476,14 @@ namespace UnitTestProject1
         }
 
         //Evaluate Standard Cases ***********************************************************************************
-
+        //Multiplication by 0
+        [TestMethod]
+        public void PublicEvaluateMultiplyByZero()
+        {
+            Formula f1 = new Formula("10 * (10 - 10)");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(0, result, 1e-9);
+        }
         //Trivial Addition 1 (Standard Addition)
         [TestMethod]
         public void PublicEvaluateTrivialAddition1()
@@ -567,6 +619,87 @@ namespace UnitTestProject1
             Formula f1 = new Formula("15 / 10 - 10");
             double result = (double)f1.Evaluate(s => 0);
             Assert.AreEqual(-8.5, result, 1e-9);
+        }
+        //Order of Operations: Multiplication vs Paren Addition
+        [TestMethod]
+        public void PublicEvaluateOrderOpsMultVsParenAdd()
+        {
+            Formula f1 = new Formula("15 * (10 + 10)");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(300, result, 1e-9);
+        }
+        //Order of Operations: Multiplication vs Paren Subtraction
+        [TestMethod]
+        public void PublicEvaluateOrderOpsMultVsParenSub()
+        {
+            Formula f1 = new Formula("15 * (10 - 5)");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(75, result, 1e-9);
+        }
+        //Order of Operations: Division vs Paren Addition
+        [TestMethod]
+        public void PublicEvaluateOrderOpsDivisVsParenAdd()
+        {
+            Formula f1 = new Formula("15 / (10 + 5)");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(1, result, 1e-9);
+        }
+        //Order of Operations: Division vs Paren Subtraction
+        [TestMethod]
+        public void PublicEvaluateOrderOpsDivisVsParenSub()
+        {
+            Formula f1 = new Formula("43 / (10 - 5)");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(8.6, result, 1e-9);
+        }
+        //Repeated Addition
+        public void PublicEvaluateRepeatedAddition()
+        {
+            Formula f1 = new Formula("4.25 + 8.34 + 55.2 + 10000000 + 23.2345");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(10000091.0245, result, 1e-9);
+        }
+        //Repeated Subtraction
+        public void PublicEvaluateRepeatedSubtraction()
+        {
+            Formula f1 = new Formula("4.25 - 8.34 - 55.2 - 10000000 - 23.2345");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(-10000082.5245, result, 1e-9);
+        }
+        //Repeated Multiplication
+        public void PublicEvaluateRepeatedMultiplication()
+        {
+            Formula f1 = new Formula("4.25 * 8.34 * 55.2 * 10000000 * 23.2345");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(454597862580, result, 1e-9);
+        }
+        //Repeated Division
+        public void PublicEvaluateRepeatedDivision()
+        {
+            Formula f1 = new Formula("4.25 / 8.34 / 5.2 / 12 / 2.2345");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(-0.00365475215, result, 1e-9);
+        }
+        //Using Variables 1:
+        public void PublicEvaluateUsingVariables1()
+        {
+            Formula f1 = new Formula("a3 + 4 + 3B / 2");
+            double result = (double)f1.Evaluate(s => 1);
+            Assert.AreEqual(5.5, result, 1e-9);
+        }
+        //Using Variables 2:
+        public void PublicEvaluateUsingVariables2()
+        {
+            Formula f1 = new Formula("_XyC * 10 * cFaD - 22");
+            double result = (double)f1.Evaluate(s => 13);
+            Assert.AreEqual(1668, result, 1e-9);
+        }
+        //Using Variables 3:
+        public void PublicEvaluateUsingVariables3()
+        {
+            Formula f1 = new Formula("_XyC * cFaD * ThisISTechnicallyAValidVARIABLE");
+            double result = (double)f1.Evaluate(s => 2.2345);
+            Assert.AreEqual(11.1568367136, result, 1e-9);
         }
 
 
