@@ -430,6 +430,146 @@ namespace UnitTestProject1
             Assert.AreEqual("Variable A2 Does Not Exist", result.Reason);
         }
 
+        //Evaluate Standard Cases ***********************************************************************************
+
+        //Trivial Addition 1 (Standard Addition)
+        [TestMethod]
+        public void PublicEvaluateTrivialAddition1()
+        {
+            Formula f1 = new Formula("15 + 35");
+            double result = (double) f1.Evaluate(s => 0);
+            Assert.AreEqual(50, result, 1e-9);
+        }
+        //Trivial Addition 2 (Decimal Addition)
+        [TestMethod]
+        public void PublicEvaluateTrivialAddition2()
+        {
+            Formula f1 = new Formula("153.02 + 45.003");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(198.02300, result, 1e-9);
+        }
+        //Trivial Addition 3 (Negative Addition)
+        [TestMethod]
+        public void PublicEvaluateTrivialAddition3()
+        {
+            Formula f1 = new Formula("150 + (0 - 45)");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(105, result, 1e-9);
+        }
+        //Trivial Subtraction 1 (Standard subtraction)
+        [TestMethod]
+        public void PublicEvaluateTrivialSubtraction1()
+        {
+            Formula f1 = new Formula("40 - 10");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(30, result, 1e-9);
+        }
+        //Trivial Subtraction 2 (Decimal Point Subtraction)
+        [TestMethod]
+        public void PublicEvaluateTrivialSubtraction2()
+        {
+            Formula f1 = new Formula("1 - .12516");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(0.87484, result, 1e-9);
+        }
+        //Trivial Subtraction 3 (Double Negative subtraction)
+        [TestMethod]
+        public void PublicEvaluateTrivialSubtraction3()
+        {
+            Formula f1 = new Formula("0 - (0 - 14565)");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(14565, result, 1e-9);
+        }
+        //Trivial Subtraction 4 (Negative Result)
+        [TestMethod]
+        public void PublicEvaluateTrivialSubtraction4()
+        {
+            Formula f1 = new Formula("0 - 14565)");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(14565, result, 1e-9);
+        }
+        //Trivial Division 1 (Standard Division)
+        [TestMethod]
+        public void PublicEvaluateTrivialDivision1()
+        {
+            Formula f1 = new Formula("25 / 5");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(5, result, 1e-9);
+        }
+        //Trivial Division 2 (Division using and resulting in negatives)
+        [TestMethod]
+        public void PublicEvaluateTrivialDivision2()
+        {
+            Formula f1 = new Formula("25 / (0-5)");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(-5, result, 1e-9);
+        }
+        //Trivial Division 3 (Division resulting in decimals)
+        [TestMethod]
+        public void PublicEvaluateTrivialDivision3()
+        {
+            Formula f1 = new Formula("10 / 4");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(2.5, result, 1e-9);
+        }
+        //Trivial Multiplication 1 (Standard Multiplication)
+        [TestMethod]
+        public void PublicEvaluateTrivialMultiplication1()
+        {
+            Formula f1 = new Formula("25 * 5");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(125, result, 1e-9);
+        }
+        //Trivial Multiplication 2 (Decimal Multiplication)
+        [TestMethod]
+        public void PublicEvaluateTrivialMultiplication2()
+        {
+            Formula f1 = new Formula("13 * 5.5");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(71.5, result, 1e-9);
+        }
+        //Trivial Multiplication 3 (Multiplication using and resulting in negatives)
+        [TestMethod]
+        public void PublicEvaluateTrivialMultiplication3()
+        {
+            Formula f1 = new Formula("148 * (0 - 32)");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(-4736, result, 1e-9);
+        }
+        //Order of Operations: Multiplication vs Addition
+        [TestMethod]
+        public void PublicEvaluateOrderOpsMultVsAdd()
+        {
+            Formula f1 = new Formula("10 * 10 + 5");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(105, result, 1e-9);
+        }
+        //Order of Operations: Multiplication vs Subtraction
+        [TestMethod]
+        public void PublicEvaluateOrderOpsMultVsSub()
+        {
+            Formula f1 = new Formula("2 * 3 - 10");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(-4, result, 1e-9);
+        }
+        //Order of Operations: Division vs Addition
+        [TestMethod]
+        public void PublicEvaluateOrderOpsDivisVsAdd()
+        {
+            Formula f1 = new Formula("10 / 10 + 5");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(6, result, 1e-9);
+        }
+        //Order of Operations: Division vs Subtraction
+        [TestMethod]
+        public void PublicEvaluateOrderOpsDivisVsSub()
+        {
+            Formula f1 = new Formula("15 / 10 - 10");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(-8.5, result, 1e-9);
+        }
+
+
         //GetVariables:
 
         //A trivial case of this method, just for safety.
