@@ -4,7 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SpreadsheetUtilities;
 using System.Collections.Generic;
 
-namespace UnitTestProject1
+namespace FormulaTests
 {
     [TestClass]
     public class FormulaTests
@@ -14,7 +14,7 @@ namespace UnitTestProject1
         //Invalid variable names should throw exceptions
         [TestMethod]
         [ExpectedException(typeof(FormulaFormatException))]
-        public void InvalidVariableThrows()
+        public void PublicInvalidVariableThrows()
         {
             Formula f1 = new Formula("2 + 1ABC + 2");
         }
@@ -22,7 +22,7 @@ namespace UnitTestProject1
         //Invalid variable names should throw exceptions (We still have a baseline standard)
         [TestMethod]
         [ExpectedException(typeof(FormulaFormatException))]
-        public void InvalidVariableThrowsLongerConstructor()
+        public void PublicInvalidVariableThrowsLongerConstructor()
         {
             Formula f1 = new Formula("2 + 1ABC + 2", s=>s, s=>true);
         }
@@ -30,7 +30,7 @@ namespace UnitTestProject1
         //We should adhere to the stricter of the two standards we established (This tests the Normalize behavior).
         [TestMethod]
         [ExpectedException(typeof(FormulaFormatException))]
-        public void InvalidVariableThrowsStricterRulesNormalize()
+        public void PublicInvalidVariableThrowsStricterRulesNormalize()
         {
             Formula f1 = new Formula("A1 + 2", s => "1ABC", s => true);
         }
@@ -38,7 +38,7 @@ namespace UnitTestProject1
         //We should adhere to the stricter of the two standards we established (This tests the isValid behavior).
         [TestMethod]
         [ExpectedException(typeof(FormulaFormatException))]
-        public void InvalidVariableThrowsStricterRulesIsValid()
+        public void PublicInvalidVariableThrowsStricterRulesIsValid()
         {
             Formula f1 = new Formula("A1 + 2", s => s, s => false);
         }
@@ -46,7 +46,7 @@ namespace UnitTestProject1
         //Invalid tokens should throw exceptions (Short constructor)
         [TestMethod]
         [ExpectedException(typeof(FormulaFormatException))]
-        public void InvalidTokensShortConstructor()
+        public void PublicInvalidTokensShortConstructor()
         {
             Formula f1 = new Formula("2 + $");
         }
@@ -54,7 +54,7 @@ namespace UnitTestProject1
         //Invalid tokens should throw exceptions (long constructor)
         [TestMethod]
         [ExpectedException(typeof(FormulaFormatException))]
-        public void InvalidtokensLongConstructor()
+        public void PublicInvalidtokensLongConstructor()
         {
             Formula f1 = new Formula("3 + $", s => s, s => true);
         }
@@ -62,7 +62,7 @@ namespace UnitTestProject1
         //Invalid variables should throw exceptions (Using a decmal, which is illegal in a var name) (Short Constructor)
         [TestMethod]
         [ExpectedException(typeof(FormulaFormatException))]
-        public void InvalidVarNameShortConstructor()
+        public void PublicInvalidVarNameShortConstructor()
         {
             Formula f1 = new Formula("2 + A2.3");
         }
@@ -70,15 +70,31 @@ namespace UnitTestProject1
         //Invalid variables should throw exceptions (Using a decmal, which is illegal in a var name) (Long Constructor)
         [TestMethod]
         [ExpectedException(typeof(FormulaFormatException))]
-        public void InvalidVarNameLongConstructor()
+        public void PublicInvalidVarNameLongConstructor()
         {
             Formula f1 = new Formula("2 + A2.3", s => s, s => true);
+        }
+
+        //Invalid variables should throw exceptions (Starts normal, but encounters an illegal character) (Short Constructor)
+        [TestMethod]
+        [ExpectedException(typeof(FormulaFormatException))]
+        public void PublicInvalidVarNameIllegalCharShortConstructor()
+        {
+            Formula f1 = new Formula("2 + A23_$$");
+        }
+
+        //Invalid variables should throw exceptions (Starts normal, but encounters an illegal character) (Long Constructor)
+        [TestMethod]
+        [ExpectedException(typeof(FormulaFormatException))]
+        public void PublicInvalidVarNameIllegalCharLongConstructor()
+        {
+            Formula f1 = new Formula("2 + A23_$$", s => s, s => true);
         }
 
         //We need at least one token (Short constructor)
         [TestMethod]
         [ExpectedException(typeof(FormulaFormatException))]
-        public void OneTokenShortConstructor()
+        public void PublicOneTokenShortConstructor()
         {
             Formula f1 = new Formula(" ");
         }
@@ -86,7 +102,7 @@ namespace UnitTestProject1
         //We need at least one token (long constructor)
         [TestMethod]
         [ExpectedException(typeof(FormulaFormatException))]
-        public void OneTokenLongConstructor()
+        public void PublicOneTokenLongConstructor()
         {
             Formula f1 = new Formula(" ", s => s, s => true);
         }
@@ -94,7 +110,7 @@ namespace UnitTestProject1
         //We have to open parenthesis before we close them (Short constructor)
         [TestMethod]
         [ExpectedException(typeof(FormulaFormatException))]
-        public void CloseParenShortConstructor()
+        public void PublicCloseParenShortConstructor()
         {
             Formula f1 = new Formula("1 + 2) + 1");
         }
@@ -102,7 +118,7 @@ namespace UnitTestProject1
         //We have to open parenthesis before we close them (long constructor)
         [TestMethod]
         [ExpectedException(typeof(FormulaFormatException))]
-        public void CloseParenLongConstructor()
+        public void PublicCloseParenLongConstructor()
         {
             Formula f1 = new Formula("1 + 2) + 1", s => s, s => true);
         }
@@ -110,7 +126,7 @@ namespace UnitTestProject1
         //We have to close parenthesis that we open (Short constructor)
         [TestMethod]
         [ExpectedException(typeof(FormulaFormatException))]
-        public void CloseOpenParenShortConstructor()
+        public void PublicCloseOpenParenShortConstructor()
         {
             Formula f1 = new Formula("(1 + 2");
         }
@@ -118,7 +134,7 @@ namespace UnitTestProject1
         //We have to close parenthesis that we open (long constructor)
         [TestMethod]
         [ExpectedException(typeof(FormulaFormatException))]
-        public void CloseOpenParenLongConstructor()
+        public void PublicCloseOpenParenLongConstructor()
         {
             Formula f1 = new Formula("(1 + 2", s => s, s => true);
         }
@@ -126,7 +142,7 @@ namespace UnitTestProject1
         //The first token must be a number, variable or openparen (Short constructor)
         [TestMethod]
         [ExpectedException(typeof(FormulaFormatException))]
-        public void StartingTokenShortConstructor()
+        public void PublicStartingTokenShortConstructor()
         {
             Formula f1 = new Formula("+ 2 + 4");
         }
@@ -134,7 +150,7 @@ namespace UnitTestProject1
         //The first token must be a number, variable or openparen (long constructor)
         [TestMethod]
         [ExpectedException(typeof(FormulaFormatException))]
-        public void StartingTokenLongConstructor()
+        public void PublicStartingTokenLongConstructor()
         {
             Formula f1 = new Formula("+ 1 + 2", s => s, s => true);
         }
@@ -142,7 +158,7 @@ namespace UnitTestProject1
         //The last token must be a number, variable or closeparen (Short constructor)
         [TestMethod]
         [ExpectedException(typeof(FormulaFormatException))]
-        public void EndingTokenShortConstructor()
+        public void PublicEndingTokenShortConstructor()
         {
             Formula f1 = new Formula("1 + 2 + ");
         }
@@ -150,7 +166,7 @@ namespace UnitTestProject1
         //The last token must be a number, variable or closeparen (long constructor)
         [TestMethod]
         [ExpectedException(typeof(FormulaFormatException))]
-        public void EndingTokenLongConstructor()
+        public void PublicEndingTokenLongConstructor()
         {
             Formula f1 = new Formula("1 + 2 + ", s => s, s => true);
         }
@@ -158,7 +174,7 @@ namespace UnitTestProject1
         //Any token following an openparen must be a number, var, or openparen (Short constructor)
         [TestMethod]
         [ExpectedException(typeof(FormulaFormatException))]
-        public void OpenParenTailShortConstructor()
+        public void PublicOpenParenTailShortConstructor()
         {
             Formula f1 = new Formula("() + 2 + 1)");
         }
@@ -166,7 +182,7 @@ namespace UnitTestProject1
         //Any token following an openparen must be a number, var, or openparen (long constructor)
         [TestMethod]
         [ExpectedException(typeof(FormulaFormatException))]
-        public void OpenParenTailLongConstructor()
+        public void PublicOpenParenTailLongConstructor()
         {
             Formula f1 = new Formula("() + 2 + 1)", s => s, s => true);
         }
@@ -174,7 +190,7 @@ namespace UnitTestProject1
         //Any token following an openparen must be a number, var, or openparen (Short constructor)
         [TestMethod]
         [ExpectedException(typeof(FormulaFormatException))]
-        public void OperatorTailShortConstructor()
+        public void PublicOperatorTailShortConstructor()
         {
             Formula f1 = new Formula("+ + 2 + 1)");
         }
@@ -182,7 +198,7 @@ namespace UnitTestProject1
         //Any token following an openparen must be a number, var, or openparen (long constructor)
         [TestMethod]
         [ExpectedException(typeof(FormulaFormatException))]
-        public void OperatorTailLongConstructor()
+        public void PublicOperatorTailLongConstructor()
         {
             Formula f1 = new Formula("+ + 2 + 1)", s => s, s => true);
         }
@@ -190,7 +206,7 @@ namespace UnitTestProject1
         //Any token following a number must be an operator or closeparen (Short constructor)
         [TestMethod]
         [ExpectedException(typeof(FormulaFormatException))]
-        public void NumberTailShortConstructor()
+        public void PublicNumberTailShortConstructor()
         {
             Formula f1 = new Formula("2 + 1 A1");
         }
@@ -198,7 +214,7 @@ namespace UnitTestProject1
         //Any token following a number must be an operator or closeparen (long constructor)
         [TestMethod]
         [ExpectedException(typeof(FormulaFormatException))]
-        public void NumberTailLongConstructor()
+        public void PublicNumberTailLongConstructor()
         {
             Formula f1 = new Formula("2 + 1 A1", s => s, s => true);
         }
@@ -206,7 +222,7 @@ namespace UnitTestProject1
         //Any token following a variable must be an operator or closeparen (Short constructor)
         [TestMethod]
         [ExpectedException(typeof(FormulaFormatException))]
-        public void VarTailShortConstructor()
+        public void PublicVarTailShortConstructor()
         {
             Formula f1 = new Formula("2 + A1 1");
         }
@@ -214,7 +230,7 @@ namespace UnitTestProject1
         //Any token following a variable must be an operator or closeparen (long constructor)
         [TestMethod]
         [ExpectedException(typeof(FormulaFormatException))]
-        public void VarTailLongConstructor()
+        public void PublicVarTailLongConstructor()
         {
             Formula f1 = new Formula("2 + A1 1", s => s, s => true);
         }
@@ -222,7 +238,7 @@ namespace UnitTestProject1
         //Any token following a close paren must be an operator or closeparen (Short constructor)
         [TestMethod]
         [ExpectedException(typeof(FormulaFormatException))]
-        public void CloseParenTailShortConstructor()
+        public void PublicCloseParenTailShortConstructor()
         {
             Formula f1 = new Formula("(2 + 1) A1");
         }
@@ -230,7 +246,7 @@ namespace UnitTestProject1
         //Any token following a close paren must be an operator or closeparen (long constructor)
         [TestMethod]
         [ExpectedException(typeof(FormulaFormatException))]
-        public void CloseParenTailLongConstructor()
+        public void PublicCloseParenTailLongConstructor()
         {
             Formula f1 = new Formula("(2 + 1) A1", s => s, s => true);
         }
@@ -251,18 +267,50 @@ namespace UnitTestProject1
             Formula f1 = new Formula("1 + 2e308");
         }
 
+        //We can't have parenthesis following some number, without an operator in between
+        [TestMethod]
+        [ExpectedException(typeof(FormulaFormatException))]
+        public void PublicOpenParenCantFollowNumber()
+        {
+            Formula f1 = new Formula("1(1 + 3)");
+        }
+
+        //We can't have parenthesis following some close paren, without an operator in between
+        [TestMethod]
+        [ExpectedException(typeof(FormulaFormatException))]
+        public void PublicOpenParenCantFollowCloseParen()
+        {
+            Formula f1 = new Formula("(1 + 2)(1 + 3)");
+        }
+
+        //If our normalizer produces invalid tokens, we have to throw.
+        [TestMethod]
+        [ExpectedException(typeof(FormulaFormatException))]
+        public void PublicInvalidNormalizer()
+        {
+            Formula f1 = new Formula("1 + A2 + A3", s => "2Invalid4U$$$", s => true);
+        }
+
+        //Double operator sequences are not valid
+        [TestMethod]
+        [ExpectedException(typeof(FormulaFormatException))]
+        public void PublicSequencesOfOperators()
+        {
+            Formula f1 = new Formula("a + + 2");
+        }
+
         //Normal Constructor Behavior.********************************************************************************
 
         //A single variable is valid. Fails if it throws exception. (Short Constructor)
         [TestMethod]
-        public void SingleVariableShortConstructor()
+        public void PublicSingleVariableShortConstructor()
         {
             Formula f1 = new Formula("A1");
         }
 
         //A single variable is valid. Fails if it throws exception. (Long Constructor)
         [TestMethod]
-        public void SingleVariableLongConstructor()
+        public void PublicSingleVariableLongConstructor()
         {
             Formula f1 = new Formula("A1", s => s, s => true);
         }
@@ -297,168 +345,168 @@ namespace UnitTestProject1
 
         //A single number is valid. Fails if it throws exception. (Short Constructor)
         [TestMethod]
-        public void SingleNumberShortConstructor()
+        public void PublicSingleNumberShortConstructor()
         {
             Formula f1 = new Formula("1");
         }
 
         //A single number is valid. Fails if it throws exception. (Long Constructor)
         [TestMethod]
-        public void SingleNumberLongConstructor()
+        public void PublicSingleNumberLongConstructor()
         {
             Formula f1 = new Formula("1", s => s, s => true);
         }
 
         //A single number in scientific notation is valid. Fails if it throws exception. (Short Constructor)
         [TestMethod]
-        public void SingleNumberSciNotationShortConstructor()
+        public void PublicSingleNumberSciNotationShortConstructor()
         {
             Formula f1 = new Formula("1e23");
         }
 
         //A single number in scientific notation is valid. Fails if it throws exception. (Long Constructor)
         [TestMethod]
-        public void SingleNumberSciNotationLongConstructor()
+        public void PublicSingleNumberSciNotationLongConstructor()
         {
             Formula f1 = new Formula("1e23", s => s, s => true);
         }
 
         //Basic addition is valid. Fails if it throws exception. (Short Constructor)
         [TestMethod]
-        public void BasicAdditionShortConstructor()
+        public void PublicBasicAdditionShortConstructor()
         {
             Formula f1 = new Formula("1 + 1");
         }
 
         //Basic addition is valid. Fails if it throws exception. (Long Constructor)
         [TestMethod]
-        public void BasicAdditionLongConstructor()
+        public void PublicBasicAdditionLongConstructor()
         {
             Formula f1 = new Formula("1 + 1", s => s, s => true);
         }
 
         //Basic subtraction is valid. Fails if it throws exception. (Short Constructor)
         [TestMethod]
-        public void BasicSubtractionShortConstructor()
+        public void PublicBasicSubtractionShortConstructor()
         {
             Formula f1 = new Formula("1 - 1");
         }
 
         //Basic subtraction is valid. Fails if it throws exception. (Long Constructor)
         [TestMethod]
-        public void BasicSubtractionLongConstructor()
+        public void PublicBasicSubtractionLongConstructor()
         {
             Formula f1 = new Formula("1 - 1", s => s, s => true);
         }
 
         //Basic multiplication is valid. Fails if it throws exception. (Short Constructor)
         [TestMethod]
-        public void BasicMultiplicationShortConstructor()
+        public void PublicBasicMultiplicationShortConstructor()
         {
             Formula f1 = new Formula("1 * 1");
         }
 
         //Basic multiplication is valid. Fails if it throws exception. (Long Constructor)
         [TestMethod]
-        public void BasicMultiplicationLongConstructor()
+        public void PublicBasicMultiplicationLongConstructor()
         {
             Formula f1 = new Formula("1 * 1", s => s, s => true);
         }
 
         //Basic Division is valid. Fails if it throws exception. (Short Constructor)
         [TestMethod]
-        public void BasicDivisionShortConstructor()
+        public void PublicBasicDivisionShortConstructor()
         {
             Formula f1 = new Formula("1 / 1");
         }
 
         //Basic Division is valid. Fails if it throws exception. (Long Constructor)
         [TestMethod]
-        public void BasicDivisionLongConstructor()
+        public void PublicBasicDivisionLongConstructor()
         {
             Formula f1 = new Formula("1 / 1", s => s, s => true);
         }
 
         //Basic addition is valid with variables. Fails if it throws exception. (Short Constructor)
         [TestMethod]
-        public void BasicAdditionVarsShortConstructor()
+        public void PublicBasicAdditionVarsShortConstructor()
         {
             Formula f1 = new Formula("1 + A1");
         }
 
         //Basic addition is valid with variables. Fails if it throws exception. (Long Constructor)
         [TestMethod]
-        public void BasicAdditionVarsLongConstructor()
+        public void PublicBasicAdditionVarsLongConstructor()
         {
             Formula f1 = new Formula("1 + A1", s => s, s => true);
         }
 
         //Basic subtraction is valid with variables. Fails if it throws exception. (Short Constructor)
         [TestMethod]
-        public void BasicSubtractionVarsShortConstructor()
+        public void PublicBasicSubtractionVarsShortConstructor()
         {
             Formula f1 = new Formula("1 - A1");
         }
 
         //Basic subtraction is valid with variables. Fails if it throws exception. (Long Constructor)
         [TestMethod]
-        public void BasicSubtractionVarsLongConstructor()
+        public void PublicBasicSubtractionVarsLongConstructor()
         {
             Formula f1 = new Formula("1 - A1", s => s, s => true);
         }
 
         //Basic multiplication is valid with variables. Fails if it throws exception. (Short Constructor)
         [TestMethod]
-        public void BasicMultiplicationVarsShortConstructor()
+        public void PublicBasicMultiplicationVarsShortConstructor()
         {
             Formula f1 = new Formula("1 * A1");
         }
 
         //Basic multiplication is valid with variables. Fails if it throws exception. (Long Constructor)
         [TestMethod]
-        public void BasicMultiplicationVarsLongConstructor()
+        public void PublicBasicMultiplicationVarsLongConstructor()
         {
             Formula f1 = new Formula("1 * A1", s => s, s => true);
         }
 
         //Basic Division is valid with variables. Fails if it throws exception. (Short Constructor)
         [TestMethod]
-        public void BasicDivisionVarsShortConstructor()
+        public void PublicBasicDivisionVarsShortConstructor()
         {
             Formula f1 = new Formula("1 / A1");
         }
 
         //Basic Division is valid with variables. Fails if it throws exception. (Long Constructor)
         [TestMethod]
-        public void BasicDivisionVarsLongConstructor()
+        public void PublicBasicDivisionVarsLongConstructor()
         {
             Formula f1 = new Formula("1 / A1", s => s, s => true);
         }
 
         //Equations consisting of only variables are valid. Fails if it throws exception. (Short Constructor)
         [TestMethod]
-        public void OnlyVarsShortConstructor()
+        public void PublicOnlyVarsShortConstructor()
         {
             Formula f1 = new Formula("A2 / A1");
         }
 
         //Equations consisting of only variables are valid. Fails if it throws exception. (Long Constructor)
         [TestMethod]
-        public void OnlyVarsLongConstructor()
+        public void PublicOnlyVarsLongConstructor()
         {
             Formula f1 = new Formula("A2 / A1", s => s, s => true);
         }
 
         //Equations containing all sorts of crazy combinaitons of operators are allowed. (Short Constructor)
         [TestMethod]
-        public void CrazyEqnShortConstructor()
+        public void PublicCrazyEqnShortConstructor()
         {
             Formula f1 = new Formula("1 + 145 - 345/(224-2) + 554/22 - (445) + 1456 + (1 - 99) / 2");
         }
 
         //Equations containing all sorts of crazy combinaitons of operators are allowed. (Long Constructor)
         [TestMethod]
-        public void CrazyEqnLongConstructor()
+        public void PublicCrazyEqnLongConstructor()
         {
             Formula f1 = new Formula("1 + 145 - 345/(224-2) + 554/22 - (445) + 1456 + (1 - 99) / 2", s => s, s => true);
         }
@@ -726,13 +774,13 @@ namespace UnitTestProject1
         {
             Formula f1 = new Formula("4.25 / 8.34 / 5.2 / 12 / 2.2345");
             double result = (double)f1.Evaluate(s => 0);
-            Assert.AreEqual(-0.00365475215, result, 1e-9);
+            Assert.AreEqual(0.00365475215, result, 1e-9);
         }
         //Using Variables 1:
         [TestMethod]
         public void PublicEvaluateUsingVariables1()
         {
-            Formula f1 = new Formula("a3 + 4 + 3B / 2");
+            Formula f1 = new Formula("a3 + 4 + B3 / 2");
             double result = (double)f1.Evaluate(s => 1);
             Assert.AreEqual(5.5, result, 1e-9);
         }
@@ -792,7 +840,7 @@ namespace UnitTestProject1
         {
             Formula f1 = new Formula("A1 + A2 - A3 * A4 / A5", s=>s.ToLower(), s=>true);
             Formula f2 = new Formula(f1.ToString());
-            Assert.AreEqual("a1+a2-a3 *a4/a5", f1.ToString());
+            Assert.AreEqual("a1+a2-a3*a4/a5", f1.ToString());
             Assert.AreEqual(f1, f2);
         }
 
@@ -876,6 +924,15 @@ namespace UnitTestProject1
             Assert.IsFalse(f1.Equals(f2));
         }
 
+        //Equations have to have the same tokens to be equal (Extra operands case)
+        [TestMethod]
+        public void PublicSameTokensEqualsExtraOperandCase()
+        {
+            Formula f1 = new Formula("1 + 2 - 3 * A1 / A2");
+            Formula f2 = new Formula("1 + 2 - 3 * A1 / A3 + Z3");
+            Assert.IsFalse(f1.Equals(f2));
+        }
+
         //Spaces ought to be ignored.
         [TestMethod]
         public void PublicSpacesIgnoredEquals()
@@ -894,7 +951,302 @@ namespace UnitTestProject1
             Assert.IsTrue(f1.Equals(f2));
         }
 
-        //GetVariables:
+        //If both variables reference the same object, they must be equal.
+        [TestMethod]
+        public void PublicSameReferenceEquals()
+        {
+            Formula f1 = new Formula("A1 + A2 - B1 * B2 / C1 + 1");
+            Assert.IsTrue(f1.Equals(f1));
+        }
+
+        //Equals Operator Tests *************************************************************************************************************
+
+        //If an object is null, it cant be equal to a formula object (null on right)
+        [TestMethod]
+        public void PublicNullRightObjectEqualsOperator()
+        {
+            Formula f1 = new Formula("A1 + 5 / 2 + 3");
+            Assert.IsFalse(f1 == null);
+        }
+
+        //If an object is null, it cant be equal to a formula object (null on left)
+        [TestMethod]
+        public void PublicNullLeftObjectEqualsOperator()
+        {
+            Formula f1 = new Formula("A1 + 5 / 2 + 3");
+            Assert.IsFalse(null == f1);
+        }
+
+        //Tokens must be in the same order if they are to be equal
+        [TestMethod]
+        public void PublicOutOfOrderEqualsOperator()
+        {
+            Formula f1 = new Formula("2 + 3 + A2");
+            Formula f2 = new Formula("3 + 2 + A2");
+            Assert.IsFalse(f1 == f2);
+        }
+
+        //Numbers are compared numerically
+        [TestMethod]
+        public void PublicNumericComparrisonEqualsOperator()
+        {
+            Formula f1 = new Formula("20.000000 + A2 / 3");
+            Formula f2 = new Formula("20 + A2 / 3");
+            Formula f3 = new Formula("2e1 + A2 / 3");
+            Assert.IsTrue(f1 == f2);
+            Assert.IsTrue(f2 == f3);
+        }
+
+        //Variables are compared using their normalized versions (True case)
+        [TestMethod]
+        public void PublicNormalizedVarsComparrisonEqualsTrueCaseOperator()
+        {
+            Formula f1 = new Formula("A1 + A2 - B1 * B2 / C1");
+            Formula f2 = new Formula("a1 + a2 - b1 * b2 / c1", s => s.ToUpper(), s => true);
+            Formula f3 = new Formula("a1 + A2 - b1 * B2 / c1", s => s.ToUpper(), s => true);
+            Assert.IsTrue(f1 == f2);
+            Assert.IsTrue(f2 == f3);
+        }
+
+        //Variables are compared using their normalized versions (False case)
+        [TestMethod]
+        public void PublicNormalizedVarsComparrisonEqualsFalseCaseOperator()
+        {
+            Formula f1 = new Formula("A1 + A2 - B1 * B2 / C1");
+            Formula f2 = new Formula("a1 + a2 - b1 * b2 / c1");
+            Formula f3 = new Formula("a1 + A2 - b1 * B2 / c1");
+            Assert.IsFalse(f1 == f2);
+            Assert.IsFalse(f1 == f3);
+            Assert.IsFalse(f2 == f3);
+        }
+
+        //Equations have to have the same tokens to be equal (operand case)
+        [TestMethod]
+        public void PublicSameTokensEqualsOperandCaseOperator()
+        {
+            Formula f1 = new Formula("1 + 2 - 3 * A1 / A2");
+            Formula f2 = new Formula("1 + 2 - 3 * A1 / A3");
+            Assert.IsFalse(f1 == f2);
+        }
+
+        //Equations have to have the same tokens to be equal (Operator case)
+        [TestMethod]
+        public void PublicSameTokensEqualsOperatorCaseOperator()
+        {
+            Formula f1 = new Formula("1 - 2 + 3 * A1 / A2");
+            Formula f2 = new Formula("1 + 2 - 3 * A1 / A2");
+            Assert.IsFalse(f1 == f2);
+        }
+
+        //Equations have to have the same tokens to be equal (Extra operands case)
+        [TestMethod]
+        public void PublicSameTokensEqualsOperatorExtraOperandCase()
+        {
+            Formula f1 = new Formula("1 + 2 - 3 * A1 / A2");
+            Formula f2 = new Formula("1 + 2 - 3 * A1 / A3 + Z3");
+            Assert.IsFalse(f1 == f2);
+        }
+
+        //Spaces ought to be ignored.
+        [TestMethod]
+        public void PublicSpacesIgnoredEqualsOperator()
+        {
+            Formula f1 = new Formula("_XaF        +       1    / 2 - A3f_x");
+            Formula f2 = new Formula("_XaF+1/2-A3f_x");
+            Assert.IsTrue(f1 == f2);
+        }
+
+        //If our normalizer converts everything to the same variable, equals ought to still work.
+        [TestMethod]
+        public void PublicRepeatingVarEqualsOperator()
+        {
+            Formula f1 = new Formula("A1 + A2 - B1 * B2 / C1", s => "SAME", s => true);
+            Formula f2 = new Formula("A1 + A2 - B1 * B2 / C1", s => "SAME", s => true);
+            Assert.IsTrue(f1 == f2);
+        }
+
+        //If both are null, the operator equals returns true
+        [TestMethod]
+        public void PublicBothNullEqualsOperator()
+        {
+            Formula f1 = null;
+            Formula f2 = null;
+            Assert.IsTrue(f1 == f2);
+        }
+
+        //If both variables reference the same object, they must be equal.
+        [TestMethod]
+        public void PublicSameReferenceEqualsOperator()
+        {
+            Formula f1 = new Formula("A1 + A2 - B1 * B2 / C1 + 1");
+            Assert.IsTrue(f1 == f1);
+        }
+
+        //Does Not Equal Operator *******************************************************************************************************************
+
+        //If an object is null, it cant be equal to a formula object (null on right)
+        [TestMethod]
+        public void PublicNullRightObjectNotEqualsOperator()
+        {
+            Formula f1 = new Formula("A1 + 5 / 2 + 3");
+            Assert.IsTrue(f1 != null);
+        }
+
+        //If an object is null, it cant be equal to a formula object (null on left)
+        [TestMethod]
+        public void PublicNullLeftObjectNotEqualsOperator()
+        {
+            Formula f1 = new Formula("A1 + 5 / 2 + 3");
+            Assert.IsTrue(null != f1);
+        }
+
+        //Tokens must be in the same order if they are to be equal
+        [TestMethod]
+        public void PublicOutOfOrderNotEqualsOperator()
+        {
+            Formula f1 = new Formula("2 + 3 + A2");
+            Formula f2 = new Formula("3 + 2 + A2");
+            Assert.IsTrue(f1 != f2);
+        }
+
+        //Numbers are compared numerically
+        [TestMethod]
+        public void PublicNumericComparrisonNotEqualsOperator()
+        {
+            Formula f1 = new Formula("20.000000 + A2 / 3");
+            Formula f2 = new Formula("20 + A2 / 3");
+            Formula f3 = new Formula("2e1 + A2 / 3");
+            Assert.IsFalse(f1 != f2);
+            Assert.IsFalse(f2 != f3);
+        }
+
+        //Variables are compared using their normalized versions (False case)
+        [TestMethod]
+        public void PublicNormalizedVarsComparrisonNotEqualsTrueCaseOperator()
+        {
+            Formula f1 = new Formula("A1 + A2 - B1 * B2 / C1");
+            Formula f2 = new Formula("a1 + a2 - b1 * b2 / c1", s => s.ToUpper(), s => true);
+            Formula f3 = new Formula("a1 + A2 - b1 * B2 / c1", s => s.ToUpper(), s => true);
+            Assert.IsFalse(f1 != f2);
+            Assert.IsFalse(f2 != f3);
+        }
+
+        //Variables are compared using their normalized versions (True case)
+        [TestMethod]
+        public void PublicNormalizedVarsComparrisonNotEqualsFalseCaseOperator()
+        {
+            Formula f1 = new Formula("A1 + A2 - B1 * B2 / C1");
+            Formula f2 = new Formula("a1 + a2 - b1 * b2 / c1");
+            Formula f3 = new Formula("a1 + A2 - b1 * B2 / c1");
+            Assert.IsTrue(f1 != f2);
+            Assert.IsTrue(f1 != f3);
+            Assert.IsTrue(f2 != f3);
+        }
+
+        //Equations have to have the same tokens to be equal (operand case)
+        [TestMethod]
+        public void PublicSameTokensNotEqualsOperandCaseOperator()
+        {
+            Formula f1 = new Formula("1 + 2 - 3 * A1 / A2");
+            Formula f2 = new Formula("1 + 2 - 3 * A1 / A3");
+            Assert.IsTrue(f1 != f2);
+        }
+
+        //Equations have to have the same tokens to be equal (Extra operands case)
+        [TestMethod]
+        public void PublicSameTokensNotEqualsOperatorExtraOperandCase()
+        {
+            Formula f1 = new Formula("1 + 2 - 3 * A1 / A2");
+            Formula f2 = new Formula("1 + 2 - 3 * A1 / A3 + Z3");
+            Assert.IsTrue(f1 != f2);
+        }
+
+        //Equations have to have the same tokens to be equal (Operator case)
+        [TestMethod]
+        public void PublicSameTokensNotEqualsOperatorCaseOperator()
+        {
+            Formula f1 = new Formula("1 - 2 + 3 * A1 / A2");
+            Formula f2 = new Formula("1 + 2 - 3 * A1 / A2");
+            Assert.IsTrue(f1 != f2);
+        }
+
+        //Spaces ought to be ignored.
+        [TestMethod]
+        public void PublicSpacesIgnoredNotEqualsOperator()
+        {
+            Formula f1 = new Formula("_XaF        +       1    / 2 - A3f_x");
+            Formula f2 = new Formula("_XaF+1/2-A3f_x");
+            Assert.IsFalse(f1 != f2);
+        }
+
+        //If our normalizer converts everything to the same variable, not equal ought to still work.
+        [TestMethod]
+        public void PublicRepeatingVarNotEqualsOperator()
+        {
+            Formula f1 = new Formula("A1 + A2 - B1 * B2 / C1", s => "SAME", s => true);
+            Formula f2 = new Formula("A1 + A2 - B1 * B2 / C1", s => "SAME", s => true);
+            Assert.IsFalse(f1 != f2);
+        }
+
+        //If both are null, the operator equals returns false
+        [TestMethod]
+        public void PublicBothNullNotEqualsOperator()
+        {
+            Formula f1 = null;
+            Formula f2 = null;
+            Assert.IsFalse(f1 != f2);
+        }
+        
+        //If both variables reference the same object, they can't be not equal.
+        [TestMethod]
+        public void PublicSameReferenceNotEqualsOperator()
+        {
+            Formula f1 = new Formula("A1 + A2 - B1 * B2 / C1 + 1");
+            Assert.IsFalse(f1 != f1);
+        }
+
+
+        //GetHashCode:********************************************************************************************************************************
+
+        //The trivial case of hash code. Two identical equations (as identical strings) must have the same hash function
+        [TestMethod]
+        public void PublicHashCodeTrivial()
+        {
+            Formula f1 = new Formula("A1 + 2 - B1 * B2 / 1");
+            Formula f2 = new Formula("A1 + 2 - B1 * B2 / 1");
+            Assert.AreEqual(f1.GetHashCode(), f2.GetHashCode());
+        }
+
+        //Our definition of hash code equality relies on our Equals function. Ergo, we ignore spaces
+        [TestMethod]
+        public void PublicHashCodeIgnoreSpaces()
+        {
+            Formula f1 = new Formula("A1 + 2 - B1 * B2 / 1");
+            Formula f2 = new Formula("A1  +      2-B1          *   B2         / 1");
+            Assert.AreEqual(f1.GetHashCode(), f2.GetHashCode());
+        }
+
+        //HashCode must respect normalize functions (as it obeys the rules of Equals())
+        [TestMethod]
+        public void PublicHashCodeRespectNormalize()
+        {
+            Formula f1 = new Formula("A1 + 2 - B1 * B2 / 1", s => "SAME", s => true);
+            Formula f2 = new Formula("D1 + 2 - E1 * E2 / 1", s => "SAME", s => true);
+            Assert.AreEqual(f1.GetHashCode(), f2.GetHashCode());
+        }
+
+        //HashCode must also compare numbers numerically, as does Equals()
+        [TestMethod]
+        public void PublicHashCodeNumericComparrisons()
+        {
+            Formula f1 = new Formula("20.000000 + A2 / 3");
+            Formula f2 = new Formula("20 + A2 / 3");
+            Formula f3 = new Formula("2e1 + A2 / 3");
+            Assert.AreEqual(f1.GetHashCode(), f2.GetHashCode());
+            Assert.AreEqual(f2.GetHashCode(), f3.GetHashCode());
+        }
+
+        //GetVariables:********************************************************************************************************************************8
 
         //A trivial case of this method, just for safety.
         [TestMethod]

@@ -153,7 +153,7 @@ namespace SpreadsheetUtilities
                     //If the previous element was an op or open paren, throw.
                     if (!lastTokenNumVarCloseParen)
                     {
-                        throw new FormulaFormatException("You have a close paren following an operator or open paren.");
+                        throw new FormulaFormatException("You have a close paren following an operator or open paren: " + tokens.Current);
                     }
 
                     closedParenSoFar++;
@@ -170,7 +170,7 @@ namespace SpreadsheetUtilities
                     //If the previous element was a var, num, or close paren, throw.
                     if (lastTokenNumVarCloseParen)
                     {
-                        throw new FormulaFormatException("You have an open paren following a close paren, variable, or number.");
+                        throw new FormulaFormatException("You have an open paren following a close paren, variable, or number." + tokens.Current);
                     }
                     openParenSoFar++;
                     lastTokenNumVarCloseParen = false;
@@ -181,7 +181,7 @@ namespace SpreadsheetUtilities
                 {
                     if (lastTokenNumVarCloseParen)
                     {
-                        throw new FormulaFormatException("You have a variable following another number, variable or close paren.");
+                        throw new FormulaFormatException("You have a variable following another number, variable or close paren." + tokens.Current);
                     }
                     string normalizedToken = normalize(tokens.Current);
                     if (isValid(normalizedToken) && IsVariable(normalizedToken))
@@ -199,7 +199,7 @@ namespace SpreadsheetUtilities
                 {
                     if (lastTokenNumVarCloseParen)
                     {
-                        throw new FormulaFormatException("You have a number following another number, variable or close paren.");
+                        throw new FormulaFormatException("You have a number following another number, variable or close paren: " + tokens.Current);
                     }
                     lastTokenNumVarCloseParen = true;
                     normalizedFormula.Add(currentDouble.ToString());
@@ -209,7 +209,7 @@ namespace SpreadsheetUtilities
                 {
                     if (!lastTokenNumVarCloseParen)
                     {
-                        throw new FormulaFormatException("You have an operator following another operator, or an open paren.");
+                        throw new FormulaFormatException("You have an operator following another operator, or an open paren: " + tokens.Current);
                     }
                     lastTokenNumVarCloseParen = false;
                     normalizedFormula.Add(tokens.Current);
@@ -285,6 +285,8 @@ namespace SpreadsheetUtilities
                 {
                     isDouble = double.TryParse(token, out number);
                 }
+
+                //Double Handling
                 if (isDouble)
                 {
                     if (IsOnTop(operators, "*") || IsOnTop(operators, "/"))
@@ -337,17 +339,8 @@ namespace SpreadsheetUtilities
                         double b = values.Pop();
                         double a = values.Pop();
                         values.Push(Arithmator(operators.Pop(), a, b));
-
-
-                    }
-
-                    if (!IsOnTop(operators, "("))
-                    {
-                        throw new ArgumentException("Error: Misplaced Parenthesis");
-                    }
-                    else
-                    {
                         operators.Pop(); //Pop the openparen from the operators stack
+
                     }
 
                     if (IsOnTop(operators, "*") || IsOnTop(operators, "/"))
@@ -485,7 +478,18 @@ namespace SpreadsheetUtilities
         /// </summary>
         public static bool operator ==(Formula f1, Formula f2)
         {
-            return false;
+            if (ReferenceEquals(f1, null) && ReferenceEquals(f2, null))
+            {
+                return true;//Both are null, return true
+            }
+            else if (ReferenceEquals(f1, null)) //f1 is null, but f2 is not
+            {
+                return false;
+            }
+            else
+            {
+                return f1.Equals(f2); //f1 is for sure non-null, return if f2 is equal to it. 
+            }
         }
 
         /// <summary>
@@ -495,7 +499,7 @@ namespace SpreadsheetUtilities
         /// </summary>
         public static bool operator !=(Formula f1, Formula f2)
         {
-            return false;
+            return !(f1 == f2); //This operation should be the inverse of (==). 
         }
 
         /// <summary>
@@ -505,7 +509,7 @@ namespace SpreadsheetUtilities
         /// </summary>
         public override int GetHashCode()
         {
-            return 0;
+            return this.ToString().GetHashCode(); //String already has a pretty good hash function, use that.
         }
 
         /// <summary>
@@ -553,7 +557,7 @@ namespace SpreadsheetUtilities
 
             for (int i = 1; i < varname.Length; i++)
             {
-                if (!(varname[0].Equals('_') || Char.IsLetterOrDigit(varname[0])))
+                if (!(varname[i].Equals('_') || Char.IsLetterOrDigit(varname[i])))
                 {
                     return false; //Return false if we encounter anything that's not a letter, digit, or underscore.
                 }
