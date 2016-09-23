@@ -102,14 +102,14 @@ namespace SpreadsheetUtilities
             //Code for the first element
             if (!tokens.MoveNext())
             {
-                throw new FormulaFormatException("You must have at least one token");
+                throw new FormulaFormatException("You must have at least one token. Don't pass empty strings to the constructor.");
             }
             else
             {
                 if (!(Double.TryParse(tokens.Current, out currentDouble) || IsVariable(tokens.Current) || tokens.Current.Equals("(")))
                 {
                     throw new FormulaFormatException("The formula must start with a variable, a number, or an open parenthesis. " +
-                                                        "It starts with:" + tokens.Current);
+                                                        "It starts with:" + tokens.Current +" , choose another thing to start with");
                 }
                 else
                 {
@@ -124,7 +124,9 @@ namespace SpreadsheetUtilities
                         }
                         else
                         {
-                            throw new FormulaFormatException("Normalized token is not valid:" + normalizedToken);
+                            throw new FormulaFormatException("Normalized token is not valid:" + normalizedToken +
+                                ". Check your normalizing and validating functions. Check the token at the" + 
+                                (normalizedFormula.Count + 1) + "place");
                         }
                     }
                     else if (tokens.Current.Equals("("))
@@ -143,7 +145,7 @@ namespace SpreadsheetUtilities
                 }
             }
 
-            int tokenListLengthStart; //The length of the token list at the beginning of each loop. Declared her to avoid allocation overhead.
+            int tokenListLengthStart; //The length of the token list at the beginning of each loop. Declared here to avoid allocation overhead.
             while (tokens.MoveNext())
             {
                 tokenListLengthStart = normalizedFormula.Count;
@@ -153,13 +155,15 @@ namespace SpreadsheetUtilities
                     //If the previous element was an op or open paren, throw.
                     if (!lastTokenNumVarCloseParen)
                     {
-                        throw new FormulaFormatException("You have a close paren following an operator or open paren: " + tokens.Current);
+                        throw new FormulaFormatException("You have a close paren following an operator or open paren. Check the token at the" 
+                            + (normalizedFormula.Count + 1) + "place");
                     }
 
                     closedParenSoFar++;
                     if (closedParenSoFar > openParenSoFar)
                     {
-                        throw new FormulaFormatException("You have a close paren without an opening one.");
+                        throw new FormulaFormatException("You have a close paren without an opening one. Called at the"
+                            + (normalizedFormula.Count + 1) + "place");
                     }
                     lastTokenNumVarCloseParen = true;
                     normalizedFormula.Add(tokens.Current);
@@ -170,7 +174,8 @@ namespace SpreadsheetUtilities
                     //If the previous element was a var, num, or close paren, throw.
                     if (lastTokenNumVarCloseParen)
                     {
-                        throw new FormulaFormatException("You have an open paren following a close paren, variable, or number." + tokens.Current);
+                        throw new FormulaFormatException("You have an open paren following a close paren, variable, or number." + tokens.Current +
+                            "Check the token at the" + (normalizedFormula.Count + 1) + "place");
                     }
                     openParenSoFar++;
                     lastTokenNumVarCloseParen = false;
@@ -181,7 +186,8 @@ namespace SpreadsheetUtilities
                 {
                     if (lastTokenNumVarCloseParen)
                     {
-                        throw new FormulaFormatException("You have a variable following another number, variable or close paren." + tokens.Current);
+                        throw new FormulaFormatException("You have a variable following another number, variable or close paren." + tokens.Current + 
+                            "Check the token at the" + (normalizedFormula.Count + 1) + "place");
                     }
                     string normalizedToken = normalize(tokens.Current);
                     if (isValid(normalizedToken) && IsVariable(normalizedToken))
@@ -191,7 +197,8 @@ namespace SpreadsheetUtilities
                     }
                     else
                     {
-                        throw new FormulaFormatException("Normalized token is not valid:" + normalizedToken);
+                        throw new FormulaFormatException("Normalized token is not valid: " + normalizedToken + 
+                            "Check the token at the" + (normalizedFormula.Count + 1) + "place");
                     }
                 }
 
@@ -199,7 +206,8 @@ namespace SpreadsheetUtilities
                 {
                     if (lastTokenNumVarCloseParen)
                     {
-                        throw new FormulaFormatException("You have a number following another number, variable or close paren: " + tokens.Current);
+                        throw new FormulaFormatException("You have a number following another number, variable or close paren: Check the token at the" 
+                            + (normalizedFormula.Count + 1) + "place");
                     }
                     lastTokenNumVarCloseParen = true;
                     normalizedFormula.Add(currentDouble.ToString());
@@ -209,7 +217,8 @@ namespace SpreadsheetUtilities
                 {
                     if (!lastTokenNumVarCloseParen)
                     {
-                        throw new FormulaFormatException("You have an operator following another operator, or an open paren: " + tokens.Current);
+                        throw new FormulaFormatException("You have an operator following another operator, or an open paren: Check the token at the" 
+                            + (normalizedFormula.Count + 1) + "place");
                     }
                     lastTokenNumVarCloseParen = false;
                     normalizedFormula.Add(tokens.Current);
