@@ -174,7 +174,7 @@ namespace SS
         /// </summary>
         protected IEnumerable<String> GetCellsToRecalculate(ISet<String> names)
         {
-            LinkedList<String> changed = new LinkedList<String>();
+            LinkedList<String> changed = new LinkedList<String>(); //
             HashSet<String> visited = new HashSet<String>();
             foreach (String name in names)
             {
