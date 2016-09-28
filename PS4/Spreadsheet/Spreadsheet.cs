@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SS
 {
-    class Spreadsheet : AbstractSpreadsheet
+    public class Spreadsheet : AbstractSpreadsheet
     {
 
         public Spreadsheet()
