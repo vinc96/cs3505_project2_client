@@ -88,7 +88,7 @@ namespace SS
         public override object GetCellContents(string name)
         {
             IsNameInvalidOrNull(name); //If we get passed this, our name is valid
-            throw new NotImplementedException();
+            return nonEmptyCells[name].Contents;
         }
 
         /// <summary>
