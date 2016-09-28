@@ -313,6 +313,22 @@ namespace UnitTestProject1
 
         //SetCellContents(string, double) Exception Tests *******************************************************************
 
+        //SetCellContents(string, double) if a name exception is thrown, the sheet must not change.
+        [TestMethod]
+        public void PublicSetCellContentsStringDoubleExceptionNoChange()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            try
+            {
+                a1.SetCellContents("&", 0.0);
+            }
+            catch (InvalidNameException e)
+            {
+                //Do nothing
+            }
+            Assert.AreEqual(0, a1.GetNamesOfAllNonemptyCells().Count());
+        }
+
         //SetCellContents(string, double) must throw an exception if passed an invalid variable name (Ex. An illegal character)
         [TestMethod]
         [ExpectedException(typeof(InvalidNameException))]
@@ -347,23 +363,6 @@ namespace UnitTestProject1
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
             a1.SetCellContents(null, 0.0);
-        }
-
-        //SetCellContents(string, double): We should get a set of changed cells, regardless if the cell has a new value or not.
-        [TestMethod]
-        public void PublicSetCellContentsStrDoubSetNoChange()
-        {
-            AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("A1", 1.0);
-            a1.SetCellContents("A2", new Formula("A1 + 10"));
-            a1.SetCellContents("B1", new Formula("A2 + 15"));
-            a1.SetCellContents("C3", new Formula("A1 + 20"));
-            //Set up a set w/ cell names
-            ISet<String> testSet = new HashSet<String>();
-            testSet.Add("A2");
-            testSet.Add("B1");
-            testSet.Add("C3");
-            Assert.AreEqual(testSet, (ISet<string>)a1.SetCellContents("A1", 1.0));
         }
 
         //SetCellContents(string, double) Normal Tests *******************************************************************
@@ -468,7 +467,40 @@ namespace UnitTestProject1
             Assert.AreEqual(testSet, (ISet<string>)a1.SetCellContents("A1", -978.248)); //We SHOULD NOT contain D4.
         }
 
+        //SetCellContents(string, double): We should get a set of changed cells, regardless if the cell has a new value or not.
+        [TestMethod]
+        public void PublicSetCellContentsStrDoubSetNoChange()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetCellContents("A1", 1.0);
+            a1.SetCellContents("A2", new Formula("A1 + 10"));
+            a1.SetCellContents("B1", new Formula("A2 + 15"));
+            a1.SetCellContents("C3", new Formula("A1 + 20"));
+            //Set up a set w/ cell names
+            ISet<String> testSet = new HashSet<String>();
+            testSet.Add("A2");
+            testSet.Add("B1");
+            testSet.Add("C3");
+            Assert.AreEqual(testSet, (ISet<string>)a1.SetCellContents("A1", 1.0));
+        }
+
         //SetCellContents(string, string) Exception Tests *******************************************************************
+
+        //SetCellContents(string, string) if a name exception is thrown, the sheet must not change.
+        [TestMethod]
+        public void PublicSetCellContentsStringStringExceptionNoChange()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            try
+            {
+                a1.SetCellContents("&", "String");
+            }
+            catch (InvalidNameException e)
+            {
+                //Do nothing
+            }
+            Assert.AreEqual(0, a1.GetNamesOfAllNonemptyCells().Count());
+        }
 
         //SetCellContents(string, string) must throw an exception if passed an invalid variable name (Ex. An illegal character)
         [TestMethod]
@@ -514,6 +546,23 @@ namespace UnitTestProject1
             AbstractSpreadsheet a1 = new Spreadsheet();
             string str = null;
             a1.SetCellContents("A1", str);
+        }
+
+        //SetCellContents(string, string) if an ArgumentNull exception is thrown, the sheet must not change.
+        [TestMethod]
+        public void PublicSetCellContentsStringStringArgNullExceptionNoChange()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            try
+            {
+                string str = null;
+                a1.SetCellContents("A1", str);
+            }
+            catch (ArgumentNullException e)
+            {
+                //Do nothing
+            }
+            Assert.AreEqual(0, a1.GetNamesOfAllNonemptyCells().Count());
         }
 
         //SetCellContents(string, string) Normal Tests *******************************************************************
@@ -637,6 +686,22 @@ namespace UnitTestProject1
 
         //SetCellContents(string, formula) Exception Tests *******************************************************************
 
+        //SetCellContents(string, formula) if a name exception is thrown, the sheet must not change.
+        [TestMethod]
+        public void PublicSetCellContentsStringFormulaExceptionNoChange()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            try
+            {
+                a1.SetCellContents("&", new Formula("1 + 1"));
+            }
+            catch (InvalidNameException e)
+            {
+                //Do nothing
+            }
+            Assert.AreEqual(0, a1.GetNamesOfAllNonemptyCells().Count());
+        }
+
         //SetCellContents(string, Formula) must throw an exception if passed an invalid variable name (Ex. An illegal character)
         [TestMethod]
         [ExpectedException(typeof(InvalidNameException))]
@@ -679,8 +744,25 @@ namespace UnitTestProject1
         public void PublicSetCellContentsStringFormulaInvalidTextNull()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
-            Formula str = null;
-            a1.SetCellContents("A1", str);
+            Formula form = null;
+            a1.SetCellContents("A1", form);
+        }
+
+        //SetCellContents(string, Formula) if an ArgumentNull exception is thrown, the sheet must not change.
+        [TestMethod]
+        public void PublicSetCellContentsStringFormulaArgNullExceptionNoChange()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            try
+            {
+                Formula form = null;
+                a1.SetCellContents("A1", form);
+            }
+            catch (ArgumentNullException e)
+            {
+                //Do nothing
+            }
+            Assert.AreEqual(0, a1.GetNamesOfAllNonemptyCells().Count());
         }
 
         //SetCellContents(string, string): The method should throw a CircularException if the SetCellContents method would cause
@@ -718,6 +800,23 @@ namespace UnitTestProject1
             a1.SetCellContents("A2", new Formula("A1 + 10"));
             a1.SetCellContents("A3", new Formula("A2 + 10"));
             a1.SetCellContents("A4", new Formula("A1 + 10")); //Throw here
+        }
+
+        //If we fail with a CircularDependency, the sheet must not change.
+        [TestMethod]
+        public void PublicSetCellContentsStrFormCircularDependencyNoChange()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetCellContents("A2", new Formula("A1"));
+            try
+            {
+                a1.SetCellContents("A1", new Formula("A2"));
+            }
+            catch (CircularException e)
+            {
+                //Do nothing
+            }
+            Assert.AreEqual(1, a1.GetNamesOfAllNonemptyCells().Count()); //No size change
         }
 
         //SetCellContents(string, formula) Normal Tests *******************************************************************
@@ -866,7 +965,6 @@ namespace UnitTestProject1
             a1.SetCellContents("A1", new Formula("A2"));
             Assert.IsTrue(a1.SetCellContents("A1", new Formula("A2")).Contains("A2"));
         }
-
 
     }
 }

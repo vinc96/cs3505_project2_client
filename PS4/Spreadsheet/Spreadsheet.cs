@@ -168,9 +168,27 @@ namespace SS
         /// or null, throws an InvalidNameException with an apropriate name.
         /// </summary>
         /// <param name="name">The name to check the validity of.</param>
-        private void IsNameInvalidOrNull(string name)
+        private void IsNameInvalidOrNull(string varname)
         {
+            if (varname == null)
+            {
+                throw new InvalidNameException();
+            }
 
+            if (!(varname[0].Equals('_') || Char.IsLetter(varname[0])))
+            {
+                throw new InvalidNameException(); //The variable must start with an underscore or letter.
+
+            }
+
+            for (int i = 1; i < varname.Length; i++)
+            {
+                if (!(varname[i].Equals('_') || Char.IsLetterOrDigit(varname[i])))
+                {
+                    throw new InvalidNameException(); //Return false if we encounter anything that's not a letter, digit, or underscore.
+                }
+            }
+            //If we haven't broken the rules, its valid.
         }
 
         private class Cell
