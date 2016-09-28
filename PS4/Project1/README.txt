@@ -7,7 +7,8 @@ a dictionary of Cell objects.
 -Variable name validation will be done by one method.
 *********************************LIBRARIES**********************************************
 -This solution will be built with a debug version of both the Formula and DependencyGraph items. These versions
-were compiled 9/28/2016, and at compillation time, was passing all provided tests.
+were compiled 9/28/2016, and at compillation time, was passing all provided tests. No code changes were made 
+between when these assignments were turned in, and when they were compiled for this project.
 ********************************NOTES***************************************************
 -The majority of tests were written before the code was implemented, in a Black Box style. This should
 explain any percieved over-redundancy in tests, as I was operating with absoloutly no knowledge of implementation.
