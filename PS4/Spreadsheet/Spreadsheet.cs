@@ -165,7 +165,13 @@ namespace SS
         /// </summary>
         protected override IEnumerable<string> GetDirectDependents(string name)
         {
-            throw new NotImplementedException();
+            if (name==null)
+            {
+                throw new ArgumentNullException();
+            }
+            IsNameInvalidOrNull(name); //If we get past this, our name is valid
+
+            return dependencies.GetDependents(name); //Return our dependents.
         }
         /// <summary>
         /// If the passed name is invalid (does not follow the established rules of variable names)
