@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SS;
 using System.Collections.Generic;
+using SpreadsheetUtilities;
 
 namespace UnitTestProject1
 {
@@ -288,7 +289,7 @@ namespace UnitTestProject1
 
         //SetCellContents(string, double): The set returned must respect case sensitivity 
         [TestMethod]
-        public void PublicSetCellContentsMixedDependents()
+        public void PublicSetCellContentsMixedDependentsCaseSensitive()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
             a1.SetCellContents("A1", 978.248);
