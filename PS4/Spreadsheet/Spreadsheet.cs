@@ -87,6 +87,7 @@ namespace SS
         /// </summary>
         public override object GetCellContents(string name)
         {
+            IsNameInvalidOrNull(name); //If we get passed this, our name is valid
             throw new NotImplementedException();
         }
 
@@ -102,6 +103,7 @@ namespace SS
         /// </summary>
         public override ISet<string> SetCellContents(string name, double number)
         {
+            IsNameInvalidOrNull(name); //If we get passed this, our name is valid
             throw new NotImplementedException();
         }
 
@@ -119,6 +121,7 @@ namespace SS
         /// </summary>
         public override ISet<string> SetCellContents(string name, string text)
         {
+            IsNameInvalidOrNull(name); //If we get passed this, our name is valid
             throw new NotImplementedException();
         }
 
@@ -139,6 +142,7 @@ namespace SS
         /// </summary>
         public override ISet<string> SetCellContents(string name, Formula formula)
         {
+            IsNameInvalidOrNull(name); //If we get passed this, our name is valid
             throw new NotImplementedException();
         }
 
@@ -190,9 +194,48 @@ namespace SS
             }
             //If we haven't broken the rules, its valid.
         }
-
+        /// <summary>
+        /// Represents a cell on a spreadsheet. 
+        /// 
+        /// The contents of a cell can be (1) a string, (2) a double, or (3) a Formula.  If the
+        /// contents is an empty string, we say that the cell is empty.
+        /// 
+        /// Considering all returned types are immutable, at this time, cells are immutable.
+        /// </summary>
         private class Cell
         {
+            /// <summary>
+            /// The contents of this cell. Must be a string, a double, or a Formula.
+            /// </summary>
+            object contents;
+            /// <summary>
+            /// The contents of this cell. Must be a string, a double, or a Formula. If this property is set to anything else, 
+            /// an ArgumentException is thrown.
+            /// </summary>
+            public object Contents
+            {
+                set {
+                    if (value.GetType().Equals(typeof(string)))
+                    {
+                        this.contents = value;
+                    }
+                    else if (value.GetType().Equals(typeof(double)))
+                    {
+                        this.contents = value;
+                    }
+                    else if (value.GetType().Equals(typeof(Formula)))
+                    {
+                        this.contents = value;
+                    }
+                    else
+                    {
+                        throw new ArgumentException();
+                    }
+                }
+                get {
+                    return contents;
+                }
+            }
 
         }
     }
