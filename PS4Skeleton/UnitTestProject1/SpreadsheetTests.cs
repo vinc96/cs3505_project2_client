@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SS;
 
 namespace UnitTestProject1
 {
@@ -9,7 +10,15 @@ namespace UnitTestProject1
         //GetNamesOfAllNonEmptyCells Tests *******************************************************************
 
         //GetCellContents Exception Tests *******************************************************************
+        //GetCellContents must throw an exception if passed an invalid variable name
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void PublicGetCellContentsInvalidVar1()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.GetCellContents("&");
 
+        }
         //GetCellContents Normal Tests *******************************************************************
 
         //SetCellContents(string, double) Exception Tests *******************************************************************
