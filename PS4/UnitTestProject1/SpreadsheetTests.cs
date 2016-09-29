@@ -159,6 +159,15 @@ namespace UnitTestProject1
 
         //GetCellContents Exception Tests *******************************************************************
 
+        //GetCellContents must throw an exception if passed an invalid variable name (Ex. Empty String)
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void PublicGetCellContentsInvalidVarEmptyString()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.GetCellContents("");
+        }
+
         //GetCellContents must throw an exception if passed an invalid variable name (Ex. An illegal character)
         [TestMethod]
         [ExpectedException(typeof(InvalidNameException))]
@@ -329,6 +338,15 @@ namespace UnitTestProject1
             Assert.AreEqual(0, a1.GetNamesOfAllNonemptyCells().Count());
         }
 
+        //SetCellContents(string, double) must throw an exception if passed an invalid variable name (Ex. An empty string)
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void PublicSetCellContentsStringDoubleInvalidVarEmptyStr()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetCellContents("", 0.0);
+        }
+
         //SetCellContents(string, double) must throw an exception if passed an invalid variable name (Ex. An illegal character)
         [TestMethod]
         [ExpectedException(typeof(InvalidNameException))]
@@ -485,6 +503,15 @@ namespace UnitTestProject1
         }
 
         //SetCellContents(string, string) Exception Tests *******************************************************************
+
+        //SetCellContents(string, string) must throw an exception if passed an invalid variable name (Ex. An empty string)
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void PublicSetCellContentsStringStringInvalidVarEmptyStr()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetCellContents("", "String");
+        }
 
         //SetCellContents(string, string) if a name exception is thrown, the sheet must not change.
         [TestMethod]
@@ -685,6 +712,15 @@ namespace UnitTestProject1
         }
 
         //SetCellContents(string, formula) Exception Tests *******************************************************************
+
+        //SetCellContents(string, formula) must throw an exception if passed an invalid variable name (Ex. An empty string)
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void PublicSetCellContentsStringFormulaInvalidVarEmptyStr()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetCellContents("", new Formula("1 + 1"));
+        }
 
         //SetCellContents(string, formula) if a name exception is thrown, the sheet must not change.
         [TestMethod]

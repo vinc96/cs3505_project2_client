@@ -88,7 +88,16 @@ namespace SS
         public override object GetCellContents(string name)
         {
             IsNameInvalidOrNull(name); //If we get passed this, our name is valid
-            return nonEmptyCells[name].Contents;
+            //If this isn't a NonEmptyCell, it's value is the empty string.
+            if(!GetNamesOfAllNonemptyCells().Contains(name))
+            {
+                return "";
+            }
+            else
+            {
+                return nonEmptyCells[name].Contents;
+            }
+            
         }
 
         /// <summary>
@@ -104,7 +113,12 @@ namespace SS
         public override ISet<string> SetCellContents(string name, double number)
         {
             IsNameInvalidOrNull(name); //If we get passed this, our name is valid
-            throw new NotImplementedException();
+
+            MakeEmpty(name);//Make our cell empty.
+
+            nonEmptyCells.Add(name, new Cell(number)); //Add our new cell
+
+            return new HashSet<String>(GetCellsToRecalculate(name)); //Return all the cells to recalculate.
         }
 
         /// <summary>
@@ -122,7 +136,25 @@ namespace SS
         public override ISet<string> SetCellContents(string name, string text)
         {
             IsNameInvalidOrNull(name); //If we get passed this, our name is valid
-            throw new NotImplementedException();
+
+            if (text==null)
+            {
+                throw new ArgumentException();
+            }
+
+            MakeEmpty(name); //Make the cell empty.
+
+            //If the cell's value is going to be empty, don't re-add to the dictionary
+            if (text == "")
+            {
+                return new HashSet<String>(GetCellsToRecalculate(name)); //Return all the cells to recalculate.
+            }
+            else
+            {
+                nonEmptyCells.Add(name, new Cell(text)); //Add our new cell
+                return new HashSet<String>(GetCellsToRecalculate(name)); //Return all the cells to recalculate.
+            }
+            
         }
 
         /// <summary>
@@ -169,6 +201,7 @@ namespace SS
             {
                 throw new ArgumentNullException();
             }
+
             IsNameInvalidOrNull(name); //If we get past this, our name is valid
 
             return dependencies.GetDependents(name); //Return our dependents.
@@ -200,6 +233,30 @@ namespace SS
             }
             //If we haven't broken the rules, its valid.
         }
+
+        /// <summary>
+        /// Makes the specified cell empty. If it exists and depends on cells, removes those dependencies. Has no error checking.
+        /// </summary>
+        /// <param name="name"></param>
+        private void MakeEmpty(string name)
+        {
+            //If the cell exists
+            if (GetNamesOfAllNonemptyCells().Contains(name))
+            {
+                //If the cell is a formula.
+                if (nonEmptyCells[name].Contents.GetType() == typeof(Formula))
+                {
+                    Formula toBeRemoved = (Formula) nonEmptyCells[name].Contents;
+                    //Remove the dependencies for every varName in this cell.
+                    foreach (string varName in toBeRemoved.GetVariables())
+                    {
+                        dependencies.RemoveDependency(name, varName);
+                    }
+                }
+                nonEmptyCells.Remove(name); //Remove it from our dictionary
+            }
+        }
+
         /// <summary>
         /// Represents a cell on a spreadsheet. 
         /// 
@@ -214,6 +271,17 @@ namespace SS
             /// The contents of this cell. Must be a string, a double, or a Formula.
             /// </summary>
             object contents;
+
+            /// <summary>
+            /// Creates a new Cell object, using the parameter as Contents. 
+            /// The parameter must fit the definition of Contents, else an ArgumentException is thrown.
+            /// </summary>
+            /// <param name="contents">The value to set to be contents.</param>
+            public Cell(object contents)
+            {
+                this.Contents = contents;
+            }
+
             /// <summary>
             /// The contents of this cell. Must be a string, a double, or a Formula. If this property is set to anything else, 
             /// an ArgumentException is thrown.
