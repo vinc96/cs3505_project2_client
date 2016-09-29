@@ -112,7 +112,7 @@ namespace SS
         /// </summary>
         public override ISet<string> SetCellContents(string name, double number)
         {
-            IsNameInvalidOrNull(name); //If we get passed this, our name is valid
+            IsNameInvalidOrNull(name); //If we get past this, our name is valid
 
             MakeEmpty(name);//Make our cell empty.
 
@@ -135,7 +135,7 @@ namespace SS
         /// </summary>
         public override ISet<string> SetCellContents(string name, string text)
         {
-            IsNameInvalidOrNull(name); //If we get passed this, our name is valid
+            IsNameInvalidOrNull(name); //If we get past this, our name is valid
 
             if (text==null)
             {
@@ -145,7 +145,7 @@ namespace SS
             MakeEmpty(name); //Make the cell empty.
 
             //If the cell's value is going to be empty, don't re-add to the dictionary
-            if (text == "")
+            if (text.Equals(""))
             {
                 return new HashSet<String>(GetCellsToRecalculate(name)); //Return all the cells to recalculate.
             }
@@ -174,8 +174,53 @@ namespace SS
         /// </summary>
         public override ISet<string> SetCellContents(string name, Formula formula)
         {
-            IsNameInvalidOrNull(name); //If we get passed this, our name is valid
-            throw new NotImplementedException();
+            IsNameInvalidOrNull(name); //If we get past this, our name is valid
+
+            if (formula == null)
+            {
+                throw new ArgumentException();
+            }
+
+            //Perserve the old value.
+            object oldValue = GetCellContents(name);
+
+            MakeEmpty(name); //Make the cell empty.
+
+            //Add all our dependencies.
+            foreach (string varName in formula.GetVariables())
+            {
+                dependencies.AddDependency(name, varName);
+            }
+
+            nonEmptyCells.Add(name, new Cell(formula)); //Add our new cell
+
+            IEnumerable<string> returnValue = null; //This should never exit the method as null. We throw an exeption, or replace it.
+
+            //Check to see if the new cell will create a circular dependency
+            try
+            {
+                returnValue = GetCellsToRecalculate(name);
+            }
+            catch (CircularException e)
+            {
+                //We have a circular dependency. Restore the old values.
+                if (oldValue.GetType().Equals(typeof(double)))
+                {
+                    this.SetCellContents(name, (double) oldValue);
+                }
+                else if (oldValue.GetType().Equals(typeof(string)))
+                {
+                    this.SetCellContents(name, (string) oldValue);
+                }
+                else
+                {
+                    this.SetCellContents(name, (Formula) oldValue);
+                }
+
+                throw e;
+            }
+
+            return new HashSet<String>(returnValue); //All is well, return.
         }
 
         /// <summary>
@@ -213,7 +258,7 @@ namespace SS
         /// <param name="name">The name to check the validity of.</param>
         private void IsNameInvalidOrNull(string varname)
         {
-            if (varname == null)
+            if (varname == null || varname.Length == 0)
             {
                 throw new InvalidNameException();
             }

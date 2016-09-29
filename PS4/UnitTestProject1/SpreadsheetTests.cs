@@ -107,7 +107,7 @@ namespace UnitTestProject1
                 Assert.IsTrue(a1.GetNamesOfAllNonemptyCells().Contains("_" + i));
             }
             //Remove values
-            for (int i = MAXSIZE; i > 0; i++)
+            for (int i = MAXSIZE; i > 0; i--)
             {
                 Assert.AreEqual(i, a1.GetNamesOfAllNonemptyCells().Count());
                 a1.SetCellContents("_" + i, "");
@@ -128,7 +128,7 @@ namespace UnitTestProject1
                 Assert.IsTrue(a1.GetNamesOfAllNonemptyCells().Contains("_" + i));
             }
             //Remove values
-            for (int i = MAXSIZE; i > 0; i++)
+            for (int i = MAXSIZE; i > 0; i--)
             {
                 Assert.AreEqual(i, a1.GetNamesOfAllNonemptyCells().Count());
                 a1.SetCellContents("_" + i, "");
@@ -149,7 +149,7 @@ namespace UnitTestProject1
                 Assert.IsTrue(a1.GetNamesOfAllNonemptyCells().Contains("_" + i));
             }
             //Remove values
-            for (int i = MAXSIZE; i > 0; i++)
+            for (int i = MAXSIZE; i > 0; i--)
             {
                 Assert.AreEqual(i, a1.GetNamesOfAllNonemptyCells().Count());
                 a1.SetCellContents("_" + i, "");
@@ -303,7 +303,7 @@ namespace UnitTestProject1
         public void PublicGetCellContentsRetrieveStoredFormula()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
-            Formula f1 = new Formula("A1 + a2 + 34/2");
+            Formula f1 = new Formula("B1 + a2 + 34/2");
             a1.SetCellContents("A1", f1);
             Assert.AreEqual(f1, (Formula) a1.GetCellContents("A1"));
         }
@@ -313,7 +313,7 @@ namespace UnitTestProject1
         public void PublicGetCellContentsCellNamesCaseSensitive()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
-            Formula f1 = new Formula("A1 + a2 + 34/2");
+            Formula f1 = new Formula("B1 + a2 + 34/2");
             a1.SetCellContents("A1", f1);
             a1.SetCellContents("a1", "lowercase");
             Assert.AreEqual(f1, (Formula) a1.GetCellContents("A1"));
