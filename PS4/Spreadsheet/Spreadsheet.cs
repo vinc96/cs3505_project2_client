@@ -114,11 +114,13 @@ namespace SS
         {
             IsNameInvalidOrNull(name); //If we get past this, our name is valid
 
+            HashSet<string> returnValue = new HashSet<String>(GetCellsToRecalculate(name));//Get our list of cells to recalculate
+
             MakeEmpty(name);//Make our cell empty.
 
             nonEmptyCells.Add(name, new Cell(number)); //Add our new cell
 
-            return new HashSet<String>(GetCellsToRecalculate(name)); //Return all the cells to recalculate.
+            return returnValue; //Return all the cells to recalculate.
         }
 
         /// <summary>
@@ -139,7 +141,7 @@ namespace SS
 
             if (text==null)
             {
-                throw new ArgumentException();
+                throw new ArgumentNullException();
             }
 
             MakeEmpty(name); //Make the cell empty.
@@ -178,7 +180,7 @@ namespace SS
 
             if (formula == null)
             {
-                throw new ArgumentException();
+                throw new ArgumentNullException();
             }
 
             //Perserve the old value.
@@ -189,7 +191,7 @@ namespace SS
             //Add all our dependencies.
             foreach (string varName in formula.GetVariables())
             {
-                dependencies.AddDependency(name, varName);
+                dependencies.AddDependency(varName, name);
             }
 
             nonEmptyCells.Add(name, new Cell(formula)); //Add our new cell
@@ -295,7 +297,7 @@ namespace SS
                     //Remove the dependencies for every varName in this cell.
                     foreach (string varName in toBeRemoved.GetVariables())
                     {
-                        dependencies.RemoveDependency(name, varName);
+                        dependencies.RemoveDependency(varName, name);
                     }
                 }
                 nonEmptyCells.Remove(name); //Remove it from our dictionary

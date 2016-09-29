@@ -13,7 +13,7 @@ namespace UnitTestProject1
         /// <summary>
         /// The maximum size of the stress tests (The largest our spreadsheet gets in these tests)
         /// </summary>
-        int MAXSIZE = 1000;
+        int MAXSIZE = 10000;
         //Constructor Tests *******************************************************************************
 
         //Calling the constructor should be uneventful (no exceptions thrown)
@@ -107,11 +107,12 @@ namespace UnitTestProject1
                 Assert.IsTrue(a1.GetNamesOfAllNonemptyCells().Contains("_" + i));
             }
             //Remove values
-            for (int i = MAXSIZE; i > 0; i--)
+            for (int i = MAXSIZE-1; i >= 0; i--)
             {
-                Assert.AreEqual(i, a1.GetNamesOfAllNonemptyCells().Count());
+                
                 a1.SetCellContents("_" + i, "");
                 Assert.IsFalse(a1.GetNamesOfAllNonemptyCells().Contains("_" + i));
+                Assert.AreEqual(i, a1.GetNamesOfAllNonemptyCells().Count());
             }
         }
 
@@ -128,11 +129,12 @@ namespace UnitTestProject1
                 Assert.IsTrue(a1.GetNamesOfAllNonemptyCells().Contains("_" + i));
             }
             //Remove values
-            for (int i = MAXSIZE; i > 0; i--)
+            for (int i = MAXSIZE-1; i >= 0; i--)
             {
-                Assert.AreEqual(i, a1.GetNamesOfAllNonemptyCells().Count());
+                
                 a1.SetCellContents("_" + i, "");
                 Assert.IsFalse(a1.GetNamesOfAllNonemptyCells().Contains("_" + i));
+                Assert.AreEqual(i, a1.GetNamesOfAllNonemptyCells().Count());
             }
         }
 
@@ -149,11 +151,12 @@ namespace UnitTestProject1
                 Assert.IsTrue(a1.GetNamesOfAllNonemptyCells().Contains("_" + i));
             }
             //Remove values
-            for (int i = MAXSIZE; i > 0; i--)
+            for (int i = MAXSIZE-1; i >= 0; i--)
             {
-                Assert.AreEqual(i, a1.GetNamesOfAllNonemptyCells().Count());
+                
                 a1.SetCellContents("_" + i, "");
                 Assert.IsFalse(a1.GetNamesOfAllNonemptyCells().Contains("_" + i));
+                Assert.AreEqual(i, a1.GetNamesOfAllNonemptyCells().Count());
             }
         }
 
@@ -427,10 +430,11 @@ namespace UnitTestProject1
             a1.SetCellContents("C3", new Formula("A1 + 20"));
             //Set up a set w/ cell names
             ISet<String> testSet = new HashSet<String>();
+            testSet.Add("A1");//We have to remember to update ourselves
             testSet.Add("A2");
             testSet.Add("B1");
             testSet.Add("C3");
-            Assert.AreEqual(testSet, (ISet<string>) a1.SetCellContents("A1", -978.248));
+            Assert.IsTrue(testSet.SetEquals((ISet<string>) a1.SetCellContents("A1", -978.248)));
         }
 
         //SetCellContents(string, double): The method should return a set of cells that depend on this one. (Indirect version)
@@ -444,10 +448,11 @@ namespace UnitTestProject1
             a1.SetCellContents("C3", new Formula("B1 + 20"));
             //Set up a set w/ cell names
             ISet<String> testSet = new HashSet<String>();
+            testSet.Add("A1");//We have to remember to update ourselves
             testSet.Add("A2");
             testSet.Add("B1");
             testSet.Add("C3");
-            Assert.AreEqual(testSet, (ISet<string>) a1.SetCellContents("A1", -978.248));
+            Assert.IsTrue(testSet.SetEquals((ISet<string>) a1.SetCellContents("A1", -978.248)));
         }
 
         //SetCellContents(string, double): The method should return a set of cells that depend on this one. (Mixed version)
@@ -461,10 +466,11 @@ namespace UnitTestProject1
             a1.SetCellContents("C3", new Formula("A1 + 20"));
             //Set up a set w/ cell names
             ISet<String> testSet = new HashSet<String>();
+            testSet.Add("A1");//We have to remember to update ourselves
             testSet.Add("A2");
             testSet.Add("B1");
             testSet.Add("C3");
-            Assert.AreEqual(testSet, (ISet<string>) a1.SetCellContents("A1", -978.248));
+            Assert.IsTrue(testSet.SetEquals((ISet<string>) a1.SetCellContents("A1", -978.248)));
         }
 
         //SetCellContents(string, double): The set returned must respect case sensitivity 
@@ -479,10 +485,11 @@ namespace UnitTestProject1
             a1.SetCellContents("D4", new Formula("C3 + 25"));
             //Set up a set w/ cell names
             ISet<String> testSet = new HashSet<String>();
+            testSet.Add("A1");//We have to remember to update ourselves
             testSet.Add("a1");
             testSet.Add("B1");
             testSet.Add("c3");
-            Assert.AreEqual(testSet, (ISet<string>)a1.SetCellContents("A1", -978.248)); //We SHOULD NOT contain D4.
+            Assert.IsTrue(testSet.SetEquals((ISet<string>)a1.SetCellContents("A1", -978.248))); //We SHOULD NOT contain D4.
         }
 
         //SetCellContents(string, double): We should get a set of changed cells, regardless if the cell has a new value or not.
@@ -496,10 +503,12 @@ namespace UnitTestProject1
             a1.SetCellContents("C3", new Formula("A1 + 20"));
             //Set up a set w/ cell names
             ISet<String> testSet = new HashSet<String>();
+            testSet.Add("A1");//We have to remember to update ourselves
             testSet.Add("A2");
             testSet.Add("B1");
             testSet.Add("C3");
-            Assert.AreEqual(testSet, (ISet<string>)a1.SetCellContents("A1", 1.0));
+            ISet<String> a1Set = (ISet<string>)a1.SetCellContents("A1", 1.0);
+            Assert.IsTrue(testSet.SetEquals(a1Set)); //We have to use a funky equals methods for sets.
         }
 
         //SetCellContents(string, string) Exception Tests *******************************************************************
@@ -636,10 +645,11 @@ namespace UnitTestProject1
             a1.SetCellContents("C3", new Formula("A1 + 20"));
             //Set up a set w/ cell names
             ISet<String> testSet = new HashSet<String>();
+            testSet.Add("A1");//We have to remember to update ourselves
             testSet.Add("A2");
             testSet.Add("B1");
             testSet.Add("C3");
-            Assert.AreEqual(testSet, (ISet<string>)a1.SetCellContents("A1", -978.248));
+            Assert.IsTrue(testSet.SetEquals((ISet<string>)a1.SetCellContents("A1", -978.248)));
         }
 
         //SetCellContents(string, string): The method should return a set of cells that depend on this one. (Indirect version)
@@ -653,10 +663,11 @@ namespace UnitTestProject1
             a1.SetCellContents("C3", new Formula("B1 + 20"));
             //Set up a set w/ cell names
             ISet<String> testSet = new HashSet<String>();
+            testSet.Add("A1");//We have to remember to update ourselves
             testSet.Add("A2");
             testSet.Add("B1");
             testSet.Add("C3");
-            Assert.AreEqual(testSet, (ISet<string>)a1.SetCellContents("A1", -978.248));
+            Assert.IsTrue(testSet.SetEquals((ISet<string>)a1.SetCellContents("A1", -978.248)));
         }
 
         //SetCellContents(string, string): The method should return a set of cells that depend on this one. (Mixed version)
@@ -670,10 +681,11 @@ namespace UnitTestProject1
             a1.SetCellContents("C3", new Formula("A1 + 20"));
             //Set up a set w/ cell names
             ISet<String> testSet = new HashSet<String>();
+            testSet.Add("A1");//We have to remember to update ourselves
             testSet.Add("A2");
             testSet.Add("B1");
             testSet.Add("C3");
-            Assert.AreEqual(testSet, (ISet<string>)a1.SetCellContents("A1", "SomeString 2"));
+            Assert.IsTrue(testSet.SetEquals((ISet<string>)a1.SetCellContents("A1", "SomeString 2")));
         }
 
         //SetCellContents(string, string): The set returned must respect case sensitivity 
@@ -688,10 +700,11 @@ namespace UnitTestProject1
             a1.SetCellContents("D4", new Formula("C3 + 25"));
             //Set up a set w/ cell names
             ISet<String> testSet = new HashSet<String>();
+            testSet.Add("A1");//We have to remember to update ourselves
             testSet.Add("a1");
             testSet.Add("B1");
             testSet.Add("c3");
-            Assert.AreEqual(testSet, (ISet<string>)a1.SetCellContents("A1", "SomeString 2")); //We SHOULD NOT contain D4.
+            Assert.IsTrue(testSet.SetEquals((ISet<string>)a1.SetCellContents("A1", "SomeString 2"))); //We SHOULD NOT contain D4.
         }
 
         //SetCellContents(string, string): We should get a set of changed cells, regardless if the cell has a new value or not.
@@ -705,10 +718,11 @@ namespace UnitTestProject1
             a1.SetCellContents("C3", new Formula("A1 + 20"));
             //Set up a set w/ cell names
             ISet<String> testSet = new HashSet<String>();
+            testSet.Add("A1");//We have to remember to update ourselves
             testSet.Add("A2");
             testSet.Add("B1");
             testSet.Add("C3");
-            Assert.AreEqual(testSet, (ISet<string>)a1.SetCellContents("A1", "SomeString"));
+            Assert.IsTrue(testSet.SetEquals((ISet<string>)a1.SetCellContents("A1", "SomeString")));
         }
 
         //SetCellContents(string, formula) Exception Tests *******************************************************************
@@ -808,7 +822,7 @@ namespace UnitTestProject1
         public void PublicSetCellContentsStrFormDirectDependentsCircException()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("A1", "A2 + 0");
+            a1.SetCellContents("A1", new Formula("A2 + 0"));
             a1.SetCellContents("A2", new Formula("A1 + 10")); //Throw here
         }
 
@@ -819,7 +833,7 @@ namespace UnitTestProject1
         public void PublicSetCellContentsStrFormIndirectDependentsCircException()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("A1", "A4");
+            a1.SetCellContents("A1", new Formula("A4"));
             a1.SetCellContents("A2", new Formula("A1 + 10"));
             a1.SetCellContents("A3", new Formula("A2 + 10"));
             a1.SetCellContents("A4", new Formula("A3 + 10")); //Throw here
@@ -832,7 +846,7 @@ namespace UnitTestProject1
         public void PublicSetCellContentsStrFormMixedDependentsCircException()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("A1", "A4");
+            a1.SetCellContents("A1", new Formula("A4"));
             a1.SetCellContents("A2", new Formula("A1 + 10"));
             a1.SetCellContents("A3", new Formula("A2 + 10"));
             a1.SetCellContents("A4", new Formula("A1 + 10")); //Throw here
@@ -899,10 +913,11 @@ namespace UnitTestProject1
             a1.SetCellContents("C3", new Formula("A1 + 20"));
             //Set up a set w/ cell names
             ISet<String> testSet = new HashSet<String>();
+            testSet.Add("A1");//We have to remember to update ourselves
             testSet.Add("A2");
             testSet.Add("B1");
             testSet.Add("C3");
-            Assert.AreEqual(testSet, (ISet<string>)a1.SetCellContents("A1", new Formula("1 + 2")));
+            Assert.IsTrue(testSet.SetEquals((ISet<string>)a1.SetCellContents("A1", new Formula("1 + 2"))));
         }
 
         //SetCellContents(string, formula): The method should return a set of cells that depend on this one. (Indirect version)
@@ -916,10 +931,11 @@ namespace UnitTestProject1
             a1.SetCellContents("C3", new Formula("B1 + 20"));
             //Set up a set w/ cell names
             ISet<String> testSet = new HashSet<String>();
+            testSet.Add("A1");//We have to remember to update ourselves
             testSet.Add("A2");
             testSet.Add("B1");
             testSet.Add("C3");
-            Assert.AreEqual(testSet, (ISet<string>)a1.SetCellContents("A1", new Formula("1 + 2")));
+            Assert.IsTrue(testSet.SetEquals((ISet<string>)a1.SetCellContents("A1", new Formula("1 + 2"))));
         }
 
         //SetCellContents(string, formula): The method should return a set of cells that depend on this one. (Mixed version)
@@ -933,10 +949,11 @@ namespace UnitTestProject1
             a1.SetCellContents("C3", new Formula("A1 + 20"));
             //Set up a set w/ cell names
             ISet<String> testSet = new HashSet<String>();
+            testSet.Add("A1");//We have to remember to update ourselves
             testSet.Add("A2");
             testSet.Add("B1");
             testSet.Add("C3");
-            Assert.AreEqual(testSet, (ISet<string>)a1.SetCellContents("A1", new Formula("1 + 2")));
+            Assert.IsTrue(testSet.SetEquals((ISet<string>)a1.SetCellContents("A1", new Formula("1 + 2"))));
         }
 
         //SetCellContents(string, formula): The set returned must respect case sensitivity 
@@ -951,10 +968,11 @@ namespace UnitTestProject1
             a1.SetCellContents("D4", new Formula("C3 + 25"));
             //Set up a set w/ cell names
             ISet<String> testSet = new HashSet<String>();
+            testSet.Add("A1");//We have to remember to update ourselves
             testSet.Add("a1");
             testSet.Add("B1");
             testSet.Add("c3");
-            Assert.AreEqual(testSet, (ISet<string>)a1.SetCellContents("A1", new Formula("1 + 2"))); //We SHOULD NOT contain D4.
+            Assert.IsTrue(testSet.SetEquals((ISet<string>)a1.SetCellContents("A1", new Formula("1 + 2")))); //We SHOULD NOT contain D4.
         }
 
         //SetCellContents(string, formula): We should get a set of changed cells, regardless if the cell has a new value or not.
@@ -968,10 +986,11 @@ namespace UnitTestProject1
             a1.SetCellContents("C3", new Formula("A1 + 20"));
             //Set up a set w/ cell names
             ISet<String> testSet = new HashSet<String>();
+            testSet.Add("A1");//We have to remember to update ourselves
             testSet.Add("A2");
             testSet.Add("B1");
             testSet.Add("C3");
-            Assert.AreEqual(testSet, (ISet<string>)a1.SetCellContents("A1", new Formula("1 + 2")));
+            Assert.IsTrue(testSet.SetEquals((ISet<string>)a1.SetCellContents("A1", new Formula("1 + 2"))));
         }
 
         //SetCellContents(string, formula): We should be able to depend on empty cells
@@ -979,7 +998,7 @@ namespace UnitTestProject1
         public void PublicSetCellContentsStrFormDependOnEmpty()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
-            Assert.IsTrue(a1.SetCellContents("A1", new Formula("A2")).Contains("A2"));
+            a1.SetCellContents("A1", new Formula("A2"));
         }
 
         //SetCellContents(string, formula): We should be able to depend on cells with strings
@@ -989,7 +1008,6 @@ namespace UnitTestProject1
             AbstractSpreadsheet a1 = new Spreadsheet();
             a1.SetCellContents("A2", "STRING!");
             a1.SetCellContents("A1", new Formula("A2"));
-            Assert.IsTrue(a1.SetCellContents("A1", new Formula("A2")).Contains("A2"));
         }
 
         //SetCellContents(string, formula): We should be able to depend on cells with doubles
@@ -999,7 +1017,6 @@ namespace UnitTestProject1
             AbstractSpreadsheet a1 = new Spreadsheet();
             a1.SetCellContents("A2", 1.346);
             a1.SetCellContents("A1", new Formula("A2"));
-            Assert.IsTrue(a1.SetCellContents("A1", new Formula("A2")).Contains("A2"));
         }
 
     }
