@@ -1,5 +1,5 @@
 ﻿// Written by Joe Zachary for CS 3500, September 2013
-
+//Limited commenting done by Josh Christensen u0978248
 using System;
 using System.IO;
 using System.Collections.Generic;
@@ -200,7 +200,14 @@ namespace SS
         /// <summary>
         /// A helper for the GetCellsToRecalculate method.
         /// 
-        ///   -- You should fully comment what is going on below --
+        /// Calls this method on every item that depends on the "name" parameter thyat we haven't visited yet. For each
+        /// element, if it equals the value of "start", the name that originally called this method, we've found a circular 
+        /// dependency, and we must throw an exception. When this method is recursively called, references are passed to the
+        /// same "start", "visited" and "changed" objects as the original call, changing the only name parameter. After visit
+        /// all the dependents, we mark this name as visited by adding it to the changed list.
+        /// 
+        /// Functionally, this method traverses our dependency graph, recording every name that depends on the "start" parameter,
+        /// and ensuring that we never end up back at our original location.
         /// </summary>
         private void Visit(String start, String name, ISet<String> visited, LinkedList<String> changed)
         {
