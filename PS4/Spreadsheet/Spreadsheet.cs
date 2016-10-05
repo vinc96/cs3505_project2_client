@@ -115,11 +115,11 @@ namespace SS
         {
             IsNameInvalidOrNull(name); //If we get past this, our name is valid
 
-            HashSet<string> returnValue = new HashSet<String>(GetCellsToRecalculate(name));//Get our list of cells to recalculate
-
             MakeEmpty(name);//Make our cell empty.
 
             nonEmptyCells.Add(name, new Cell(number)); //Add our new cell
+
+            HashSet<string> returnValue = new HashSet<String>(GetCellsToRecalculate(name));//Get our list of cells to recalculate
 
             return returnValue; //Return all the cells to recalculate.
         }
@@ -217,7 +217,19 @@ namespace SS
                 }
                 else
                 {
-                    this.SetCellContents(name, (Formula) oldValue);
+                    if (oldValue.GetType().Equals(typeof(Formula)))
+                    {
+                        this.SetCellContents(name, (Formula)oldValue);
+                    }
+                    else if (oldValue.GetType().Equals(typeof(String)))
+                    {
+                        this.SetCellContents(name, (String)oldValue);
+                    }
+                    else
+                    {
+                        this.SetCellContents(name, (Double)oldValue);
+                    }
+                    
                 }
 
                 throw e;
