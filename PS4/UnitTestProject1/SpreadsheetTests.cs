@@ -17,30 +17,154 @@ namespace UnitTestProject1
         int MAXSIZE = 10000;
         //Constructor Tests *******************************************************************************
 
-        //Calling the constructor should be uneventful (no exceptions thrown)
+        //Calling the constructor should be uneventful (no exceptions thrown) (parameterless constructor)
         [TestMethod]
         public void PublicConstructorDefault()
         {
             AbstractSpreadsheet a1 = new Spreadsheet(); 
         }
 
-        //Constructors should provide empty spreadsheets
+        //Calling the constructor should be uneventful (no exceptions thrown) (Three Argument constructor)
         [TestMethod]
-        public void PublicConstructorIsEmpty()
+        public void PublicConstructorThreeArgument()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(s => true, s => s, "trivial version");
+        }
+
+        //Calling the constructor should be uneventful (no exceptions thrown) (Four Argument constructor)
+        [TestMethod]
+        public void PublicConstructorFourArgument()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet("TrivialValidFile", s => true, s => s, "trivial version");
+        }
+
+        //Constructors should provide empty spreadsheets (Single Argument Constructor)
+        [TestMethod]
+        public void PublicConstructorIsEmptySingleArgument()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
             Assert.AreEqual(0, a1.GetNamesOfAllNonemptyCells().Count());
         }
 
-        //We should be able to edit spreadsheets without throwing exceptions
+        //Constructors should provide empty spreadsheets (Three Argument Constructor)
         [TestMethod]
-        public void PublicConstructorCanEdit()
+        public void PublicConstructorIsEmptyThreeArgument()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(s => true, s => s, "trivial version");
+            Assert.AreEqual(0, a1.GetNamesOfAllNonemptyCells().Count());
+        }
+
+        //Constructors should provide empty spreadsheets (Four Argument Constructor)
+        [TestMethod]
+        public void PublicConstructorIsEmptyFourArgument()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet("TrivialValidFile", s => true, s => s, "trivial version");
+            Assert.AreEqual(0, a1.GetNamesOfAllNonemptyCells().Count());
+        }
+
+        //We should be able to edit spreadsheets without throwing exceptions (Single Argument Constructor)
+        [TestMethod]
+        public void PublicConstructorCanEditSingleArgument()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
             a1.SetContentsOfCell("A1", "12034.1");
         }
 
-        //DUPLICATE FOR OTHER CONSTRUCTORSSSSSS
+        //We should be able to edit spreadsheets without throwing exceptions (Triple Argument Constructor)
+        [TestMethod]
+        public void PublicConstructorCanEditThreeArgument()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(s => true, s => s, "trivial version");
+            a1.SetContentsOfCell("A1", "12034.1");
+        }
+
+        //We should be able to edit spreadsheets without throwing exceptions (Four Argument Constructor)
+        [TestMethod]
+        public void PublicConstructorCanEditFourArgument()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet("TrivialValidFile", s => true, s => s, "trivial version");
+            a1.SetContentsOfCell("A1", "12034.1");
+        }
+
+        //Our default constructor should have an identiy normalize function
+        [TestMethod]
+        public void PublicConstructorIdentityNormalize()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "NonEmpty");
+            a1.SetContentsOfCell("a1", "NonEmptyAgain");
+            Assert.AreEqual(2, a1.GetNamesOfAllNonemptyCells().Count());
+            Assert.IsTrue(a1.GetCellContents("A1").Equals("NonEmpty"));
+            Assert.IsTrue(a1.GetCellContents("a1").Equals("NonEmptyAgain"));
+        }
+
+        //We should respect the normalize function passed to our constructor (3 argument version)
+        [TestMethod]
+        public void PublicConstructorRespectNormalize3Argument()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(s => true, s => s.ToUpper(), "default" );
+            a1.SetContentsOfCell("A1", "NonEmpty");
+            a1.SetContentsOfCell("a1", "NonEmptyAgain");
+            Assert.AreEqual(2, a1.GetNamesOfAllNonemptyCells().Count());
+            Assert.IsTrue(a1.GetCellContents("A1").Equals("NonEmptyAgain"));
+            Assert.IsTrue(a1.GetCellContents("a1").Equals("NonEmptyAgain"));
+        }
+
+        //We should respect the normalize function passed to our constructor (4 argument version)
+        [TestMethod]
+        public void PublicConstructorRespectNormalize4Argument()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet("TrivialEmptyFile", s => true, s => s.ToUpper(), "default");
+            a1.SetContentsOfCell("A1", "NonEmpty");
+            a1.SetContentsOfCell("a1", "NonEmptyAgain");
+            Assert.AreEqual(2, a1.GetNamesOfAllNonemptyCells().Count());
+            Assert.IsTrue(a1.GetCellContents("A1").Equals("NonEmptyAgain"));
+            Assert.IsTrue(a1.GetCellContents("a1").Equals("NonEmptyAgain"));
+        }
+
+        // TODO: Write a test to ensure that the normalize function works when loading from a file with items that are changed whiltst normalizing
+
+        //We should respect the variable validity of the validator passed to our constructor (3 argument version)
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void PublicConstructorRespectValidator3Argument()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(s => false, s => s, "default");
+            a1.SetContentsOfCell("A1", "NonEmpty");
+        }
+
+        //We should respect the variable validity of the validator passed to our constructor (4 argument version)
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void PublicConstructorRespectValidator4Argument()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet("TrivialEmptyFile", s => false, s => s, "default");
+            a1.SetContentsOfCell("A1", "NonEmpty");
+        }
+
+        //Our no argument constructor should have version "default"
+        [TestMethod]
+        public void PublicConstructorVersionNoArguments()
+        {
+            Spreadsheet a1 = new Spreadsheet();
+            Assert.AreEqual("default", a1.Version);
+        }
+
+        //Our three argument constructor should have version equalling what we set it
+        [TestMethod]
+        public void PublicConstructorVersionThreeArguments()
+        {
+            Spreadsheet a1 = new Spreadsheet(s => true, s => s, "defaultVersion");
+            Assert.AreEqual("defaultVersion", a1.Version);
+        }
+
+        //Our four argument constructor should have version equalling what we set it
+        [TestMethod]
+        public void PublicConstructorVersionFourArguments()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet("TrivialEmptyFile", s => true, s => s, "defaultVersion");
+            Assert.AreEqual("defaultVersion", a1.Version);
+        }
 
         //GetNamesOfAllNonEmptyCells Tests *******************************************************************
 
@@ -81,6 +205,16 @@ namespace UnitTestProject1
             Assert.AreEqual(2, a1.GetNamesOfAllNonemptyCells().Count());
             Assert.IsTrue(a1.GetNamesOfAllNonemptyCells().Contains("A1"));
             Assert.IsTrue(a1.GetNamesOfAllNonemptyCells().Contains("a1"));
+        }
+
+        //GetNamesOfAllNonEmptyCells should respect the passed identity normalizer.
+        [TestMethod]
+        public void PublicGetNamesOfAllNonEmptyCellsRespectIdentityNormalizer()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(s => false, s => s.ToLower(), "default");
+            a1.SetContentsOfCell("A1", "NonEmpty");
+            a1.SetContentsOfCell("a1", "NonEmptyAgain");
+            Assert.AreEqual(1, a1.GetNamesOfAllNonemptyCells().Count());
         }
 
         //Trivial case with mixed data types
@@ -245,6 +379,15 @@ namespace UnitTestProject1
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
             a1.GetCellContents("A1a");
+        }
+
+        //GetCellContents needs to respect the passed Validator.
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void PublicGetCellContentsRespectValidator()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(s => false, s => s, "YardeHarHAR");
+            a1.GetCellContents("A1");
         }
 
         //GetCellContents Normal Tests *******************************************************************
@@ -511,7 +654,7 @@ namespace UnitTestProject1
             AbstractSpreadsheet a1 = new Spreadsheet();
             try
             {
-                a1.SetContentsOfCell("&", "=1 + 1"));
+                a1.SetContentsOfCell("&", "=1 + 1");
             }
             catch (InvalidNameException e)
             {
@@ -526,7 +669,7 @@ namespace UnitTestProject1
         public void PublicSetContentsOfCellStringFormulaInvalidVarIllegalChar()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetContentsOfCell("AA1&", "=1 + 2"));
+            a1.SetContentsOfCell("AA1&", "=1 + 2");
         }
 
         //SetContentsOfCell(string, Formula) must throw an exception if passed an invalid variable name (Ex. just a number)
@@ -535,7 +678,7 @@ namespace UnitTestProject1
         public void PublicSetContentsOfCellStringFormulaInvalidVarNum()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetContentsOfCell("25", "=1 + 2"));
+            a1.SetContentsOfCell("25", "=1 + 2");
         }
 
         //SetContentsOfCell(string, Formula) must throw an exception if passed an invalid variable name (Ex. Starting w/ a number)
@@ -544,7 +687,7 @@ namespace UnitTestProject1
         public void PublicSetContentsOfCellStringFormulaInvalidVarStartNum()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetContentsOfCell("1ABAA111", "=1 + 2"));
+            a1.SetContentsOfCell("1ABAA111", "=1 + 2");
         }
 
         //SetContentsOfCell(string, Formula) must throw an exception if passed a null variable name
@@ -553,33 +696,7 @@ namespace UnitTestProject1
         public void PublicSetContentsOfCellStringFormulaInvalidVarNull()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetContentsOfCell(null, "=1 + 2"));
-        }
-
-        //SetContentsOfCell(string, Formula) must throw an (ArgumentNull) exception if passed a null formula value
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void PublicSetContentsOfCellStringFormulaInvalidTextNull()
-        {
-            AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetContentsOfCell("A1", form);
-        }
-
-        //SetContentsOfCell(string, Formula) if an ArgumentNull exception is thrown, the sheet must not change.
-        [TestMethod]
-        public void PublicSetContentsOfCellStringFormulaArgNullExceptionNoChange()
-        {
-            AbstractSpreadsheet a1 = new Spreadsheet();
-            try
-            {
-                Formula form = null;
-                a1.SetContentsOfCell("A1", form);
-            }
-            catch (ArgumentNullException e)
-            {
-                //Do nothing
-            }
-            Assert.AreEqual(0, a1.GetNamesOfAllNonemptyCells().Count());
+            a1.SetContentsOfCell(null, "=1 + 2");
         }
 
         //SetContentsOfCell(string, string): The method should throw a CircularException if the SetContentsOfCell method would cause
@@ -1037,19 +1154,224 @@ namespace UnitTestProject1
             a1.SetContentsOfCell("A1", "=A2");
         }
 
-        //SetContentsOfCell(string, string) Exception Tests *******************************************************************
+        //GetCellValue Exception Tests **********************************************************************************
+
+        //GetCellValue must throw an exception if passed an invalid variable name (Ex. Empty String)
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void PublicGetCellValueInvalidVarEmptyString()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.GetCellValue("");
+        }
+
+        //GetCellValue must throw an exception if passed an invalid variable name (Ex. An illegal character)
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void PublicGetCellValueInvalidVarIllegalChar()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.GetCellValue("AA1&");
+        }
+
+        //GetCellValue must throw an exception if passed an invalid variable name (Ex. just a number)
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void PublicGetCellValueInvalidVarNum()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.GetCellValue("25");
+        }
+
+        //GetCellValue must throw an exception if passed an invalid variable name (Ex. Starting w/ a number)
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void PublicGetCellValueInvalidVarStartNum()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.GetCellValue("1ABAA111");
+        }
+
+        //GetCellValue must throw an exception if passed a null variable name
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void PublicGetCellValueInvalidVarNull()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.GetCellValue(null);
+        }
+
+        //GetCellValue variables can't start with underscores
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void PublicGetCellValueValidVarStartUnderscore()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.GetCellValue("_A1");
+
+        }
+
+        //GetCellValue variables can't contain underscores at all
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void PublicGetCellValueUnderscore()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.GetCellValue("A_1");
+        }
+
+        //Lone underscores aren't valid characters
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void PublicGetCellValueSingleUnderscore()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.GetCellValue("_");
+        }
+
+        //Letters, then numbers, then letters in a variable ought to throw exception
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void PublicGetCellValueLettersNumbersLetters()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.GetCellValue("A1a");
+        }
+
+        //GetCellValue needs to respect the passed Validator.
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void PublicGetCellValueRespectValidator()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(s => false, s => s, "YardeHarHAR");
+            a1.GetCellValue("A1");
+        }
+
+        //GetCellValue Normal Tests **********************************************************************************
+
+        //GetCellValue variables can start with letters
+        [TestMethod]
+        public void PublicGetCellValueValidVarStartLetter()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.GetCellValue("A1");
+
+        }
+
+        //GetCellValue variables are valid so long as all remaining characters are numbers or letters (but not numbers then letters). (Digit Case)
+        [TestMethod]
+        public void PublicGetCellValueDigits()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.GetCellValue("A12145689911111111141545145");
+        }
+
+        //GetCellValue variables are valid so long as all remaining characters are numbers or letters (but not numbers then letters). (Letter Case)
+        [TestMethod]
+        public void PublicGetCellValueLetters()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.GetCellValue("AASFDfadsfqadsfFeAFljkhpLKH");
+        }
+
+        //GetCellValue variables are valid so long as all remaining characters are numbers or letters (but not numbers then letters). (Combined Case)
+        [TestMethod]
+        public void PublicGetCellValueCombined()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.GetCellValue("AljkhpLsfqadsfFeAASFDf12145611445899");
+        }
+
+        //GetCellValue variables are valid for solitary valid characters (letter case)
+        [TestMethod]
+        public void PublicGetCellValueSingleLetter()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.GetCellValue("A");
+        }
+
+        //GetCellValue: Cells that have not been changed must have empty values
+        [TestMethod]
+        public void PublicGetCellValueNonInitializedCellsEmpty()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            Assert.AreEqual("", (string)a1.GetCellValue("A1"));
+        }
+
+        //GetCellValue: Cells that we initialize to strings must return that same string
+        [TestMethod]
+        public void PublicGetCellValueRetrieveStoredString()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "ThisISATestString1923%Ann\n");
+            Assert.AreEqual("ThisISATestString1923%Ann\n", (string)a1.GetCellValue("A1"));
+        }
+
+        //GetCellValue: Cells that we initialize to doubles must return that same double
+        [TestMethod]
+        public void PublicGetCellValueRetrieveStoredDouble()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "978.248");
+            Assert.AreEqual((double)978.248, (double)a1.GetCellValue("A1"), 1e-9);
+        }
+
+        //GetCellValue: Cells that we initialize to invalid formulas must return FormulaErrors (divide by zero)
+        [TestMethod]
+        public void PublicGetCellValueDivideByZero()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=1 / (1 - 1)");
+            Assert.IsTrue(a1.GetCellValue("A1").GetType().Equals(typeof(FormulaFormatException)));
+        }
+
+        //GetCellValue: Cells that we initialize to invalid formulas must return FormulaErrors (empty cell)
+        [TestMethod]
+        public void PublicGetCellValueInvalidEmptyCell()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=A2");
+            Assert.IsTrue(a1.GetCellValue("A1").GetType().Equals(typeof(FormulaFormatException)));
+        }
+
+        //GetCellValue: Cells that we initialize to invalid formulas must return FormulaErrors (strings cell)
+        [TestMethod]
+        public void PublicGetCellValueInvalidDependOnString()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A2", "STRING!");
+            a1.SetContentsOfCell("A1", "=A2");
+            Assert.IsTrue(a1.GetCellValue("A1").GetType().Equals(typeof(FormulaFormatException)));
+        }
+
+        //GetCellValue: Cells that we initialize to invalid formulas must return FormulaErrors (Other invalid formulas)
+        [TestMethod]
+        public void PublicGetCellValueDependOnOtherInvalidFormula()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=A2");
+            a1.SetContentsOfCell("A2", "1 / (1 - 1)");
+            Assert.IsTrue(a1.GetCellValue("A1").GetType().Equals(typeof(FormulaFormatException)));
+        }
 
 
 
-        //SetContentsOfCell(string, string) Normal Tests *******************************************************************
+        //GetCellValue: Cell names are case sensitive with an identity normalizer
+        [TestMethod]
+        public void PublicGetCellValueCellNamesCaseSensitive()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            Formula f1 = new Formula("B1 + a2 + 34/2");
+            a1.SetContentsOfCell("A1", "=B1 + a2 + 34/2");
+            a1.SetContentsOfCell("a1", "lowercase");
+            Assert.AreEqual(f1, (Formula)a1.GetCellValue("A1"));
+            Assert.AreEqual("lowercase", (string)a1.GetCellValue("a1"));
+        }
 
-
-        //SetContentsOfCell(string, formula) Exception Tests *******************************************************************
-
-
-
-        //SetContentsOfCell(string, formula) Normal Tests *******************************************************************
-
+        //GetCellValue formula tests ******************************************************************************************
+        //As this logic is almost entirely handled by the Formula class, the majority of the testing should 
+        //be handled by that class. However, I will do limited testing here, as I am technically responsible
+        //for the validity of the results.
 
 
     }
