@@ -83,6 +83,15 @@ namespace SS
         }
 
         /// <summary>
+        /// Creates a spreadsheet with no extra validity constraints, normalized every cell 
+        /// name to itself, and has the version "default".
+        /// </summary>
+        public Spreadsheet() : this(s => true, s => s, "default")
+        {
+
+        }
+
+        /// <summary>
         /// Constructs a spreadsheet by recording its variable validity test,
         /// its normalization method, and its version information.  The variable validity
         /// test is used throughout to determine whether a string that consists of one or
@@ -90,8 +99,23 @@ namespace SS
         /// equality test should be used thoughout to determine whether two variables are
         /// equal.
         /// </summary>
-        public Spreadsheet(Func<string, bool> isValid, Func<string, string> normalize, string version) : base(isValid, normalize, version)
+        public Spreadsheet(Func<string, bool> isValid, Func<string, string> normalize, string version) 
+            : base(isValid, normalize, version)
         {
+        }
+
+        /// <summary>
+        /// Constructs a spreasheet by reading a saved spreadsheet from the specified file. 
+        /// Uses the provided validity delegate, normalization delegate, and version.
+        /// </summary>
+        /// <param name="pathToFile"></param>
+        /// <param name="isValid"></param>
+        /// <param name="normalize"></param>
+        /// <param name="version"></param>
+        public Spreadsheet(string pathToFile, Func<string, bool> isValid, Func<string, string> normalize, string version) 
+            : this(isValid, normalize, version)
+        {
+
         }
 
         /// <summary>
@@ -374,6 +398,7 @@ namespace SS
 
             return dependencies.GetDependents(name); //Return our dependents.
         }
+
         /// <summary>
         /// If the passed name is invalid (does not follow the established rules of variable names)
         /// or null, throws an InvalidNameException with an apropriate name.
