@@ -67,6 +67,11 @@ namespace SS
         private Dictionary<String, Cell> nonEmptyCells = new Dictionary<string, Cell>();
 
         /// <summary>
+        /// Denotes if this spreadsheet has changed since it's construction, or last save.
+        /// </summary>
+        private bool hasChanged;
+
+        /// <summary>
         /// True if this spreadsheet has been modified since it was created or saved                  
         /// (whichever happened most recently); false otherwise.
         /// </summary>
@@ -103,6 +108,7 @@ namespace SS
         public Spreadsheet(Func<string, bool> isValid, Func<string, string> normalize, string version) 
             : base(isValid, normalize, version)
         {
+            hasChanged = false;
         }
 
         /// <summary>
@@ -272,6 +278,7 @@ namespace SS
                 output = SetCellContents(name, content);
             }
 
+            hasChanged = true; //We're past all exceptions at this point.
             return output;
         }
 

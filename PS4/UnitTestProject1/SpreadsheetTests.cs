@@ -1725,6 +1725,91 @@ namespace UnitTestProject1
             Assert.IsFalse(a1.Changed);
         }
 
+        //When an ArgumentNullException is thrown, we haven't changed anything
+        [TestMethod]
+        public void PublicChangedNullArgument()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            Assert.IsFalse(a1.Changed);
+            try
+            {
+                a1.SetContentsOfCell("A1", null);
+            }
+            catch (ArgumentNullException)
+            {
+                //Do nothing
+            }
+            Assert.IsFalse(a1.Changed);
+        }
+
+        //When an InvalidNameException is thrown, we haven't changed anything (invalid variable)
+        [TestMethod]
+        public void PublicChangedInvalidNameInvalidVariable()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            Assert.IsFalse(a1.Changed);
+            try
+            {
+                a1.SetContentsOfCell("A1A", "Something");
+            }
+            catch (InvalidNameException)
+            {
+                //Do nothing
+            }
+            Assert.IsFalse(a1.Changed);
+        }
+
+        //When an InvalidNameException is thrown, we haven't changed anything (null variable)
+        [TestMethod]
+        public void PublicChangedInvalidNameNullVariable()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            Assert.IsFalse(a1.Changed);
+            try
+            {
+                a1.SetContentsOfCell(null, "Something");
+            }
+            catch (InvalidNameException)
+            {
+                //Do nothing
+            }
+            Assert.IsFalse(a1.Changed);
+        }
+
+        //When a CircularException is thrown, we haven't changed anything
+        [TestMethod]
+        public void PublicChangedCircularException()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            Assert.IsFalse(a1.Changed);
+            try
+            {
+                a1.SetContentsOfCell("A1", "=A1");
+            }
+            catch (CircularException)
+            {
+                //Do nothing
+            }
+            Assert.IsFalse(a1.Changed);
+        }
+
+        //If we fail to save, our Changed value won't reset
+        [TestMethod]
+        public void PublicChangedSaveFailure()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "Something");
+            try
+            {
+                a1.Save("################################JAUNGLK&&&&&&@&$%^"); //Junk save name
+            }
+            catch (SpreadsheetReadWriteException)
+            {
+                //Do nothing
+            }
+            Assert.IsTrue(a1.Changed);
+        }
+
         //Save Exception Tests ********************************************************************
 
         //Attempt to write to an illegal location
