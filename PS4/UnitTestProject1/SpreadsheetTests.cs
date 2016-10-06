@@ -14,7 +14,7 @@ namespace UnitTestProject1
         /// <summary>
         /// The maximum size of the stress tests (The largest our spreadsheet gets in these tests)
         /// </summary>
-        int MAXSIZE = 10000;
+        int MAXSIZE = 10;
         //Constructor Tests *******************************************************************************
 
         //Calling the constructor should be uneventful (no exceptions thrown) (parameterless constructor)
@@ -35,7 +35,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void PublicConstructorFourArgument()
         {
-            AbstractSpreadsheet a1 = new Spreadsheet("TrivialValidFile", s => true, s => s, "trivial version");
+            AbstractSpreadsheet a1 = new Spreadsheet("TrivialEmptyFile", s => true, s => s, "EmptyVersion");
         }
 
         //Constructors should provide empty spreadsheets (Single Argument Constructor)
@@ -58,7 +58,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void PublicConstructorIsEmptyFourArgument()
         {
-            AbstractSpreadsheet a1 = new Spreadsheet("TrivialValidFile", s => true, s => s, "trivial version");
+            AbstractSpreadsheet a1 = new Spreadsheet("TrivialEmptyFile", s => true, s => s, "EmptyVersion");
             Assert.AreEqual(0, a1.GetNamesOfAllNonemptyCells().Count());
         }
 
@@ -78,11 +78,19 @@ namespace UnitTestProject1
             a1.SetContentsOfCell("A1", "12034.1");
         }
 
-        //We should be able to edit spreadsheets without throwing exceptions (Four Argument Constructor)
+        //We should be able to edit spreadsheets without throwing exceptions (Four Argument Constructor, empty file)
         [TestMethod]
-        public void PublicConstructorCanEditFourArgument()
+        public void PublicConstructorCanEditFourArgumentEmpty()
         {
-            AbstractSpreadsheet a1 = new Spreadsheet("TrivialValidFile", s => true, s => s, "trivial version");
+            AbstractSpreadsheet a1 = new Spreadsheet("TrivialEmptyFile", s => true, s => s, "EmptyVersion");
+            a1.SetContentsOfCell("A1", "12034.1");
+        }
+
+        //We should be able to edit spreadsheets without throwing exceptions (Four Argument Constructor, non-empty file)
+        [TestMethod]
+        public void PublicConstructorCanEditFourArgumentNonEmpty()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet("TrivialSmallFile", s => true, s => s, "SmallVersion");
             a1.SetContentsOfCell("A1", "12034.1");
         }
 
@@ -114,7 +122,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void PublicConstructorRespectNormalize4Argument()
         {
-            AbstractSpreadsheet a1 = new Spreadsheet("TrivialEmptyFile", s => true, s => s.ToUpper(), "default");
+            AbstractSpreadsheet a1 = new Spreadsheet("TrivialEmptyFile", s => true, s => s.ToUpper(), "EmptyVersion");
             a1.SetContentsOfCell("A1", "NonEmpty");
             a1.SetContentsOfCell("a1", "NonEmptyAgain");
             Assert.AreEqual(2, a1.GetNamesOfAllNonemptyCells().Count());
@@ -122,7 +130,15 @@ namespace UnitTestProject1
             Assert.IsTrue(a1.GetCellContents("a1").Equals("NonEmptyAgain"));
         }
 
-        // TODO: Write a test to ensure that the normalize function works when loading from a file with items that are changed whiltst normalizing
+        //When we load from a file, our normalizer is used on that file
+        [TestMethod]
+        public void PublicConstructorNormalizeLoadingFromFile()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet("TrivialSmallFile", s => true, s => s.ToLower(), "SmallVersion");
+            Assert.AreEqual("TestString", (string) a1.GetCellContents("a1"));
+            Assert.AreEqual(2.564234, (double) a1.GetCellContents("a2"));
+            Assert.AreEqual(new Formula("2 * A2"), a1.GetCellContents("a3"));
+        }
 
         //We should respect the variable validity of the validator passed to our constructor (3 argument version)
         [TestMethod]
@@ -138,8 +154,16 @@ namespace UnitTestProject1
         [ExpectedException(typeof(InvalidNameException))]
         public void PublicConstructorRespectValidator4Argument()
         {
-            AbstractSpreadsheet a1 = new Spreadsheet("TrivialEmptyFile", s => false, s => s, "default");
+            AbstractSpreadsheet a1 = new Spreadsheet("TrivialEmptyFile", s => false, s => s, "EmptyVersion");
             a1.SetContentsOfCell("A1", "NonEmpty");
+        }
+
+        //We should respect the variable validity of the validator passed to our constructor (4 argument version, loading from file)
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void PublicConstructorRespectValidator4ArgumentLoadFile()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet("TrivialSmallFile", s => false, s => s.ToLower(), "SmallVersion");
         }
 
         //Our no argument constructor should have version "default"
@@ -162,7 +186,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void PublicConstructorVersionFourArguments()
         {
-            AbstractSpreadsheet a1 = new Spreadsheet("TrivialEmptyFile", s => true, s => s, "defaultVersion");
+            AbstractSpreadsheet a1 = new Spreadsheet("TrivialEmptyFile", s => true, s => s, "EmptyVersion");
             Assert.AreEqual("defaultVersion", a1.Version);
         }
 
@@ -1724,7 +1748,9 @@ namespace UnitTestProject1
         //Save Normal Tests ************************************************************************
 
         //Stress test for the save function. Make a huge spreadsheet, save it, then load it, then make sure it contains everything.
-        public void PublicSaveStressTest()
+        //(string version)
+        [TestMethod]
+        public void PublicSaveStressTestString()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
             for (int i = 0; i < MAXSIZE; i++)
@@ -1737,9 +1763,98 @@ namespace UnitTestProject1
             AbstractSpreadsheet a2 = new Spreadsheet("SaveStressTest", s => true, s => s, "default");
             for (int i = 0; i < MAXSIZE; i++)
             {
-                Assert.AreEqual("Something" + i, a2.GetCellContents("A" + i));
+                Assert.AreEqual("Something" + i, (string) a2.GetCellContents("A" + i));
             }
 
         }
+
+        //Stress test for the save function. Make a huge spreadsheet, save it, then load it, then make sure it contains everything.
+        //(formula version)
+        [TestMethod]
+        public void PublicSaveStressTestFormula()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            for (int i = 0; i < MAXSIZE; i++)
+            {
+                a1.SetContentsOfCell("A" + i, "=A" + (i+1));
+            }
+
+            a1.Save("SaveStressTest");
+
+            AbstractSpreadsheet a2 = new Spreadsheet("SaveStressTest", s => true, s => s, "default");
+            for (int i = 0; i < MAXSIZE; i++)
+            {
+                Assert.AreEqual(new Formula("=A" + (i + 1)), (Formula) a2.GetCellContents("A" + i));
+            }
+
+        }
+
+        //Stress test for the save function. Make a huge spreadsheet, save it, then load it, then make sure it contains everything.
+        //(double version)
+        [TestMethod]
+        public void PublicSaveStressTestDouble()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            for (int i = 0; i < MAXSIZE; i++)
+            {
+                a1.SetContentsOfCell("A" + i, ((double) i).ToString());
+            }
+
+            a1.Save("SaveStressTest");
+
+            AbstractSpreadsheet a2 = new Spreadsheet("SaveStressTest", s => true, s => s, "default");
+            for (int i = 0; i < MAXSIZE; i++)
+            {
+                Assert.AreEqual((double) i, (double) a2.GetCellContents("A" + i), 1e-9);
+            }
+
+        }
+
+        //Our save method must not panic when it's told to save and load things that look like XML tags.
+        [TestMethod]
+        public void PublicSaveXMLTags()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "</spreadsheet>");
+            a1.Save("XMLLike");
+            AbstractSpreadsheet a2 = new Spreadsheet("XMLLike", s => true, s => s, "default");
+            Assert.AreEqual("</spreadsheet>", a2.GetCellContents("A1"));
+        }
+
+        //LOADING EXCEPTION TESTS ****************************************************************************************
+
+        //We try to load from a file that doesn't exist
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void PublicLoadFileDNE()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet("FILEDNE", s => true, s => s, "default");
+        }
+
+        //We try to load from a file path that doesn't exist
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void PublicLoadFilePathDNE()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet("\\NONEXISTANTPATH\\FILEDNE", s => true, s => s, "default");
+        }
+
+        //We try to load from something that's not a file path
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void PublicLoadNotRealFilePath()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet("!@#$$%#^&", s => true, s => s, "default");
+        }
+
+        //We try to load from a file without a starting tag
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void PublicLoadNoStartingTag()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet("NoStartingTag", s => true, s => s, "default");
+        }
+
+
     }
 }

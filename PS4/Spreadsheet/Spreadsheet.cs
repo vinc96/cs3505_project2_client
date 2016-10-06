@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SpreadsheetUtilities;
+using System.Xml;
 
 namespace SS
 {
@@ -155,7 +156,24 @@ namespace SS
         /// </summary>
         public override void Save(string filename)
         {
-            throw new NotImplementedException();
+            XmlWriterSettings settings = new XmlWriterSettings();
+            settings.Indent = true;
+            settings.IndentChars = "  ";
+            using (XmlWriter writer = XmlWriter.Create(filename, settings))
+            {
+                writer.WriteStartDocument();
+                writer.WriteStartElement("spreadsheet");//Start spreadsheet tags
+                writer.WriteAttributeString("version", Version); //Write version attribute
+
+                //For every non-empty cell
+                foreach (Cell c in nonEmptyCells.Values)
+                {
+                    c.WriteXML(writer);
+                }
+
+                writer.WriteEndElement(); //end spreadsheet tags
+                writer.WriteEndDocument();
+            }
         }
 
         /// <summary>
@@ -230,7 +248,31 @@ namespace SS
         /// </summary>
         public override ISet<string> SetContentsOfCell(string name, string content)
         {
-            throw new NotImplementedException();
+            if (ReferenceEquals(content, null))
+            {
+                throw new ArgumentNullException();
+            }
+
+            IsNameInvalidOrNull(name);//Check if the name is invalid, or null. Throws exception if true.
+
+            ISet<string> output = null; //We should either replace this, or throw exception. 
+
+            double parsedContent;
+
+            if (content[0].Equals('=')) //If we're a formula
+            {
+                output = SetCellContents(name, new Formula(content.Substring(1)));
+            }
+            else if (Double.TryParse(content, out parsedContent)) //If we're a double
+            {
+                SetCellContents(name, parsedContent);
+            }
+            else //Else, we're just a string.
+            {
+                output = SetCellContents(name, content);
+            }
+
+            return output;
         }
 
         /// <summary>
@@ -249,7 +291,7 @@ namespace SS
 
             MakeEmpty(name);//Make our cell empty.
 
-            nonEmptyCells.Add(name, new Cell(number)); //Add our new cell
+            nonEmptyCells.Add(name, new Cell(name, number)); //Add our new cell
 
             HashSet<string> returnValue = new HashSet<String>(GetCellsToRecalculate(name));//Get our list of cells to recalculate
 
@@ -286,7 +328,7 @@ namespace SS
             }
             else
             {
-                nonEmptyCells.Add(name, new Cell(text)); //Add our new cell
+                nonEmptyCells.Add(name, new Cell(name, text)); //Add our new cell
                 return new HashSet<String>(GetCellsToRecalculate(name)); //Return all the cells to recalculate.
             }
             
@@ -327,7 +369,7 @@ namespace SS
                 dependencies.AddDependency(varName, name);
             }
 
-            nonEmptyCells.Add(name, new Cell(formula)); //Add our new cell
+            nonEmptyCells.Add(name, new Cell(name, formula)); //Add our new cell
 
             IEnumerable<string> returnValue = null; //This should never exit the method as null. We throw an exeption, or replace it.
 
@@ -465,14 +507,23 @@ namespace SS
             /// </summary>
             object contents;
 
+
+            /// <summary>
+            /// The name of this cell. Used only internally.
+            /// </summary>
+            string name;
+
             /// <summary>
             /// Creates a new Cell object, using the parameter as Contents. 
             /// The parameter must fit the definition of Contents, else an ArgumentException is thrown.
             /// </summary>
+            /// 
+            /// <param name="name">The name of this cell.</param>
             /// <param name="contents">The value to set to be contents.</param>
-            public Cell(object contents)
+            public Cell(string name, object contents)
             {
                 this.Contents = contents;
+                this.name = name;
             }
 
             /// <summary>
@@ -503,7 +554,43 @@ namespace SS
                     return contents;
                 }
             }
+            /// <summary>
+            /// Writes the XML for this cell, given the specified XmlWriter object. XML is as follows:
+            /// 
+            /// <cell>
+            /// <name>
+            /// cell name goes here
+            /// </name>
+            /// <contents>
+            /// cell contents goes here
+            /// </contents>    
+            /// </cell>
+            /// 
+            /// </summary>
+            /// <param name="writer"></param>
+            internal void WriteXML(XmlWriter writer)
+            {
+                writer.WriteStartElement("cell");//Open cell
 
+                writer.WriteStartElement("name");//Open name
+                writer.WriteString(this.name); //Write the name out
+                writer.WriteEndElement(); //Close name
+
+                writer.WriteStartElement("contents"); //Open contents\
+                //Write contents. Formulas get a special case.
+                if (contents.GetType().Equals(typeof(Formula)))
+                {
+                    writer.WriteString("=" + contents.ToString());
+                }
+                else
+                {
+                    writer.WriteString(contents.ToString());
+
+                }
+                writer.WriteEndElement(); //Close contents
+
+                writer.WriteEndElement();//Close cell
+            }
         }
     }
 
