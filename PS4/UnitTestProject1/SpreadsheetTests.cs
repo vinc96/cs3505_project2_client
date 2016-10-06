@@ -1700,5 +1700,46 @@ namespace UnitTestProject1
             a1.Save("JunkSave");
             Assert.IsFalse(a1.Changed);
         }
+
+        //Save Exception Tests ********************************************************************
+
+        //Attempt to write to an illegal location
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void PublicSaveIllegalLocation()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.Save("C:\\Program Files\\IReallyHopeThisCan'tWriteByDefault.xml");
+        }
+
+        //Attempt to write to a nonexistent locaiton
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void PublicSaveNonexistentLocaiton()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.Save("THisFOLDERDoeSNtExist\\Impossible.xml");
+        }
+
+        //Save Normal Tests ************************************************************************
+
+        //Stress test for the save function. Make a huge spreadsheet, save it, then load it, then make sure it contains everything.
+        public void PublicSaveStressTest()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            for (int i = 0; i < MAXSIZE; i++)
+            {
+                a1.SetContentsOfCell("A" + i, "Something" + i);
+            }
+
+            a1.Save("SaveStressTest");
+
+            AbstractSpreadsheet a2 = new Spreadsheet("SaveStressTest", s => true, s => s, "default");
+            for (int i = 0; i < MAXSIZE; i++)
+            {
+                Assert.AreEqual("Something" + i, a2.GetCellContents("A" + i));
+            }
+
+        }
     }
 }
