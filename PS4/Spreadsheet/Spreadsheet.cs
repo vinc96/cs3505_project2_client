@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using SpreadsheetUtilities;
 using System.Xml;
+using System.Text.RegularExpressions;
 
 namespace SS
 {
@@ -79,12 +80,12 @@ namespace SS
         {
             get
             {
-                throw new NotImplementedException();
+                return hasChanged;
             }
 
             protected set
             {
-                throw new NotImplementedException();
+                hasChanged = value;
             }
         }
 
@@ -94,7 +95,7 @@ namespace SS
         /// </summary>
         public Spreadsheet() : this(s => true, s => s, "default")
         {
-
+            //Don't do anything special
         }
 
         /// <summary>
@@ -122,7 +123,94 @@ namespace SS
         public Spreadsheet(string pathToFile, Func<string, bool> isValid, Func<string, string> normalize, string version) 
             : this(isValid, normalize, version)
         {
+            LoadFile(pathToFile);
+        }
 
+        /// <summary>
+        /// Attempts to load a file from the specified path. The file should be formatted
+        /// according to the specification of the Save method. If there are issues loading the 
+        /// file, throws a SpreadsheetReadWriteException with a message discribing the problem.
+        /// </summary>
+        /// <param name="pathToFile">The path to attempt to load the file from.</param>
+        private void LoadFile(string pathToFile)
+        {
+            XmlReaderSettings settings = new XmlReaderSettings();
+            settings.IgnoreWhitespace = true;
+            using (XmlReader reader = XmlReader.Create(pathToFile, settings))
+            {
+
+                //Skip forward until we get to a spreadsheet tag
+                while (!reader.Name.Equals("spreadsheet"))
+                {
+                    reader.Read();
+                }
+
+                if (!Version.Equals(reader.GetAttribute("version"))) //Check version
+                {
+                    throw new SpreadsheetReadWriteException("Versions don't match. " +
+                        Version + " (constructor)  vs " + reader.GetAttribute("version") + " (file)");
+                }
+
+                //Load all the cells
+                while (reader.Read())
+                {
+                    if (reader.IsStartElement() && reader.Name.Equals("cell"))
+                    {
+                        LoadCell(reader);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Loads from the specified XmlReader a cell, given that the XmlReader is currently
+        /// pointed at the start of a cell element. Once it's done, leaves the reader pointed
+        /// at the last element of the cell.
+        /// </summary>
+        /// <param name="reader"></param>
+        private void LoadCell(XmlReader reader)
+        {
+            string name;
+            //Read until we get to the name element
+            while (!reader.Name.Equals("name"))
+            {
+                reader.Read();
+            }
+
+            name = reader.ReadElementContentAsString(); //Once we get to the name elment, store its value.
+            name = RemoveWhitespace(name);//Clear whitespace from name
+
+            string contents;
+            //Read until we get to the contents element
+            while (!reader.Name.Equals("contents"))
+            {
+                reader.Read();
+            }
+
+            contents = reader.ReadElementContentAsString(); //Once we get to the contents element, store its value.
+            contents = RemoveWhitespace(contents);//Clear whitespace from contents
+            //Create the cell (or try)
+            try
+            {
+                this.SetContentsOfCell(name, contents);
+            }
+            catch (InvalidNameException e)
+            {
+                throw new SpreadsheetReadWriteException("Invalid Name Exception: " + e.Message);
+            }
+            catch (CircularException e)
+            {
+                throw new SpreadsheetReadWriteException("Circular Exception: " + e.Message);
+            }
+            catch (FormulaFormatException e)
+            {
+                throw new SpreadsheetReadWriteException("Formula Format Exception: " + e.Message);
+            }
+        }
+
+        private string RemoveWhitespace(string str)
+        {
+            return Regex.Replace(str, @"\s+", "");
         }
 
         /// <summary>
@@ -165,21 +253,30 @@ namespace SS
             XmlWriterSettings settings = new XmlWriterSettings();
             settings.Indent = true;
             settings.IndentChars = "  ";
-            using (XmlWriter writer = XmlWriter.Create(filename, settings))
+            try
             {
-                writer.WriteStartDocument();
-                writer.WriteStartElement("spreadsheet");//Start spreadsheet tags
-                writer.WriteAttributeString("version", Version); //Write version attribute
-
-                //For every non-empty cell
-                foreach (Cell c in nonEmptyCells.Values)
+                using (XmlWriter writer = XmlWriter.Create(filename, settings))
                 {
-                    c.WriteXML(writer);
-                }
+                    writer.WriteStartDocument();
+                    writer.WriteStartElement("spreadsheet");//Start spreadsheet tags
+                    writer.WriteAttributeString("version", Version); //Write version attribute
 
-                writer.WriteEndElement(); //end spreadsheet tags
-                writer.WriteEndDocument();
+                    //For every non-empty cell
+                    foreach (Cell c in nonEmptyCells.Values)
+                    {
+                        c.WriteXML(writer);
+                    }
+
+                    writer.WriteEndElement(); //end spreadsheet tags
+                    writer.WriteEndDocument();
+                }
             }
+            catch (ArgumentException e)
+            {
+                throw new SpreadsheetReadWriteException("Exception: " + e.ToString());
+            }
+
+            hasChanged = false; //Last thing we do before we exit.
         }
 
         /// <summary>
@@ -190,7 +287,35 @@ namespace SS
         /// </summary>
         public override object GetCellValue(string name)
         {
-            throw new NotImplementedException();
+            name = Normalize(name);
+            IsNameInvalidOrNull(name);
+            if (GetCellContents(name).GetType().Equals(typeof(Formula)))
+            {
+                return ((Formula) GetCellContents(name)).Evaluate(Lookup);
+            }
+            else
+            {
+                return GetCellContents(name);
+            }
+        }
+
+        /// <summary>
+        /// If the varname passed as a string evaluates as a double, returns that double. Else, throws
+        /// and ArgumentException.
+        /// </summary>
+        /// <param name="varname"></param>
+        /// <returns></returns>
+        private double Lookup(string varname)
+        {
+            object result = GetCellValue(varname);
+            if (result.GetType().Equals(typeof(double)))
+            {
+                return (double) result;
+            }
+            else
+            {
+                throw new ArgumentException();
+            }
         }
 
         /// <summary>
@@ -210,6 +335,7 @@ namespace SS
         /// </summary>
         public override object GetCellContents(string name)
         {
+            name = Normalize(name);//Normalize name
             IsNameInvalidOrNull(name); //If we get passed this, our name is valid
             //If this isn't a NonEmptyCell, it's value is the empty string.
             if(!GetNamesOfAllNonemptyCells().Contains(name))
@@ -259,19 +385,23 @@ namespace SS
                 throw new ArgumentNullException();
             }
 
+            name = Normalize(name);
             IsNameInvalidOrNull(name);//Check if the name is invalid, or null. Throws exception if true.
 
             ISet<string> output = null; //We should either replace this, or throw exception. 
 
             double parsedContent;
-
-            if (content[0].Equals('=')) //If we're a formula
+            if (content.Equals("")) //Special case for empty strings (they break the formula checker)
             {
-                output = SetCellContents(name, new Formula(content.Substring(1)));
+                output = SetCellContents(name, content);
+            }
+            else if (content[0].Equals('=')) //If we're a formula
+            {
+                output = SetCellContents(name, new Formula(content.Substring(1), Normalize, IsValidVarName));
             }
             else if (Double.TryParse(content, out parsedContent)) //If we're a double
             {
-                SetCellContents(name, parsedContent);
+                output = SetCellContents(name, parsedContent);
             }
             else //Else, we're just a string.
             {
@@ -460,20 +590,64 @@ namespace SS
                 throw new InvalidNameException();
             }
 
-            if (!(varname[0].Equals('_') || Char.IsLetter(varname[0])))
+            if (!IsValidVarName(varname))
             {
-                throw new InvalidNameException(); //The variable must start with an underscore or letter.
+                throw new InvalidNameException(); //The variable must pass our valid variable name test.
 
             }
 
-            for (int i = 1; i < varname.Length; i++)
+            //If we haven't broken the rules, its valid.
+        }
+
+        /// <summary>
+        /// Our internal validator. Checks both our standard definition of a variable, as well as validity under the IsValid functor.
+        /// We check the former, then the latter.
+        /// </summary>
+        /// <param name="varname">The variable name to check.</param>
+        /// <returns></returns>
+        private bool IsValidVarName(string varname)
+        {
+            if (varname.Length == 0)
             {
-                if (!(varname[i].Equals('_') || Char.IsLetterOrDigit(varname[i])))
+                return false;//Variables can't be empty
+            }
+            bool hasNumbers = false;//A variable must have trailing numbers
+            int pos;
+            //Check any number of starting letters. 
+            for (pos = 0; pos < varname.Length; pos++)
+            {
+                if (!Char.IsLetter(varname[pos]))
                 {
-                    throw new InvalidNameException(); //Return false if we encounter anything that's not a letter, digit, or underscore.
+                    if (pos == 0)
+                    {
+                        return false;//Our first element must be a letter
+                    }
+                    else if (char.IsDigit(varname[pos]))
+                    {
+                        break; //Now, check digits
+                    }
+                    else
+                    {
+                        return false; //If we encounter a non letter + non digit, variable is invalid.
+                    }
                 }
             }
-            //If we haven't broken the rules, its valid.
+            //Check any number of numbers, after we finish letters.
+            for (pos = pos; pos < varname.Length; pos++)
+            {
+                hasNumbers = true;
+                if (!Char.IsDigit(varname[pos]))
+                {
+                    return false;//If we encounter a non-digit at this point, variable is invalid.
+                }
+            }
+
+            if (!hasNumbers)
+            {
+                return false;//The variable didn't have any numbers in it.
+            }
+
+            return IsValid(varname); //If we haven't broken the rules, then we just have to check the delegate.
         }
 
         /// <summary>

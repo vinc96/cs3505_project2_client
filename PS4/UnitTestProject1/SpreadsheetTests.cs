@@ -113,7 +113,7 @@ namespace UnitTestProject1
             AbstractSpreadsheet a1 = new Spreadsheet(s => true, s => s.ToUpper(), "default" );
             a1.SetContentsOfCell("A1", "NonEmpty");
             a1.SetContentsOfCell("a1", "NonEmptyAgain");
-            Assert.AreEqual(2, a1.GetNamesOfAllNonemptyCells().Count());
+            Assert.AreEqual(1, a1.GetNamesOfAllNonemptyCells().Count());
             Assert.IsTrue(a1.GetCellContents("A1").Equals("NonEmptyAgain"));
             Assert.IsTrue(a1.GetCellContents("a1").Equals("NonEmptyAgain"));
         }
@@ -125,7 +125,7 @@ namespace UnitTestProject1
             AbstractSpreadsheet a1 = new Spreadsheet("TrivialEmptyFile", s => true, s => s.ToUpper(), "EmptyVersion");
             a1.SetContentsOfCell("A1", "NonEmpty");
             a1.SetContentsOfCell("a1", "NonEmptyAgain");
-            Assert.AreEqual(2, a1.GetNamesOfAllNonemptyCells().Count());
+            Assert.AreEqual(1, a1.GetNamesOfAllNonemptyCells().Count());
             Assert.IsTrue(a1.GetCellContents("A1").Equals("NonEmptyAgain"));
             Assert.IsTrue(a1.GetCellContents("a1").Equals("NonEmptyAgain"));
         }
@@ -137,7 +137,7 @@ namespace UnitTestProject1
             AbstractSpreadsheet a1 = new Spreadsheet("TrivialSmallFile", s => true, s => s.ToLower(), "SmallVersion");
             Assert.AreEqual("TestString", (string) a1.GetCellContents("a1"));
             Assert.AreEqual(2.564234, (double) a1.GetCellContents("a2"));
-            Assert.AreEqual(new Formula("2 * A2"), a1.GetCellContents("a3"));
+            Assert.AreEqual(new Formula("2 * a2"), a1.GetCellContents("a3"));
         }
 
         //We should respect the variable validity of the validator passed to our constructor (3 argument version)
@@ -187,7 +187,7 @@ namespace UnitTestProject1
         public void PublicConstructorVersionFourArguments()
         {
             AbstractSpreadsheet a1 = new Spreadsheet("TrivialEmptyFile", s => true, s => s, "EmptyVersion");
-            Assert.AreEqual("defaultVersion", a1.Version);
+            Assert.AreEqual("EmptyVersion", a1.Version);
         }
 
         //GetNamesOfAllNonEmptyCells Tests *******************************************************************
@@ -235,7 +235,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void PublicGetNamesOfAllNonEmptyCellsRespectIdentityNormalizer()
         {
-            AbstractSpreadsheet a1 = new Spreadsheet(s => false, s => s.ToLower(), "default");
+            AbstractSpreadsheet a1 = new Spreadsheet(s => true, s => s.ToLower(), "default");
             a1.SetContentsOfCell("A1", "NonEmpty");
             a1.SetContentsOfCell("a1", "NonEmptyAgain");
             Assert.AreEqual(1, a1.GetNamesOfAllNonemptyCells().Count());
@@ -265,14 +265,14 @@ namespace UnitTestProject1
             {
                 Assert.AreEqual(i, a1.GetNamesOfAllNonemptyCells().Count());
                 a1.SetContentsOfCell("A" + i, "SomeString");
-                Assert.IsTrue(a1.GetNamesOfAllNonemptyCells().Contains("_" + i));
+                Assert.IsTrue(a1.GetNamesOfAllNonemptyCells().Contains("A" + i));
             }
             //Remove values
             for (int i = MAXSIZE-1; i >= 0; i--)
             {
                 
                 a1.SetContentsOfCell("A" + i, "");
-                Assert.IsFalse(a1.GetNamesOfAllNonemptyCells().Contains("_" + i));
+                Assert.IsFalse(a1.GetNamesOfAllNonemptyCells().Contains("A" + i));
                 Assert.AreEqual(i, a1.GetNamesOfAllNonemptyCells().Count());
             }
         }
@@ -287,14 +287,14 @@ namespace UnitTestProject1
             {
                 Assert.AreEqual(i, a1.GetNamesOfAllNonemptyCells().Count());
                 a1.SetContentsOfCell("A" + i, "12.34");
-                Assert.IsTrue(a1.GetNamesOfAllNonemptyCells().Contains("_" + i));
+                Assert.IsTrue(a1.GetNamesOfAllNonemptyCells().Contains("A" + i));
             }
             //Remove values
             for (int i = MAXSIZE-1; i >= 0; i--)
             {
                 
                 a1.SetContentsOfCell("A" + i, "");
-                Assert.IsFalse(a1.GetNamesOfAllNonemptyCells().Contains("_" + i));
+                Assert.IsFalse(a1.GetNamesOfAllNonemptyCells().Contains("A" + i));
                 Assert.AreEqual(i, a1.GetNamesOfAllNonemptyCells().Count());
             }
         }
@@ -308,15 +308,15 @@ namespace UnitTestProject1
             for (int i = 0; i < MAXSIZE; i++)
             {
                 Assert.AreEqual(i, a1.GetNamesOfAllNonemptyCells().Count());
-                a1.SetContentsOfCell("A" + i, "=1 + A1");
-                Assert.IsTrue(a1.GetNamesOfAllNonemptyCells().Contains("_" + i));
+                a1.SetContentsOfCell("A" + i, "=1 + B1");
+                Assert.IsTrue(a1.GetNamesOfAllNonemptyCells().Contains("A" + i));
             }
             //Remove values
             for (int i = MAXSIZE-1; i >= 0; i--)
             {
                 
                 a1.SetContentsOfCell("A" + i, "");
-                Assert.IsFalse(a1.GetNamesOfAllNonemptyCells().Contains("_" + i));
+                Assert.IsFalse(a1.GetNamesOfAllNonemptyCells().Contains("A" + i));
                 Assert.AreEqual(i, a1.GetNamesOfAllNonemptyCells().Count());
             }
         }
@@ -414,6 +414,24 @@ namespace UnitTestProject1
             a1.GetCellContents("A1");
         }
 
+        //GetCellContents variables aren't valid for solitary valid characters (letter case)
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void PublicGetCellContentsSingleLetter()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.GetCellContents("A");
+        }
+
+        //GetCellContents variables aren't valid without numbers
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void PublicGetCellContentsLetters()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.GetCellContents("AASFDfadsfqadsfFeAFljkhpLKH");
+        }
+
         //GetCellContents Normal Tests *******************************************************************
 
         //GetCellContents variables can start with letters
@@ -433,28 +451,12 @@ namespace UnitTestProject1
             a1.GetCellContents("A12145689911111111141545145");
         }
 
-        //GetCellContents variables are valid so long as all remaining characters are numbers or letters (but not numbers then letters). (Letter Case)
-        [TestMethod]
-        public void PublicGetCellContentsLetters()
-        {
-            AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.GetCellContents("AASFDfadsfqadsfFeAFljkhpLKH");
-        }
-
         //GetCellContents variables are valid so long as all remaining characters are numbers or letters (but not numbers then letters). (Combined Case)
         [TestMethod]
         public void PublicGetCellContentsCombined()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
             a1.GetCellContents("AljkhpLsfqadsfFeAASFDf12145611445899");
-        }
-
-        //GetCellContents variables are valid for solitary valid characters (letter case)
-        [TestMethod]
-        public void PublicGetCellContentsSingleLetter()
-        {
-            AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.GetCellContents("A");
         }
 
         //GetCellContents: Cells that have not been changed must have empty values
@@ -794,7 +796,7 @@ namespace UnitTestProject1
 
         //Invalid variable name should throw exceptions (Vengeful Validator)
         [TestMethod]
-        [ExpectedException(typeof(FormulaFormatException))]
+        [ExpectedException(typeof(InvalidNameException))]
         public void PublicSetContentsOfCellInvalidVariableFormulaVengefulValidator()
         {
             AbstractSpreadsheet a1 = new Spreadsheet(s => false, s => s, "default");
@@ -803,10 +805,10 @@ namespace UnitTestProject1
 
         //Invalid variable name should throw exceptions (breaking normalizer)
         [TestMethod]
-        [ExpectedException(typeof(FormulaFormatException))]
+        [ExpectedException(typeof(InvalidNameException))]
         public void PublicSetContentsOfCellInvalidVariableFormulaBreakingNormalizer()
         {
-            AbstractSpreadsheet a1 = new Spreadsheet(s => true, s => "HAHAH,BROKEN!", "default");
+            AbstractSpreadsheet a1 = new Spreadsheet(s => true, s => "ThisAintAVariable", "default");
             a1.SetContentsOfCell("A1", "=A1");
         }
 
@@ -1367,6 +1369,24 @@ namespace UnitTestProject1
             a1.GetCellValue("A1");
         }
 
+        //GetCellValue variables are valid for solitary valid characters (letter case)
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void PublicGetCellValueSingleLetter()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.GetCellValue("A");
+        }
+
+        //GetCellContents variables aren't valid without numbers
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void PublicGetCellValueLetters()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.GetCellValue("AASFDfadsfqadsfFeAFljkhpLKH");
+        }
+
         //GetCellValue Normal Tests **********************************************************************************
 
         //GetCellValue variables can start with letters
@@ -1386,28 +1406,12 @@ namespace UnitTestProject1
             a1.GetCellValue("A12145689911111111141545145");
         }
 
-        //GetCellValue variables are valid so long as all remaining characters are numbers or letters (but not numbers then letters). (Letter Case)
-        [TestMethod]
-        public void PublicGetCellValueLetters()
-        {
-            AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.GetCellValue("AASFDfadsfqadsfFeAFljkhpLKH");
-        }
-
         //GetCellValue variables are valid so long as all remaining characters are numbers or letters (but not numbers then letters). (Combined Case)
         [TestMethod]
         public void PublicGetCellValueCombined()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
             a1.GetCellValue("AljkhpLsfqadsfFeAASFDf12145611445899");
-        }
-
-        //GetCellValue variables are valid for solitary valid characters (letter case)
-        [TestMethod]
-        public void PublicGetCellValueSingleLetter()
-        {
-            AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.GetCellValue("A");
         }
 
         //GetCellValue: Cells that have not been changed must have empty values
@@ -1442,7 +1446,7 @@ namespace UnitTestProject1
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
             a1.SetContentsOfCell("A1", "=1 / (1 - 1)");
-            Assert.IsTrue(a1.GetCellValue("A1").GetType().Equals(typeof(FormulaFormatException)));
+            Assert.IsTrue(a1.GetCellValue("A1").GetType().Equals(typeof(FormulaError)));
         }
 
         //GetCellValue: Cells that we initialize to invalid formulas must return FormulaErrors (empty cell)
@@ -1451,7 +1455,7 @@ namespace UnitTestProject1
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
             a1.SetContentsOfCell("A1", "=A2");
-            Assert.IsTrue(a1.GetCellValue("A1").GetType().Equals(typeof(FormulaFormatException)));
+            Assert.IsTrue(a1.GetCellValue("A1").GetType().Equals(typeof(FormulaError)));
         }
 
         //GetCellValue: Cells that we initialize to invalid formulas must return FormulaErrors (strings cell)
@@ -1461,7 +1465,7 @@ namespace UnitTestProject1
             AbstractSpreadsheet a1 = new Spreadsheet();
             a1.SetContentsOfCell("A2", "STRING!");
             a1.SetContentsOfCell("A1", "=A2");
-            Assert.IsTrue(a1.GetCellValue("A1").GetType().Equals(typeof(FormulaFormatException)));
+            Assert.IsTrue(a1.GetCellValue("A1").GetType().Equals(typeof(FormulaError)));
         }
 
         //GetCellValue: Cells that we initialize to invalid formulas must return FormulaErrors (Other invalid formulas)
@@ -1471,7 +1475,7 @@ namespace UnitTestProject1
             AbstractSpreadsheet a1 = new Spreadsheet();
             a1.SetContentsOfCell("A1", "=A2");
             a1.SetContentsOfCell("A2", "1 / (1 - 1)");
-            Assert.IsTrue(a1.GetCellValue("A1").GetType().Equals(typeof(FormulaFormatException)));
+            Assert.IsTrue(a1.GetCellValue("A1").GetType().Equals(typeof(FormulaError)));
         }
 
 
@@ -1481,10 +1485,9 @@ namespace UnitTestProject1
         public void PublicGetCellValueCellNamesCaseSensitive()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
-            Formula f1 = new Formula("B1 + a2 + 34/2");
-            a1.SetContentsOfCell("A1", "=B1 + a2 + 34/2");
+            a1.SetContentsOfCell("A1", "=1+ 2 + 3");
             a1.SetContentsOfCell("a1", "lowercase");
-            Assert.AreEqual(f1, (Formula)a1.GetCellValue("A1"));
+            Assert.AreEqual(6.0, (double)a1.GetCellValue("A1"), 1e-9);
             Assert.AreEqual("lowercase", (string)a1.GetCellValue("a1"));
         }
 
@@ -1679,7 +1682,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void PublicChangedFourArgument()
         {
-            AbstractSpreadsheet a1 = new Spreadsheet("TrivialEmptyFile", s => true, s => s.ToUpper(), "default");
+            AbstractSpreadsheet a1 = new Spreadsheet("TrivialEmptyFile", s => true, s => s.ToUpper(), "EmptyVersion");
             Assert.IsFalse(a1.Changed);
         }
 
@@ -1709,7 +1712,7 @@ namespace UnitTestProject1
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
             Assert.IsFalse(a1.Changed);
-            a1.SetContentsOfCell("A1", "=A1 + 1");
+            a1.SetContentsOfCell("A1", "=A2 + 1");
             Assert.IsTrue(a1.Changed);
         }
 
@@ -1801,7 +1804,7 @@ namespace UnitTestProject1
             a1.SetContentsOfCell("A1", "Something");
             try
             {
-                a1.Save("################################JAUNGLK&&&&&&@&$%^"); //Junk save name
+                a1.Save("<>:|?*"); //Junk save name
             }
             catch (SpreadsheetReadWriteException)
             {
@@ -1869,7 +1872,7 @@ namespace UnitTestProject1
             AbstractSpreadsheet a2 = new Spreadsheet("SaveStressTest", s => true, s => s, "default");
             for (int i = 0; i < MAXSIZE; i++)
             {
-                Assert.AreEqual(new Formula("=A" + (i + 1)), (Formula) a2.GetCellContents("A" + i));
+                Assert.AreEqual(new Formula("A" + (i + 1)), (Formula) a2.GetCellContents("A" + i));
             }
 
         }
