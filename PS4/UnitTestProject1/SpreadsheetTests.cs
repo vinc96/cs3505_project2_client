@@ -753,6 +753,102 @@ namespace UnitTestProject1
             Assert.AreEqual(1, a1.GetNamesOfAllNonemptyCells().Count()); //No size change
         }
 
+        //SetContentsOfCell Formula Exceptions (Malformed Formulas)
+        //As this logic is almost entirely handled by the Formula class, the majority of the testing should 
+        //be handled by that class. However, I will do limited testing here, as I am technically responsible
+        //for exceptions being thrown
+
+        //Invalid variable name should throw exceptions (tricky, containing underscores, which are allowed in
+        //formula, but not in our definition of variables)
+        [TestMethod]
+        [ExpectedException(typeof(FormulaFormatException))]
+        public void PublicSetContentsOfCellInvalidVariableFormula()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=_A1");
+        }
+
+        //Invalid variable name should throw exceptions (Vengeful Validator)
+        [TestMethod]
+        [ExpectedException(typeof(FormulaFormatException))]
+        public void PublicSetContentsOfCellInvalidVariableFormulaVengefulValidator()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(s => false, s => s, "default");
+            a1.SetContentsOfCell("A1", "=A1");
+        }
+
+        //Invalid variable name should throw exceptions (breaking normalizer)
+        [TestMethod]
+        [ExpectedException(typeof(FormulaFormatException))]
+        public void PublicSetContentsOfCellInvalidVariableFormulaBreakingNormalizer()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(s => true, s => "HAHAH,BROKEN!", "default");
+            a1.SetContentsOfCell("A1", "=A1");
+        }
+
+        //Invalid tokens should throw exceptions
+        [TestMethod]
+        [ExpectedException(typeof(FormulaFormatException))]
+        public void PublicSetContentsOfCellInvalidFormulaToken()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=A1& + 1");
+        }
+
+        //We need at least one token
+        [TestMethod]
+        [ExpectedException(typeof(FormulaFormatException))]
+        public void PublicSetContentsOfCellInvalidFormulaEmpty()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "= ");
+        }
+
+        //Mismatched operators should throw exceptions
+        [TestMethod]
+        [ExpectedException(typeof(FormulaFormatException))]
+        public void PublicSetContentsOfCellInvalidFormulaMismatchedOperators()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=1 + ");
+        }
+
+        //Starting w/ an operator is illegal
+        [TestMethod]
+        [ExpectedException(typeof(FormulaFormatException))]
+        public void PublicSetContentsOfCellInvalidFormulaStartWithOperator()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "= + 1");
+        }
+
+        //We have to match parenthesis (too many open)
+        [TestMethod]
+        [ExpectedException(typeof(FormulaFormatException))]
+        public void PublicSetContentsOfCellInvalidFormulaTooManyOpenParen()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=((1 + 1)");
+        }
+
+        //We have to match parenthesis (too many CloseParen)
+        [TestMethod]
+        [ExpectedException(typeof(FormulaFormatException))]
+        public void PublicSetContentsOfCellInvalidFormulaTooManyCloseParen()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=(1 + 1))");
+        }
+
+        //We can't parse anything larger than Double.MaxValue (1.7e308)
+        [TestMethod]
+        [ExpectedException(typeof(FormulaFormatException))]
+        public void PublicSetContentsOfCellInvalidFormulaNumbersTooBig()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=1 + 1.8e308");
+        }
+
         //SetContentsOfCell() Normal Tests *******************************************************************
 
         //DOUBLES **************************************************************************************
@@ -1373,6 +1469,236 @@ namespace UnitTestProject1
         //be handled by that class. However, I will do limited testing here, as I am technically responsible
         //for the validity of the results.
 
+            //BASIC ARITHMETIC
 
+        //Multiplication by 0
+        [TestMethod]
+        public void PublicGetCellValueFormulaMultiplyByZero()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=10 * (10 - 10)");
+            Formula f1 = new Formula("10 * (10 - 10)");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(result, (double) a1.GetCellValue("A1"), 1e-9);
+        }
+        //Trivial Addition 1 (Standard Addition)
+        [TestMethod]
+        public void PublicGetCellValueFormulaTrivialAddition1()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=15 + 35");
+            Formula f1 = new Formula("15 + 35");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(result, (double)a1.GetCellValue("A1"), 1e-9);
+        }
+        //Trivial Addition 2 (Decimal Addition)
+        [TestMethod]
+        public void PublicGetCellValueFormulaTrivialAddition2()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=153.02 + 45.003");
+            Formula f1 = new Formula("153.02 + 45.003");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(result, (double)a1.GetCellValue("A1"), 1e-9);
+        }
+        //Trivial Addition 3 (Negative Addition)
+        [TestMethod]
+        public void PublicGetCellValueFormulaTrivialAddition3()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=150 + (0 - 45)");
+            Formula f1 = new Formula("150 + (0 - 45)");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(result, (double)a1.GetCellValue("A1"), 1e-9);
+        }
+        //Trivial Subtraction 1 (Standard subtraction)
+        [TestMethod]
+        public void PublicGetCellValueFormulaTrivialSubtraction1()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=40 - 10");
+            Formula f1 = new Formula("40 - 10");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(result, (double)a1.GetCellValue("A1"), 1e-9);
+        }
+        //Trivial Subtraction 2 (Decimal Point Subtraction)
+        [TestMethod]
+        public void PublicGetCellValueFormulaTrivialSubtraction2()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=1 - .12516");
+            Formula f1 = new Formula("1 - .12516");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(result, (double)a1.GetCellValue("A1"), 1e-9);
+        }
+        //Trivial Subtraction 3 (Double Negative subtraction)
+        [TestMethod]
+        public void PublicGetCellValueFormulaTrivialSubtraction3()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=0 - (0 - 14565)");
+            Formula f1 = new Formula("0 - (0 - 14565)");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(result, (double)a1.GetCellValue("A1"), 1e-9);
+        }
+        //Trivial Subtraction 4 (Negative Result)
+        [TestMethod]
+        public void PublicGetCellValueFormulaTrivialSubtraction4()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=(0 - 14565)");
+            Formula f1 = new Formula("(0 - 14565)");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(result, (double)a1.GetCellValue("A1"), 1e-9);
+        }
+        //Trivial Division 1 (Standard Division)
+        [TestMethod]
+        public void PublicGetCellValueFormulaTrivialDivision1()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=25 / 5");
+            Formula f1 = new Formula("25 / 5");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(result, (double)a1.GetCellValue("A1"), 1e-9);
+        }
+        //Trivial Division 2 (Division using and resulting in negatives)
+        [TestMethod]
+        public void PublicGetCellValueFormulaTrivialDivision2()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=25 / (0-5)");
+            Formula f1 = new Formula("25 / (0-5)");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(result, (double)a1.GetCellValue("A1"), 1e-9);
+        }
+        //Trivial Division 3 (Division resulting in decimals)
+        [TestMethod]
+        public void PublicGetCellValueFormulaTrivialDivision3()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=10 / 4");
+            Formula f1 = new Formula("10 / 4");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(result, (double)a1.GetCellValue("A1"), 1e-9);
+        }
+        //Trivial Division 4 (Division inside parenthesis)
+        [TestMethod]
+        public void PublicGetCellValueFormulaTrivialDivision4()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=(0 / 148) - 32");
+            Formula f1 = new Formula("(0 / 148) - 32");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(result, (double)a1.GetCellValue("A1"), 1e-9);
+        }
+        //Trivial Multiplication 1 (Standard Multiplication)
+        [TestMethod]
+        public void PublicGetCellValueFormulaTrivialMultiplication1()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=25 * 5");
+            Formula f1 = new Formula("25 * 5");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(result, (double)a1.GetCellValue("A1"), 1e-9);
+        }
+        //Trivial Multiplication 2 (Decimal Multiplication)
+        [TestMethod]
+        public void PublicGetCellValueFormulaTrivialMultiplication2()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=13 * 5.5");
+            Formula f1 = new Formula("13 * 5.5");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(result, (double)a1.GetCellValue("A1"), 1e-9);
+        }
+        //Trivial Multiplication 3 (Multiplication using and resulting in negatives)
+        [TestMethod]
+        public void PublicGetCellValueFormulaTrivialMultiplication3()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=148 * (0 - 32)");
+            Formula f1 = new Formula("148 * (0 - 32)");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(result, (double)a1.GetCellValue("A1"), 1e-9);
+        }
+        //Trivial Multiplication 4 (Multiplication inside parenthesis)
+        [TestMethod]
+        public void PublicGetCellValueFormulaTrivialMultiplication4()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=(148 * 0) - 32");
+            Formula f1 = new Formula("(148 * 0) - 32");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(result, (double)a1.GetCellValue("A1"), 1e-9);
+        }
+
+        //Changed Normal Tests **********************************************************************
+
+
+        //Spreadsheets aren't changed when they're opened (default version)
+        [TestMethod]
+        public void PublicChangedDefaultConstructor()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            Assert.IsFalse(a1.Changed);
+        }
+
+        //Spreadsheets aren't changed when they're opened (3 argument version)
+        [TestMethod]
+        public void PublicChangedThreeArgument()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(s => true, s => s.ToUpper(), "default");
+            Assert.IsFalse(a1.Changed);
+        }
+
+        //We should respect the normalize function passed to our constructor (4 argument version)
+        [TestMethod]
+        public void PublicChangedFourArgument()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet("TrivialEmptyFile", s => true, s => s.ToUpper(), "default");
+            Assert.IsFalse(a1.Changed);
+        }
+
+        //When we change something, changed is no longer false (String)
+        [TestMethod]
+        public void PublicChangedOnEditString()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            Assert.IsFalse(a1.Changed);
+            a1.SetContentsOfCell("A1", "SomeChange");
+            Assert.IsTrue(a1.Changed);
+        }
+
+        //When we change something, changed is no longer false (Double)
+        [TestMethod]
+        public void PublicChangedOnEditDouble()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            Assert.IsFalse(a1.Changed);
+            a1.SetContentsOfCell("A1", "15.256");
+            Assert.IsTrue(a1.Changed);
+        }
+
+        //When we change something, changed is no longer false (Formula)
+        [TestMethod]
+        public void PublicChangedOnEditFormula()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            Assert.IsFalse(a1.Changed);
+            a1.SetContentsOfCell("A1", "=A1 + 1");
+            Assert.IsTrue(a1.Changed);
+        }
+
+        //When we save the formula, changed is back to true.
+        [TestMethod]
+        public void PublicChangedOnEditThenSave()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            Assert.IsFalse(a1.Changed);
+            a1.SetContentsOfCell("A1", "SomeChange");
+            Assert.IsTrue(a1.Changed);
+            a1.Save("JunkSave");
+            Assert.IsFalse(a1.Changed);
+        }
     }
 }
