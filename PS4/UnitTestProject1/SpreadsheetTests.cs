@@ -12,6 +12,10 @@ namespace UnitTestProject1
     public class SpreadsheetTests
     {
         /// <summary>
+        /// Corresponds to a directory containing our test XML files. This string includes a trailing slash, so you just have to append a filename.
+        /// </summary>
+        String XMLLocation = "..\\..\\TestXMLs\\";
+        /// <summary>
         /// The maximum size of the stress tests (The largest our spreadsheet gets in these tests)
         /// </summary>
         int MAXSIZE = 10;
@@ -35,7 +39,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void PublicConstructorFourArgument()
         {
-            AbstractSpreadsheet a1 = new Spreadsheet("TrivialEmptyFile", s => true, s => s, "EmptyVersion");
+            AbstractSpreadsheet a1 = new Spreadsheet(XMLLocation + "TrivialEmptyFile", s => true, s => s, "EmptyVersion");
         }
 
         //Constructors should provide empty spreadsheets (Single Argument Constructor)
@@ -58,7 +62,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void PublicConstructorIsEmptyFourArgument()
         {
-            AbstractSpreadsheet a1 = new Spreadsheet("TrivialEmptyFile", s => true, s => s, "EmptyVersion");
+            AbstractSpreadsheet a1 = new Spreadsheet(XMLLocation + "TrivialEmptyFile", s => true, s => s, "EmptyVersion");
             Assert.AreEqual(0, a1.GetNamesOfAllNonemptyCells().Count());
         }
 
@@ -82,7 +86,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void PublicConstructorCanEditFourArgumentEmpty()
         {
-            AbstractSpreadsheet a1 = new Spreadsheet("TrivialEmptyFile", s => true, s => s, "EmptyVersion");
+            AbstractSpreadsheet a1 = new Spreadsheet(XMLLocation + "TrivialEmptyFile", s => true, s => s, "EmptyVersion");
             a1.SetContentsOfCell("A1", "12034.1");
         }
 
@@ -90,7 +94,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void PublicConstructorCanEditFourArgumentNonEmpty()
         {
-            AbstractSpreadsheet a1 = new Spreadsheet("TrivialSmallFile", s => true, s => s, "SmallVersion");
+            AbstractSpreadsheet a1 = new Spreadsheet(XMLLocation + "TrivialSmallFile", s => true, s => s, "SmallVersion");
             a1.SetContentsOfCell("A1", "12034.1");
         }
 
@@ -122,7 +126,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void PublicConstructorRespectNormalize4Argument()
         {
-            AbstractSpreadsheet a1 = new Spreadsheet("TrivialEmptyFile", s => true, s => s.ToUpper(), "EmptyVersion");
+            AbstractSpreadsheet a1 = new Spreadsheet(XMLLocation + "TrivialEmptyFile", s => true, s => s.ToUpper(), "EmptyVersion");
             a1.SetContentsOfCell("A1", "NonEmpty");
             a1.SetContentsOfCell("a1", "NonEmptyAgain");
             Assert.AreEqual(1, a1.GetNamesOfAllNonemptyCells().Count());
@@ -134,7 +138,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void PublicConstructorNormalizeLoadingFromFile()
         {
-            AbstractSpreadsheet a1 = new Spreadsheet("TrivialSmallFile", s => true, s => s.ToLower(), "SmallVersion");
+            AbstractSpreadsheet a1 = new Spreadsheet(XMLLocation + "TrivialSmallFile", s => true, s => s.ToLower(), "SmallVersion");
             Assert.AreEqual("TestString", (string) a1.GetCellContents("a1"));
             Assert.AreEqual(2.564234, (double) a1.GetCellContents("a2"));
             Assert.AreEqual(new Formula("2 * a2"), a1.GetCellContents("a3"));
@@ -154,7 +158,7 @@ namespace UnitTestProject1
         [ExpectedException(typeof(InvalidNameException))]
         public void PublicConstructorRespectValidator4Argument()
         {
-            AbstractSpreadsheet a1 = new Spreadsheet("TrivialEmptyFile", s => false, s => s, "EmptyVersion");
+            AbstractSpreadsheet a1 = new Spreadsheet(XMLLocation + "TrivialEmptyFile", s => false, s => s, "EmptyVersion");
             a1.SetContentsOfCell("A1", "NonEmpty");
         }
 
@@ -163,7 +167,7 @@ namespace UnitTestProject1
         [ExpectedException(typeof(SpreadsheetReadWriteException))]
         public void PublicConstructorRespectValidator4ArgumentLoadFile()
         {
-            AbstractSpreadsheet a1 = new Spreadsheet("TrivialSmallFile", s => false, s => s.ToLower(), "SmallVersion");
+            AbstractSpreadsheet a1 = new Spreadsheet(XMLLocation + "TrivialSmallFile", s => false, s => s.ToLower(), "SmallVersion");
         }
 
         //Our no argument constructor should have version "default"
@@ -186,7 +190,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void PublicConstructorVersionFourArguments()
         {
-            AbstractSpreadsheet a1 = new Spreadsheet("TrivialEmptyFile", s => true, s => s, "EmptyVersion");
+            AbstractSpreadsheet a1 = new Spreadsheet(XMLLocation + "TrivialEmptyFile", s => true, s => s, "EmptyVersion");
             Assert.AreEqual("EmptyVersion", a1.Version);
         }
 
@@ -1682,7 +1686,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void PublicChangedFourArgument()
         {
-            AbstractSpreadsheet a1 = new Spreadsheet("TrivialEmptyFile", s => true, s => s.ToUpper(), "EmptyVersion");
+            AbstractSpreadsheet a1 = new Spreadsheet(XMLLocation + "TrivialEmptyFile", s => true, s => s.ToUpper(), "EmptyVersion");
             Assert.IsFalse(a1.Changed);
         }
 
@@ -1724,7 +1728,7 @@ namespace UnitTestProject1
             Assert.IsFalse(a1.Changed);
             a1.SetContentsOfCell("A1", "SomeChange");
             Assert.IsTrue(a1.Changed);
-            a1.Save("JunkSave");
+            a1.Save(XMLLocation + "JunkSave");
             Assert.IsFalse(a1.Changed);
         }
 
@@ -1846,9 +1850,9 @@ namespace UnitTestProject1
                 a1.SetContentsOfCell("A" + i, "Something" + i);
             }
 
-            a1.Save("SaveStressTest");
+            a1.Save(XMLLocation + "SaveStressTestString");
 
-            AbstractSpreadsheet a2 = new Spreadsheet("SaveStressTest", s => true, s => s, "default");
+            AbstractSpreadsheet a2 = new Spreadsheet(XMLLocation + "SaveStressTestString", s => true, s => s, "default");
             for (int i = 0; i < MAXSIZE; i++)
             {
                 Assert.AreEqual("Something" + i, (string) a2.GetCellContents("A" + i));
@@ -1867,9 +1871,9 @@ namespace UnitTestProject1
                 a1.SetContentsOfCell("A" + i, "=A" + (i+1));
             }
 
-            a1.Save("SaveStressTest");
+            a1.Save(XMLLocation + "SaveStressTestFormula");
 
-            AbstractSpreadsheet a2 = new Spreadsheet("SaveStressTest", s => true, s => s, "default");
+            AbstractSpreadsheet a2 = new Spreadsheet(XMLLocation + "SaveStressTestFormula", s => true, s => s, "default");
             for (int i = 0; i < MAXSIZE; i++)
             {
                 Assert.AreEqual(new Formula("A" + (i + 1)), (Formula) a2.GetCellContents("A" + i));
@@ -1888,9 +1892,9 @@ namespace UnitTestProject1
                 a1.SetContentsOfCell("A" + i, ((double) i).ToString());
             }
 
-            a1.Save("SaveStressTest");
+            a1.Save(XMLLocation + "SaveStressTestDouble");
 
-            AbstractSpreadsheet a2 = new Spreadsheet("SaveStressTest", s => true, s => s, "default");
+            AbstractSpreadsheet a2 = new Spreadsheet(XMLLocation + "SaveStressTestDouble", s => true, s => s, "default");
             for (int i = 0; i < MAXSIZE; i++)
             {
                 Assert.AreEqual((double) i, (double) a2.GetCellContents("A" + i), 1e-9);
@@ -1904,8 +1908,8 @@ namespace UnitTestProject1
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
             a1.SetContentsOfCell("A1", "</spreadsheet>");
-            a1.Save("XMLLike");
-            AbstractSpreadsheet a2 = new Spreadsheet("XMLLike", s => true, s => s, "default");
+            a1.Save(XMLLocation + "XMLLike");
+            AbstractSpreadsheet a2 = new Spreadsheet(XMLLocation + "XMLLike", s => true, s => s, "default");
             Assert.AreEqual("</spreadsheet>", a2.GetCellContents("A1"));
         }
 
