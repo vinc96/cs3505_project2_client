@@ -1939,15 +1939,61 @@ namespace UnitTestProject1
             AbstractSpreadsheet a1 = new Spreadsheet("!@#$$%#^&", s => true, s => s, "default");
         }
 
-        //We try to load from a file without a starting tag
+        //We try to load from a file that throws a circular exception
         [TestMethod]
         [ExpectedException(typeof(SpreadsheetReadWriteException))]
-        public void PublicLoadNoStartingTag()
+        public void PublicLoadCircularException()
         {
-            AbstractSpreadsheet a1 = new Spreadsheet("NoStartingTag", s => true, s => s, "default");
-            throw new NotImplementedException(); //REMOVE WHEN YOU ADD A FILE
+            AbstractSpreadsheet a1 = new Spreadsheet(XMLLocation + "ErrorCircularException", s => true, s => s, "default");
         }
 
+        //We try to load from a file containing an invalid formula
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void PublicLoadInvalidFormula()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(XMLLocation + "ErrorInvalidFormula", s => true, s => s, "default");
+        }
+
+        //We try to load from a file containing a malformed cell (no name)
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void PublicLoadBadCellNoName()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(XMLLocation + "ErrorMalformedCellNoName", s => true, s => s, "default");
+        }
+
+        //We try to load from a file containing a malformed spreadsheet tag (w/out version)
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void PublicLoadNoVersion()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(XMLLocation + "ErrorMalformedStartingTagNoVersion", s => true, s => s, "default");
+        }
+
+        //We try to load from a file containing an open cell without a close
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void PublicLoadOpenCellNoClose()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(XMLLocation + "ErrorNoEndingCellTag", s => true, s => s, "default");
+        }
+
+        //We try to load from a file containing no ending spreadsheet tag.
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void PublicLoadNoEndingSpreadsheetTag()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(XMLLocation + "ErrorNoEndingSpreadsheetTag", s => true, s => s, "default");
+        }
+
+        //We try to load from a file containing an invalid formula
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void PublicLoadNoStartingSpreadsheetTag()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(XMLLocation + "ErrorNoStartingSpreadsheetTag", s => true, s => s, "default");
+        }
 
     }
 }
