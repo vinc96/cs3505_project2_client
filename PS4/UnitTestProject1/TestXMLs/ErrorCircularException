@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
+<spreadsheet version="SmallVersion">
 	<cell>
 		<name>
 			A1
 		</name>
 		<contents>
-			TestString
+			=A2
 		</contents>
 	</cell>
 	<cell>
@@ -12,7 +13,7 @@
 			A2
 		</name>
 		<contents>
-			2.564234
+			=A1
 		</contents>
 	</cell>
 	<cell>
@@ -20,7 +21,7 @@
 			A3
 		</name>
 		<contents>
-			=2 * A2
+			Nsdgfgs
 		</contents>
 	</cell>
 </spreadsheet>
