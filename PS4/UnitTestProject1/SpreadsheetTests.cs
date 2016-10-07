@@ -1941,6 +1941,7 @@ namespace UnitTestProject1
         public void PublicLoadNoStartingTag()
         {
             AbstractSpreadsheet a1 = new Spreadsheet("NoStartingTag", s => true, s => s, "default");
+            throw new NotImplementedException(); //REMOVE WHEN YOU ADD A FILE
         }
 
 

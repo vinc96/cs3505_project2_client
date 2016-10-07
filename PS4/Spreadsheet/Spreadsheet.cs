@@ -136,30 +136,46 @@ namespace SS
         {
             XmlReaderSettings settings = new XmlReaderSettings();
             settings.IgnoreWhitespace = true;
-            using (XmlReader reader = XmlReader.Create(pathToFile, settings))
+            try
             {
-
-                //Skip forward until we get to a spreadsheet tag
-                while (!reader.Name.Equals("spreadsheet"))
+                using (XmlReader reader = XmlReader.Create(pathToFile, settings))
                 {
-                    reader.Read();
-                }
 
-                if (!Version.Equals(reader.GetAttribute("version"))) //Check version
-                {
-                    throw new SpreadsheetReadWriteException("Versions don't match. " +
-                        Version + " (constructor)  vs " + reader.GetAttribute("version") + " (file)");
-                }
-
-                //Load all the cells
-                while (reader.Read())
-                {
-                    if (reader.IsStartElement() && reader.Name.Equals("cell"))
+                    //Skip forward until we get to a spreadsheet tag
+                    while (!reader.Name.Equals("spreadsheet"))
                     {
-                        LoadCell(reader);
+                        reader.Read();
+                    }
+
+                    if (!Version.Equals(reader.GetAttribute("version"))) //Check version
+                    {
+                        throw new SpreadsheetReadWriteException("Versions don't match. " +
+                            Version + " (constructor)  vs " + reader.GetAttribute("version") + " (file)");
+                    }
+
+                    //Load all the cells
+                    while (reader.Read())
+                    {
+                        if (reader.IsStartElement() && reader.Name.Equals("cell"))
+                        {
+                            LoadCell(reader);
+                        }
                     }
                 }
             }
+            catch (System.IO.DirectoryNotFoundException e)
+            {
+                throw new SpreadsheetReadWriteException("Directory not Found: " + e.Message);
+            }
+            catch (System.UnauthorizedAccessException e)
+            {
+                throw new SpreadsheetReadWriteException("Access Denied: " + e.Message);
+            }
+            catch (System.IO.FileNotFoundException e)
+            {
+                throw new SpreadsheetReadWriteException("File Not Found: " + e.Message);
+            }
+
         }
 
         /// <summary>
@@ -274,6 +290,14 @@ namespace SS
             catch (ArgumentException e)
             {
                 throw new SpreadsheetReadWriteException("Exception: " + e.ToString());
+            }
+            catch (System.IO.DirectoryNotFoundException e)
+            {
+                throw new SpreadsheetReadWriteException("Directory not Found: " + e.Message);
+            }
+            catch (System.UnauthorizedAccessException e)
+            {
+                throw new SpreadsheetReadWriteException("Access Denied: " + e.Message);
             }
 
             hasChanged = false; //Last thing we do before we exit.
