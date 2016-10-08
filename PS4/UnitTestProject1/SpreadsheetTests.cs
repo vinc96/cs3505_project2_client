@@ -766,15 +766,49 @@ namespace UnitTestProject1
             a1.SetContentsOfCell("A4", "=A1 + 10"); //Throw here
         }
 
-        //If we fail with a CircularDependency, the sheet must not change.
+        //If we fail with a CircularDependency, the sheet must not change. (original value double)
         [TestMethod]
-        public void PublicSetContentsOfCellStrFormCircularDependencyNoChange()
+        public void PublicSetContentsOfCellStrFormCircularDependencyNoChangeDouble()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetContentsOfCell("A2", "=A1");
+            a1.SetContentsOfCell("A1", "1");
             try
             {
-                a1.SetContentsOfCell("A1", "=A2");
+                a1.SetContentsOfCell("A1", "=A1");
+            }
+            catch (CircularException e)
+            {
+                //Do nothing
+            }
+            Assert.AreEqual(1, a1.GetNamesOfAllNonemptyCells().Count()); //No size change
+        }
+
+        //If we fail with a CircularDependency, the sheet must not change. (original value string)
+        [TestMethod]
+        public void PublicSetContentsOfCellStrFormCircularDependencyNoChangeString()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "SomeString");
+            try
+            {
+                a1.SetContentsOfCell("A1", "=A1");
+            }
+            catch (CircularException e)
+            {
+                //Do nothing
+            }
+            Assert.AreEqual(1, a1.GetNamesOfAllNonemptyCells().Count()); //No size change
+        }
+
+        //If we fail with a CircularDependency, the sheet must not change. (original value formula)
+        [TestMethod]
+        public void PublicSetContentsOfCellStrFormCircularDependencyNoChangeFormula()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=1 + 1");
+            try
+            {
+                a1.SetContentsOfCell("A1", "=A1");
             }
             catch (CircularException e)
             {
@@ -1495,12 +1529,32 @@ namespace UnitTestProject1
             Assert.AreEqual("lowercase", (string)a1.GetCellValue("a1"));
         }
 
+        //GetCellValue: Evaluate formulas to a double
+        [TestMethod]
+        public void PublicGetCellValueFormulaToDouble()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "1");
+            a1.SetContentsOfCell("A2", "=A1");
+            Assert.AreEqual(1, (double) a1.GetCellValue("A2"), 1e-9);
+        }
+
+        //GetCellValue: Evaluate formulas to a double (formula evaluates to double)
+        [TestMethod]
+        public void PublicGetCellValueFormulaToDoubleFormula()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=1+1");
+            a1.SetContentsOfCell("A2", "=A1");
+            Assert.AreEqual(2, (double) a1.GetCellValue("A2"), 1e-9);
+        }
+
         //GetCellValue formula tests ******************************************************************************************
         //As this logic is almost entirely handled by the Formula class, the majority of the testing should 
         //be handled by that class. However, I will do limited testing here, as I am technically responsible
         //for the validity of the results.
 
-            //BASIC ARITHMETIC
+        //BASIC ARITHMETIC
 
         //Multiplication by 0
         [TestMethod]
@@ -1819,15 +1873,6 @@ namespace UnitTestProject1
 
         //Save Exception Tests ********************************************************************
 
-        //Attempt to write to an illegal location
-        [TestMethod]
-        [ExpectedException(typeof(SpreadsheetReadWriteException))]
-        public void PublicSaveIllegalLocation()
-        {
-            AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.Save("C:\\Program Files\\IReallyHopeThisCan'tWriteByDefault.xml");
-        }
-
         //Attempt to write to a nonexistent locaiton
         [TestMethod]
         [ExpectedException(typeof(SpreadsheetReadWriteException))]
@@ -1914,6 +1959,14 @@ namespace UnitTestProject1
         }
 
         //LOADING EXCEPTION TESTS ****************************************************************************************
+
+        //We throw exception if versions don't match
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void PublicLoadFileNoVersionMatch()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(XMLLocation + "TrivialEmptyFile", s => true, s => s, "NOTPROPERVERSION");
+        }
 
         //We try to load from a file that doesn't exist
         [TestMethod]

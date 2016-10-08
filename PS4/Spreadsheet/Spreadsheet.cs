@@ -174,10 +174,6 @@ namespace SS
             {
                 throw new SpreadsheetReadWriteException("Directory not Found: " + e.Message);
             }
-            catch (System.UnauthorizedAccessException e)
-            {
-                throw new SpreadsheetReadWriteException("Access Denied: " + e.Message);
-            }
             catch (System.IO.FileNotFoundException e)
             {
                 throw new SpreadsheetReadWriteException("File Not Found: " + e.Message);
@@ -202,9 +198,16 @@ namespace SS
             while (!reader.Name.Equals("name"))
             {
                 reader.Read();
+
+                if (reader.Name.Equals("cell"))
+                {
+                    throw new SpreadsheetReadWriteException("Invalid cell: name not found");
+                }
             }
 
+            
             name = reader.ReadElementContentAsString(); //Once we get to the name elment, store its value.
+            
             name = RemoveWhitespace(name);//Clear whitespace from name
 
             string contents;
@@ -212,9 +215,15 @@ namespace SS
             while (!reader.Name.Equals("contents"))
             {
                 reader.Read();
+
+                if (reader.Name.Equals("cell"))
+                {
+                    throw new SpreadsheetReadWriteException("Invalid cell: contents not found");
+                }
             }
 
             contents = reader.ReadElementContentAsString(); //Once we get to the contents element, store its value.
+           
             contents = RemoveWhitespace(contents);//Clear whitespace from contents
             //Create the cell (or try)
             try
@@ -271,23 +280,13 @@ namespace SS
                         }
 
                     }
-                    else
-                    {
-                        throw new SpreadsheetReadWriteException("Spreadsheet tag not found");
-                    }
-
-                    //We should have returned by now.
-                    throw new SpreadsheetReadWriteException("Version attribute not found.");
+                   
                 }
             }
             catch (System.IO.DirectoryNotFoundException e)
             {
                 throw new SpreadsheetReadWriteException("Directory not Found: " + e.Message);
-            }
-            catch (System.UnauthorizedAccessException e)
-            {
-                throw new SpreadsheetReadWriteException("Access Denied: " + e.Message);
-            }
+            }            
             catch (System.IO.FileNotFoundException e)
             {
                 throw new SpreadsheetReadWriteException("File Not Found: " + e.Message);
@@ -296,6 +295,8 @@ namespace SS
             {
                 throw new SpreadsheetReadWriteException("Spreadsheet element was never opened ");
             }
+
+            return null;//Should never return, exception should be thrown first.
         }
 
         /// <summary>
@@ -353,10 +354,6 @@ namespace SS
             catch (System.IO.DirectoryNotFoundException e)
             {
                 throw new SpreadsheetReadWriteException("Directory not Found: " + e.Message);
-            }
-            catch (System.UnauthorizedAccessException e)
-            {
-                throw new SpreadsheetReadWriteException("Access Denied: " + e.Message);
             }
 
             hasChanged = false; //Last thing we do before we exit.
@@ -615,15 +612,6 @@ namespace SS
                     {
                         this.SetCellContents(name, (Formula)oldValue);
                     }
-                    else if (oldValue.GetType().Equals(typeof(String)))
-                    {
-                        this.SetCellContents(name, (String)oldValue);
-                    }
-                    else
-                    {
-                        this.SetCellContents(name, (Double)oldValue);
-                    }
-                    
                 }
 
                 throw e;
@@ -668,7 +656,7 @@ namespace SS
         /// <param name="name">The name to check the validity of.</param>
         private void IsNameInvalidOrNull(string varname)
         {
-            if (varname == null || varname.Length == 0)
+            if (varname == null)
             {
                 throw new InvalidNameException();
             }
