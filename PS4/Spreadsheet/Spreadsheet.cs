@@ -182,7 +182,7 @@ namespace SS
             {
                 throw new SpreadsheetReadWriteException("File Not Found: " + e.Message);
             }
-            catch (XmlException)
+            catch (XmlException) //Thrown when the reader steps off the end of the file.
             {
                 throw new SpreadsheetReadWriteException("Spreadsheet element was never opened ");
             }
@@ -292,7 +292,7 @@ namespace SS
             {
                 throw new SpreadsheetReadWriteException("File Not Found: " + e.Message);
             }
-            catch (XmlException)
+            catch (XmlException) //Thrown when the reader steps off the end of the file.
             {
                 throw new SpreadsheetReadWriteException("Spreadsheet element was never opened ");
             }
