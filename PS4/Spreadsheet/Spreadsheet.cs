@@ -236,7 +236,43 @@ namespace SS
         /// </summary>
         public override string GetSavedVersion(string filename)
         {
-            throw new NotImplementedException();
+            XmlReaderSettings settings = new XmlReaderSettings();
+            settings.IgnoreWhitespace = true;
+            try
+            {
+                using (XmlReader reader = XmlReader.Create(filename, settings))
+                {
+
+                    //Skip forward until we get to a spreadsheet tag
+                    while (!reader.Name.Equals("spreadsheet"))
+                    {
+                        reader.Read();
+                    }
+                    if (reader.Name.Equals("spreadsheet"))
+                    {
+                        return reader.GetAttribute("version"); //Return version
+                    }
+                    else
+                    {
+                        throw new SpreadsheetReadWriteException("Spreadsheet tag not found");
+                    }
+
+                    //We should have returned by now.
+                    throw new SpreadsheetReadWriteException("Version attribute not found.");
+                }
+            }
+            catch (System.IO.DirectoryNotFoundException e)
+            {
+                throw new SpreadsheetReadWriteException("Directory not Found: " + e.Message);
+            }
+            catch (System.UnauthorizedAccessException e)
+            {
+                throw new SpreadsheetReadWriteException("Access Denied: " + e.Message);
+            }
+            catch (System.IO.FileNotFoundException e)
+            {
+                throw new SpreadsheetReadWriteException("File Not Found: " + e.Message);
+            }
         }
 
         /// <summary>
