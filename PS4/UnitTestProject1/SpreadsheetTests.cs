@@ -1947,6 +1947,14 @@ namespace UnitTestProject1
             AbstractSpreadsheet a1 = new Spreadsheet(XMLLocation + "ErrorCircularException", s => true, s => s, "default");
         }
 
+        //We try to load from a file containing an invalid cell name
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void PublicLoadInvalidCellName()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(XMLLocation + "ErrorInvalidCellName", s => true, s => s, "default");
+        }
+
         //We try to load from a file containing an invalid formula
         [TestMethod]
         [ExpectedException(typeof(SpreadsheetReadWriteException))]
@@ -1961,6 +1969,14 @@ namespace UnitTestProject1
         public void PublicLoadBadCellNoName()
         {
             AbstractSpreadsheet a1 = new Spreadsheet(XMLLocation + "ErrorMalformedCellNoName", s => true, s => s, "default");
+        }
+
+        //We try to load from a file containing a malformed starting spreadsheet tag.
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void PublicLoadBadStartingSpreadsheetTag()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(XMLLocation + "ErrorMalformedEndingSpreadsheetTag", s => true, s => s, "default");
         }
 
         //We try to load from a file containing a malformed spreadsheet tag (w/out version)
@@ -1987,7 +2003,7 @@ namespace UnitTestProject1
             AbstractSpreadsheet a1 = new Spreadsheet(XMLLocation + "ErrorNoEndingSpreadsheetTag", s => true, s => s, "default");
         }
 
-        //We try to load from a file containing an invalid formula
+        //We try to load from a file containing no starting spreadsheet tag.
         [TestMethod]
         [ExpectedException(typeof(SpreadsheetReadWriteException))]
         public void PublicLoadNoStartingSpreadsheetTag()
@@ -1995,5 +2011,73 @@ namespace UnitTestProject1
             AbstractSpreadsheet a1 = new Spreadsheet(XMLLocation + "ErrorNoStartingSpreadsheetTag", s => true, s => s, "default");
         }
 
+        //GetSavedVersion Exception Tests***********************************************************************************
+
+        //We try to get the version of a file that doesn't exist
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void PublicGetSavedVersionDNE()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.GetSavedVersion("FILEDNE");
+        }
+
+        //We try to get the version of a file path that doesn't exist
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void PublicGetSavedVersionFilePathDNE()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.GetSavedVersion("\\NONEXISTANTPATH\\FILEDNE");
+        }
+
+        //We try to get the version of something that's not a file path
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void PublicGetSavedVersionNotRealFilePath()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.GetSavedVersion("!@#$$%#^&");
+        }
+
+        //We try to get the version of a file containing a malformed spreadsheet tag (w/out version)
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void PublicGetSavedVersionNoVersion()
+        {
+
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.GetSavedVersion(XMLLocation + "ErrorMalformedStartingTagNoVersion");
+        }
+
+        //We try to get the version of a file containing no starting spreadsheet tag.
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void PublicGetSavedVersionNoStartingSpreadsheetTag()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.GetSavedVersion(XMLLocation + "ErrorNoStartingSpreadsheetTag");
+        }
+
+
+        //GetSavedVersion Normal Tests***********************************************************************************
+
+        //Get the version of a file with an empty version
+        [TestMethod]
+        public void PublicGetSavedVersionEmptyVersion()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(s => true, s => s, "");
+            a1.Save(XMLLocation + "EmptyVersion");
+            Assert.AreEqual("", a1.GetSavedVersion(XMLLocation + "EmptyVersion"));
+        }
+
+        //Get the version of a file with a trivial version
+        [TestMethod]
+        public void PublicGetSavedVersionTrivialVersion()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(s => true, s => s, "trivial");
+            a1.Save(XMLLocation + "EmptyVersion");
+            Assert.AreEqual("trivial", a1.GetSavedVersion(XMLLocation + "EmptyVersion"));
+        }
     }
 }
