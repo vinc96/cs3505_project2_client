@@ -1971,6 +1971,14 @@ namespace UnitTestProject1
             AbstractSpreadsheet a1 = new Spreadsheet(XMLLocation + "ErrorMalformedCellNoName", s => true, s => s, "default");
         }
 
+        //We try to load from a file containing a malformed cell (no contents)
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void PublicLoadBadCellNoContents()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(XMLLocation + "ErrorMalformedCellNoContents", s => true, s => s, "default");
+        }
+
         //We try to load from a file containing a malformed starting spreadsheet tag.
         [TestMethod]
         [ExpectedException(typeof(SpreadsheetReadWriteException))]
@@ -2067,8 +2075,8 @@ namespace UnitTestProject1
         public void PublicGetSavedVersionEmptyVersion()
         {
             AbstractSpreadsheet a1 = new Spreadsheet(s => true, s => s, "");
-            a1.Save(XMLLocation + "EmptyVersion");
-            Assert.AreEqual("", a1.GetSavedVersion(XMLLocation + "EmptyVersion"));
+            a1.Save(XMLLocation + "GetSavedVersionEmpty");
+            Assert.AreEqual("", a1.GetSavedVersion(XMLLocation + "GetSavedVersionEmpty"));
         }
 
         //Get the version of a file with a trivial version
@@ -2076,8 +2084,8 @@ namespace UnitTestProject1
         public void PublicGetSavedVersionTrivialVersion()
         {
             AbstractSpreadsheet a1 = new Spreadsheet(s => true, s => s, "trivial");
-            a1.Save(XMLLocation + "EmptyVersion");
-            Assert.AreEqual("trivial", a1.GetSavedVersion(XMLLocation + "EmptyVersion"));
+            a1.Save(XMLLocation + "GetSavedVersionTrivial");
+            Assert.AreEqual("trivial", a1.GetSavedVersion(XMLLocation + "GetSavedVersionTrivial"));
         }
     }
 }

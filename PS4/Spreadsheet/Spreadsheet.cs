@@ -149,8 +149,15 @@ namespace SS
 
                     if (!Version.Equals(reader.GetAttribute("version"))) //Check version
                     {
-                        throw new SpreadsheetReadWriteException("Versions don't match. " +
+                        if (ReferenceEquals(reader.GetAttribute("version"), null))
+                        {
+                            throw new SpreadsheetReadWriteException("Missing version");
+                        }
+                        else
+                        {
+                            throw new SpreadsheetReadWriteException("Versions don't match. " +
                             Version + " (constructor)  vs " + reader.GetAttribute("version") + " (file)");
+                        }
                     }
 
                     //Load all the cells
@@ -174,6 +181,10 @@ namespace SS
             catch (System.IO.FileNotFoundException e)
             {
                 throw new SpreadsheetReadWriteException("File Not Found: " + e.Message);
+            }
+            catch (XmlException)
+            {
+                throw new SpreadsheetReadWriteException("Spreadsheet element was never opened ");
             }
 
         }
@@ -250,7 +261,15 @@ namespace SS
                     }
                     if (reader.Name.Equals("spreadsheet"))
                     {
-                        return reader.GetAttribute("version"); //Return version
+                        if (ReferenceEquals(reader.GetAttribute("version"), null))
+                        {
+                            throw new SpreadsheetReadWriteException("Missing Version");
+                        }
+                        else
+                        {
+                            return reader.GetAttribute("version"); //Return version
+                        }
+
                     }
                     else
                     {
@@ -272,6 +291,10 @@ namespace SS
             catch (System.IO.FileNotFoundException e)
             {
                 throw new SpreadsheetReadWriteException("File Not Found: " + e.Message);
+            }
+            catch (XmlException)
+            {
+                throw new SpreadsheetReadWriteException("Spreadsheet element was never opened ");
             }
         }
 

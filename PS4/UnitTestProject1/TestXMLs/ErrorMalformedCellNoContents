@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <spreadsheet version="SmallVersion">
 	<cell>
-		<contents>
-			TestString
-		</contents>
+		<name>
+			A2
+		</name>
 	</cell>
 	<cell>
 		<name>
