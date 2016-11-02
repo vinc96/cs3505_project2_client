@@ -80,7 +80,7 @@ namespace WindowsFormsApplication1
 
             //Update all the values on load.
             updateCells(modelSheet.GetNamesOfAllNonemptyCells());
-            grabNewData(); //Populate the UI for the current cell.
+            grabNewDisplayedData(); //Populate the UI for the current cell.
 
         }
 
@@ -177,15 +177,15 @@ namespace WindowsFormsApplication1
         private void spreadsheetPanel1_SelectionChanged(SpreadsheetPanel sender)
         {
 
-            saveOldData(); //Put whatever was in the input box into the form, and update relevant cells.
+            saveOldInputs(); //Put whatever was in the input box into the form, and update relevant cells.
 
-            grabNewData(); //Grab the data from the new selection, and put it where it needs to go in the view. 
+            grabNewDisplayedData(); //Grab the data from the new selection, and put it where it needs to go in the view. 
         }
 
         /// <summary>
         /// Grabs the data from the newly selected cell, and pushes it to the relevent sections in the GUI.
         /// </summary>
-        private void grabNewData()
+        private void grabNewDisplayedData()
         {
             int col, row;
             spreadsheetPanel1.GetSelection(out col, out row);
@@ -215,22 +215,31 @@ namespace WindowsFormsApplication1
         /// <summary>
         /// Takes the data from the input boxes, and if it's valid, saves it to the spreadsheet.
         /// </summary>
-        private void saveOldData()
+        private void saveOldInputs()
         {
             //Take the current contents of the cellContents box, and if it's different, add it to the spreadsheet.
             string cellNameString = coordsToCellName(lastCol, lastRow);
             if (!(modelSheet.GetCellContents(cellNameString).Equals(cellContents.Text)))
             {
-                ISet<String> cellsToUpdate = modelSheet.SetContentsOfCell(cellNameString, cellContents.Text);
-                //As long as our current cell isn't a formula error, update the rest of the cells. Otherwise,
-                //just update this one.
-                if (modelSheet.GetCellValue(cellNameString).GetType().Equals(typeof(FormulaError)))
+                try
                 {
-                    updateCell(cellNameString);
-                }
-                else
-                {
+                    ISet<String> cellsToUpdate = modelSheet.SetContentsOfCell(cellNameString, cellContents.Text);
                     updateCells(cellsToUpdate); //Update the cells that need re-evaluation.
+
+                    //If we haven't placed a '*' at the end of the window title to indicate unsaved changes, do that now.
+                    if (!(this.Text[Text.Length - 1].Equals('*')))
+                    {
+                        this.Text += '*';
+                    }
+                    
+                }
+                catch (FormulaFormatException)
+                {
+                    MessageBox.Show("Error: Invalid Formula!");
+                }
+                catch (CircularException)
+                {
+                    MessageBox.Show("Error: You've entered a formula that has a circular dependency!");
                 }
             }
             
