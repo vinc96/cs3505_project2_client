@@ -15,6 +15,9 @@ namespace WindowsFormsApplication1
 {
     public partial class MainWindow : Form
     {
+        /// <summary>
+        /// The base window title for our spreadsheet program. Modifiers are concatenated to this to show the status of the program.
+        /// </summary>
         private const String WINDOWTITLE = "Super Spreadsheet";
         /// <summary>
         /// The version we use when saving or loading spreadsheets.
@@ -146,6 +149,25 @@ namespace WindowsFormsApplication1
         }
 
         /// <summary>
+        /// Fired when we hit the save button in the file menu. If the file hasn't been saved before, opens up a "save as" dialog.
+        /// If it has been saved before, overwrites the file previously saved to/opened from.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (ReferenceEquals(lastSaveLocation, null))
+            {
+                saveDialog.ShowDialog();
+            }
+            else
+            {
+                modelSheet.Save(lastSaveLocation);
+                updateWindowTitle();
+            }
+        }
+
+        /// <summary>
         /// This is the listener that we use to save files. Should be reigstered with our saveDialog.FileOK listener. If
         /// it's not used in this fashion, does nothing.
         /// </summary>
@@ -157,6 +179,7 @@ namespace WindowsFormsApplication1
             if (sender.GetType().Equals(typeof(SaveFileDialog)))
             {
                 modelSheet.Save(((SaveFileDialog) sender).FileName);
+                lastSaveLocation = ((SaveFileDialog) sender).FileName;
                 updateWindowTitle();//Update the window title, so that we can remove a "*" if needed.
             }
             else
@@ -166,12 +189,26 @@ namespace WindowsFormsApplication1
         }
 
         /// <summary>
-        /// Fired when a new cell is selected in the spreadsheet panel. 
+        /// Fired when a new cell is selected in the spreadsheet panel. Takes the data from the view, pushes it to the model, and 
+        /// updates the view to the model's new values.
         /// </summary>
         /// <param name="sender"></param>
         private void spreadsheetPanel1_SelectionChanged(SpreadsheetPanel sender)
         {
 
+            saveOldInputs(); //Put whatever was in the input box into the form, and update relevant cells.
+
+            grabNewDisplayedData(); //Grab the data from the new selection, and put it where it needs to go in the view. 
+        }
+
+        /// <summary>
+        /// Fired when someone clicks the enter button. Basically does the same thing as our SelectionChanged method, updating
+        /// cell and GUI values. 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void enterButton_Click(object sender, EventArgs e)
+        {
             saveOldInputs(); //Put whatever was in the input box into the form, and update relevant cells.
 
             grabNewDisplayedData(); //Grab the data from the new selection, and put it where it needs to go in the view. 
@@ -369,6 +406,7 @@ namespace WindowsFormsApplication1
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Thread newThread = new Thread(new ThreadStart(() => { Application.Run(new MainWindow()); }));
+            newThread.SetApartmentState(ApartmentState.STA); //Open/Save dialogs require STA threads.
             newThread.Start();
         }
         /// <summary>
