@@ -51,6 +51,10 @@ namespace WindowsFormsApplication1
         
         public MainWindow(string fileLocation)
         {
+        }
+
+        public MainWindow() : this(null)
+        {
             InitializeComponent();
 
             //Set up lastCol and lastRow: the "last" items selected in this case are the starting values.
@@ -66,27 +70,11 @@ namespace WindowsFormsApplication1
             saveDialog.DefaultExt = ".sprd";
             saveDialog.FileOk += SaveFileListener;
 
-            //If the fileLocation is null, open an empty sheet. Else, open the sheet at fileLocation.
-            if (ReferenceEquals(fileLocation, null))
-            {
-                modelSheet = new Spreadsheet(isValid, normalizer, version);
-            }
-            else
-            {
-                modelSheet = new Spreadsheet(fileLocation, isValid, normalizer, version);
-                lastSaveLocation = fileLocation;
-                this.Text = this.Text + ": " + fileLocation;
-            }
+            //Set up our empty modelSheet.
+            modelSheet = new Spreadsheet(isValid, normalizer, version);
 
-            //Update all the values on load.
-            updateCells(modelSheet.GetNamesOfAllNonemptyCells());
             grabNewDisplayedData(); //Populate the UI for the current cell.
 
-        }
-
-        public MainWindow() : this(null)
-        {
-            
         }
 
         /// <summary>
@@ -131,9 +119,15 @@ namespace WindowsFormsApplication1
             //If we're opening a file, perform actions required to do that.
             if (sender.GetType().Equals(typeof(OpenFileDialog)))
             {
-                MainWindow newWindow = new MainWindow(((OpenFileDialog)sender).FileName);
-                Thread newThread = new Thread(new ThreadStart(() => { Application.Run(newWindow); }));
-                newThread.Start();
+                string fileLocation = ((OpenFileDialog)sender).FileName;
+                //If the fileLocation is null, open an empty sheet. Else, open the sheet at fileLocation.
+                modelSheet = new Spreadsheet(fileLocation, isValid, normalizer, version);
+                lastSaveLocation = fileLocation;
+                this.Text = this.Text + ": " + fileLocation;
+
+
+                //Update all the values on load.
+                updateCells(modelSheet.GetNamesOfAllNonemptyCells());
             }
             else
             {
@@ -346,6 +340,17 @@ namespace WindowsFormsApplication1
         private void closeToolStripMenuItem_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        /// <summary>
+        /// Fired when you click on the "New" menu item in the file menu. Opens a new empty file.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void newToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Thread newThread = new Thread(new ThreadStart(() => { Application.Run(new MainWindow()); }));
+            newThread.Start();
         }
     }
 }
