@@ -124,6 +124,7 @@ namespace SS
             : this(isValid, normalize, version)
         {
             LoadFile(pathToFile);
+            hasChanged = false;
         }
 
         /// <summary>

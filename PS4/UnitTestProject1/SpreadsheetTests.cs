@@ -1774,7 +1774,7 @@ namespace UnitTestProject1
             Assert.IsTrue(a1.Changed);
         }
 
-        //When we save the formula, changed is back to true.
+        //When we save the formula, changed is back to false.
         [TestMethod]
         public void PublicChangedOnEditThenSave()
         {
