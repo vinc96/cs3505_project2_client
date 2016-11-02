@@ -38,9 +38,9 @@
             this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.enterButton = new System.Windows.Forms.Button();
-            this.cellContents = new System.Windows.Forms.TextBox();
-            this.cellName = new System.Windows.Forms.TextBox();
-            this.cellValue = new System.Windows.Forms.TextBox();
+            this.cellContentsBox = new System.Windows.Forms.TextBox();
+            this.cellNameBox = new System.Windows.Forms.TextBox();
+            this.cellValueBox = new System.Windows.Forms.TextBox();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -81,7 +81,7 @@
             // newToolStripMenuItem
             // 
             this.newToolStripMenuItem.Name = "newToolStripMenuItem";
-            this.newToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.newToolStripMenuItem.Size = new System.Drawing.Size(123, 22);
             this.newToolStripMenuItem.Text = "New...";
             this.newToolStripMenuItem.Click += new System.EventHandler(this.newToolStripMenuItem_Click);
             // 
@@ -128,39 +128,39 @@
             this.enterButton.Text = "Enter";
             this.enterButton.UseVisualStyleBackColor = true;
             // 
-            // cellContents
+            // cellContentsBox
             // 
-            this.cellContents.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.cellContentsBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.cellContents.Location = new System.Drawing.Point(196, 28);
-            this.cellContents.Name = "cellContents";
-            this.cellContents.Size = new System.Drawing.Size(652, 20);
-            this.cellContents.TabIndex = 3;
+            this.cellContentsBox.Location = new System.Drawing.Point(196, 28);
+            this.cellContentsBox.Name = "cellContentsBox";
+            this.cellContentsBox.Size = new System.Drawing.Size(652, 20);
+            this.cellContentsBox.TabIndex = 3;
             // 
-            // cellName
+            // cellNameBox
             // 
-            this.cellName.Location = new System.Drawing.Point(12, 28);
-            this.cellName.Name = "cellName";
-            this.cellName.ReadOnly = true;
-            this.cellName.Size = new System.Drawing.Size(31, 20);
-            this.cellName.TabIndex = 4;
+            this.cellNameBox.Location = new System.Drawing.Point(12, 28);
+            this.cellNameBox.Name = "cellNameBox";
+            this.cellNameBox.ReadOnly = true;
+            this.cellNameBox.Size = new System.Drawing.Size(31, 20);
+            this.cellNameBox.TabIndex = 4;
             // 
-            // cellValue
+            // cellValueBox
             // 
-            this.cellValue.Location = new System.Drawing.Point(47, 28);
-            this.cellValue.Name = "cellValue";
-            this.cellValue.ReadOnly = true;
-            this.cellValue.Size = new System.Drawing.Size(145, 20);
-            this.cellValue.TabIndex = 5;
+            this.cellValueBox.Location = new System.Drawing.Point(47, 28);
+            this.cellValueBox.Name = "cellValueBox";
+            this.cellValueBox.ReadOnly = true;
+            this.cellValueBox.Size = new System.Drawing.Size(145, 20);
+            this.cellValueBox.TabIndex = 5;
             // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(941, 556);
-            this.Controls.Add(this.cellValue);
-            this.Controls.Add(this.cellName);
-            this.Controls.Add(this.cellContents);
+            this.Controls.Add(this.cellValueBox);
+            this.Controls.Add(this.cellNameBox);
+            this.Controls.Add(this.cellContentsBox);
             this.Controls.Add(this.enterButton);
             this.Controls.Add(this.spreadsheetPanel1);
             this.Controls.Add(this.menuStrip1);
@@ -186,9 +186,9 @@
         private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
         private System.Windows.Forms.Button enterButton;
-        private System.Windows.Forms.TextBox cellContents;
-        private System.Windows.Forms.TextBox cellName;
-        private System.Windows.Forms.TextBox cellValue;
+        private System.Windows.Forms.TextBox cellContentsBox;
+        private System.Windows.Forms.TextBox cellNameBox;
+        private System.Windows.Forms.TextBox cellValueBox;
         private System.Windows.Forms.ToolStripMenuItem closeToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveAsToolStripMenuItem;
     }

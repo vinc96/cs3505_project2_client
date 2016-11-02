@@ -15,10 +15,11 @@ namespace WindowsFormsApplication1
 {
     public partial class MainWindow : Form
     {
+        private const String WINDOWTITLE = "Super Spreadsheet";
         /// <summary>
         /// The version we use when saving or loading spreadsheets.
         /// </summary>
-        private const String version = "ps6";
+        private const String VERSION = "ps6";
         
         /// <summary>
         /// The OpenFileDialog we'll be using to open any files we'll need.
@@ -48,12 +49,8 @@ namespace WindowsFormsApplication1
         /// The location where the sheet we're working on was last saved. Null if it hasn't been saved yet.
         /// </summary>
         private string lastSaveLocation;
-        
-        public MainWindow(string fileLocation)
-        {
-        }
 
-        public MainWindow() : this(null)
+        public MainWindow()
         {
             InitializeComponent();
 
@@ -71,7 +68,7 @@ namespace WindowsFormsApplication1
             saveDialog.FileOk += SaveFileListener;
 
             //Set up our empty modelSheet.
-            modelSheet = new Spreadsheet(isValid, normalizer, version);
+            modelSheet = new Spreadsheet(isValid, normalizer, VERSION);
 
             grabNewDisplayedData(); //Populate the UI for the current cell.
 
@@ -119,15 +116,19 @@ namespace WindowsFormsApplication1
             //If we're opening a file, perform actions required to do that.
             if (sender.GetType().Equals(typeof(OpenFileDialog)))
             {
+                potentialDataLoss();
                 string fileLocation = ((OpenFileDialog)sender).FileName;
                 //If the fileLocation is null, open an empty sheet. Else, open the sheet at fileLocation.
-                modelSheet = new Spreadsheet(fileLocation, isValid, normalizer, version);
+                modelSheet = new Spreadsheet(fileLocation, isValid, normalizer, VERSION);
                 lastSaveLocation = fileLocation;
-                this.Text = this.Text + ": " + fileLocation;
+                this.Text = WINDOWTITLE + ": " + fileLocation;
 
-
+                //Replace the spreadsheet panel, so that we don't have any lingering data values
+                spreadsheetPanel1.Clear();
                 //Update all the values on load.
                 updateCells(modelSheet.GetNamesOfAllNonemptyCells());
+                //Pull the data from our current location
+                grabNewDisplayedData();
             }
             else
             {
@@ -185,21 +186,22 @@ namespace WindowsFormsApplication1
             spreadsheetPanel1.GetSelection(out col, out row);
             string cellNameString = coordsToCellName(col, row);
             //Update the location text.
-            cellName.Text = cellNameString;
+            cellNameBox.Text = cellNameString;
             //Update the value text.
-            cellValue.Text = modelSheet.GetCellValue(cellNameString).ToString();
+            cellValueBox.Text = modelSheet.GetCellValue(cellNameString).ToString();
             //Update the content text. Be careful, if we're grabbing a formula, we need to preappend a "="
             if (modelSheet.GetCellContents(cellNameString).GetType().Equals(typeof(Formula)))
             {
-                cellContents.Text = "=" + modelSheet.GetCellContents(cellNameString).ToString();
+                cellContentsBox.Text = "=" + modelSheet.GetCellContents(cellNameString).ToString();
             }
             else
             {
-                cellContents.Text = modelSheet.GetCellContents(cellNameString).ToString();
+                cellContentsBox.Text = modelSheet.GetCellContents(cellNameString).ToString();
             }
 
             //Give the contents box user focus. 
-            cellContents.Focus();
+            cellContentsBox.Focus();
+            cellContentsBox.SelectAll();
             
             //Update lastCol and lastRow to our current position.
             lastCol = col;
@@ -213,11 +215,23 @@ namespace WindowsFormsApplication1
         {
             //Take the current contents of the cellContents box, and if it's different, add it to the spreadsheet.
             string cellNameString = coordsToCellName(lastCol, lastRow);
-            if (!(modelSheet.GetCellContents(cellNameString).Equals(cellContents.Text)))
+            //Determine if the cell contets have changed. Special case for formulas, because of the preappended "=".
+            bool cellChanged;
+            if (modelSheet.GetCellContents(cellNameString).GetType().Equals(typeof(Formula)))
+            {
+                //Compare the contents of the spreadsheet, with the contents of the cellContentsBox, minus the "=".
+                cellChanged = !modelSheet.GetCellContents(cellNameString).ToString().Equals(cellContentsBox.Text.Substring(1));
+            }
+            else
+            {
+                cellChanged = !modelSheet.GetCellContents(cellNameString).ToString().Equals(cellContentsBox.Text);
+            }
+            //If we've changed the cell contents, change the model, and update our front end.
+            if (cellChanged)
             {
                 try
                 {
-                    ISet<String> cellsToUpdate = modelSheet.SetContentsOfCell(cellNameString, cellContents.Text);
+                    ISet<String> cellsToUpdate = modelSheet.SetContentsOfCell(cellNameString, cellContentsBox.Text);
                     updateCells(cellsToUpdate); //Update the cells that need re-evaluation.
 
                     //If we haven't placed a '*' at the end of the window title to indicate unsaved changes, do that now.
@@ -227,11 +241,11 @@ namespace WindowsFormsApplication1
                     }
                     
                 }
-                catch (FormulaFormatException)
+                catch (FormulaFormatException)//If we catch an invalid formula error, inform the user.
                 {
-                    MessageBox.Show("Error: Invalid Formula!");
+                    MessageBox.Show("Error: Invalid Formula!"); 
                 }
-                catch (CircularException)
+                catch (CircularException)//If we catch a circular exception error, inform the user.
                 {
                     MessageBox.Show("Error: You've entered a formula that has a circular dependency!");
                 }
@@ -321,6 +335,15 @@ namespace WindowsFormsApplication1
         /// <param name="e"></param>
         private void MainWindow_FormClosing(object sender, FormClosingEventArgs e)
         {
+            potentialDataLoss();
+        }
+
+        /// <summary>
+        /// A method designed to be called when there is the potential for data loss in our form, so that we can interupt the process, and
+        /// ensure the user has a chance to save. 
+        /// </summary>
+        private void potentialDataLoss()
+        {
             if (modelSheet.Changed)
             {
                 DialogResult result = MessageBox.Show("You have unsaved changes. Do you want to save?", "Save file?", MessageBoxButtons.YesNo);
@@ -329,7 +352,6 @@ namespace WindowsFormsApplication1
                     saveDialog.ShowDialog();
                 }
             }
-
         }
 
         /// <summary>
