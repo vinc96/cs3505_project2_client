@@ -71,7 +71,6 @@ namespace WindowsFormsApplication1
             modelSheet = new Spreadsheet(isValid, normalizer, VERSION);
 
             grabNewDisplayedData(); //Populate the UI for the current cell.
-
         }
 
         /// <summary>
@@ -121,7 +120,7 @@ namespace WindowsFormsApplication1
                 //If the fileLocation is null, open an empty sheet. Else, open the sheet at fileLocation.
                 modelSheet = new Spreadsheet(fileLocation, isValid, normalizer, VERSION);
                 lastSaveLocation = fileLocation;
-                this.Text = WINDOWTITLE + ": " + fileLocation;
+                updateWindowTitle();
 
                 //Replace the spreadsheet panel, so that we don't have any lingering data values
                 spreadsheetPanel1.Clear();
@@ -158,6 +157,7 @@ namespace WindowsFormsApplication1
             if (sender.GetType().Equals(typeof(SaveFileDialog)))
             {
                 modelSheet.Save(((SaveFileDialog) sender).FileName);
+                updateWindowTitle();//Update the window title, so that we can remove a "*" if needed.
             }
             else
             {
@@ -234,11 +234,8 @@ namespace WindowsFormsApplication1
                     ISet<String> cellsToUpdate = modelSheet.SetContentsOfCell(cellNameString, cellContentsBox.Text);
                     updateCells(cellsToUpdate); //Update the cells that need re-evaluation.
 
-                    //If we haven't placed a '*' at the end of the window title to indicate unsaved changes, do that now.
-                    if (!(this.Text[Text.Length - 1].Equals('*')))
-                    {
-                        this.Text += '*';
-                    }
+                    //Run the updateWindowTitle method, so we'll indicate that the spreadsheet changed.
+                    updateWindowTitle();
                     
                 }
                 catch (FormulaFormatException)//If we catch an invalid formula error, inform the user.
@@ -373,6 +370,37 @@ namespace WindowsFormsApplication1
         {
             Thread newThread = new Thread(new ThreadStart(() => { Application.Run(new MainWindow()); }));
             newThread.Start();
+        }
+        /// <summary>
+        /// Sets the window title to be up to date, given the current state of the sheet. Grabs the edit state and file
+        /// location and concatenates them together into a valid title.
+        /// </summary>
+        private void updateWindowTitle()
+        {
+            //Add the file location (if it exists)
+            if (ReferenceEquals(lastSaveLocation, null))
+            {
+                this.Text = WINDOWTITLE;
+            }
+            else
+            {
+                this.Text = WINDOWTITLE + ": " + lastSaveLocation;
+            }
+
+            //Add the save state indicator
+            if (modelSheet.Changed)
+            {
+                this.Text += "*";
+            }
+        }
+        /// <summary>
+        /// Fires when the main window is shown. Used here in order to ensure that when the window is shown, the editable cell contents box is in focus.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MainWindow_Shown(object sender, EventArgs e)
+        {
+            cellContentsBox.Focus();
         }
     }
 }
