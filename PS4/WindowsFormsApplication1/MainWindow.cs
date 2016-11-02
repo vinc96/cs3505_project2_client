@@ -208,6 +208,7 @@ namespace WindowsFormsApplication1
         /// <param name="e"></param>
         private void enterButton_Click(object sender, EventArgs e)
         {
+            spreadsheetPanel1.selectDown();
             saveOldInputs(); //Put whatever was in the input box into the form, and update relevant cells.
 
             grabNewDisplayedData(); //Grab the data from the new selection, and put it where it needs to go in the view. 
@@ -438,6 +439,15 @@ namespace WindowsFormsApplication1
         private void MainWindow_Shown(object sender, EventArgs e)
         {
             cellContentsBox.Focus();
+        }
+        /// <summary>
+        /// Fired when the help menu button is clicked. Opens a help window that explains how to use the spreadsheet.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void helpToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

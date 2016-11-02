@@ -158,13 +158,50 @@ namespace SS
             drawingPanel.GetSelection(out col, out row);
         }
 
+        /// <summary>
+        /// Moves the selected box up one cell
+        /// </summary>
+        public void SelectUp()
+        {
+            int col, row;
+            this.GetSelection(out col, out row);
+            this.SetSelection(col, row - 1);
+        }
+        /// <summary>
+        /// Moves the selected box up one cell
+        /// </summary>
+        public void selectDown()
+        {
+            int col, row;
+            this.GetSelection(out col, out row);
+            this.SetSelection(col, row + 1);
+        }
+        /// <summary>
+        /// Moves the selected box up one cell
+        /// </summary>
+        public void selectLeft()
+        {
+            int col, row;
+            this.GetSelection(out col, out row);
+            this.SetSelection(col - 1, row);
+        }
+        /// <summary>
+        /// Moves the selected box up one cell
+        /// </summary>
+        public void selectRight()
+        {
+            int col, row;
+            this.GetSelection(out col, out row);
+            this.SetSelection(col + 1, row);
+        }
+
 
         /// <summary>
         /// When the SpreadsheetPanel is resized, we set the size and locations of the three
         /// components that make it up.
         /// </summary>
         /// <param name="eventargs"></param>
-        
+
         protected override void OnResize(EventArgs eventargs)
         {
             base.OnResize(eventargs);
