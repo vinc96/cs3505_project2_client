@@ -1,4 +1,5 @@
-﻿using SpreadsheetUtilities;
+﻿///Written by Josh Christensen u0978248
+using SpreadsheetUtilities;
 using SS;
 using System;
 using System.Collections.Generic;
@@ -61,13 +62,11 @@ namespace WindowsFormsApplication1
             spreadsheetPanel1.GetSelection(out lastCol, out lastRow);
             //Set up the open dialog, and add our file open listener.
             openDialog = new OpenFileDialog();
-            openDialog.AddExtension = true;
-            openDialog.DefaultExt = ".sprd";
+            openDialog.Filter = "Spreadsheet Files (.sprd)| *.sprd|All Files|*";
             openDialog.FileOk += OpenFileListener;
             //Set up the save dialog, and add our file save listener.
             saveDialog = new SaveFileDialog();
-            saveDialog.AddExtension = true;
-            saveDialog.DefaultExt = ".sprd";
+            saveDialog.Filter = "Spreadsheet Files (.sprd)| *.sprd|All Files|*";
             saveDialog.FileOk += SaveFileListener;
 
             //Set up our empty modelSheet.
