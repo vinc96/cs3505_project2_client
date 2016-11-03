@@ -14,7 +14,7 @@ using System.Windows.Forms;
 
 namespace WindowsFormsApplication1
 {
-    public partial class MainWindow : Form
+    public partial class SpreadsheetGUI : Form
     {
         /// <summary>
         /// The base window title for our spreadsheet program. Modifiers are concatenated to this to show the status of the program.
@@ -54,7 +54,7 @@ namespace WindowsFormsApplication1
         /// </summary>
         private string lastSaveLocation;
 
-        public MainWindow()
+        public SpreadsheetGUI()
         {
             InitializeComponent();
 
@@ -201,17 +201,13 @@ namespace WindowsFormsApplication1
         }
 
         /// <summary>
-        /// Fired when someone clicks the enter button. Basically does the same thing as our SelectionChanged method, updating
-        /// cell and GUI values. 
+        /// Fired when someone clicks the enter button. Shifts the selection down, which fires the SelectionChanged listener.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void enterButton_Click(object sender, EventArgs e)
         {
             spreadsheetPanel1.selectDown();
-            saveOldInputs(); //Put whatever was in the input box into the form, and update relevant cells.
-
-            grabNewDisplayedData(); //Grab the data from the new selection, and put it where it needs to go in the view. 
         }
 
         /// <summary>
@@ -256,8 +252,16 @@ namespace WindowsFormsApplication1
             bool cellChanged;
             if (modelSheet.GetCellContents(cellNameString).GetType().Equals(typeof(Formula)))
             {
-                //Compare the contents of the spreadsheet, with the contents of the cellContentsBox, minus the "=".
-                cellChanged = !modelSheet.GetCellContents(cellNameString).ToString().Equals(cellContentsBox.Text.Substring(1));
+                //Special case for making empty cells
+                if (cellContentsBox.Text.Length == 0)
+                {
+                    cellChanged = true;
+                }
+                else
+                {
+                    //Compare the contents of the spreadsheet, with the contents of the cellContentsBox, minus the "=".
+                    cellChanged = !modelSheet.GetCellContents(cellNameString).ToString().Equals(cellContentsBox.Text.Substring(1));
+                }
             }
             else
             {
@@ -405,7 +409,7 @@ namespace WindowsFormsApplication1
         /// <param name="e"></param>
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Thread newThread = new Thread(new ThreadStart(() => { Application.Run(new MainWindow()); }));
+            Thread newThread = new Thread(new ThreadStart(() => { Application.Run(new SpreadsheetGUI()); }));
             newThread.SetApartmentState(ApartmentState.STA); //Open/Save dialogs require STA threads.
             newThread.Start();
         }
@@ -450,13 +454,46 @@ namespace WindowsFormsApplication1
 
         }
 
-        private void MainWindow_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
+        protected override bool IsInputKey(Keys keyData)
         {
-
+            switch (keyData)
+            {
+                case Keys.Right:
+                case Keys.Left:
+                case Keys.Up:
+                case Keys.Down:
+                    return true;
+            }
+            return base.IsInputKey(keyData);
         }
 
-        private void spreadsheetPanel1_PreviewKeyDown(object send, PreviewKeyDownEventArgs e)
+        protected override void OnKeyDown(KeyEventArgs e)
         {
+            //If we're getting data from arrow keys, move stuff around
+            switch (e.KeyCode)
+            {
+                case Keys.Down:
+                    spreadsheetPanel1.selectDown();
+                    e.SuppressKeyPress = true;
+                    break;
+                case Keys.Up:
+                    spreadsheetPanel1.SelectUp();
+                    e.SuppressKeyPress = true;
+                    break;
+                case Keys.Left:
+                    spreadsheetPanel1.selectLeft();
+                    e.SuppressKeyPress = true;
+                    break;
+                case Keys.Right:
+                    spreadsheetPanel1.selectRight();
+                    e.SuppressKeyPress = true;
+                    break;
+                case Keys.Enter:
+                    spreadsheetPanel1.selectDown();
+                    break;
+            }
+
+            base.OnKeyDown(e);
 
         }
     }

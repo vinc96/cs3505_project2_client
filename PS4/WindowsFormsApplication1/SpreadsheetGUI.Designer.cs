@@ -1,6 +1,6 @@
 ﻿namespace WindowsFormsApplication1
 {
-    partial class MainWindow
+    partial class SpreadsheetGUI
     {
         /// <summary>
         /// Required designer variable.
@@ -126,6 +126,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.cellContentsBox.Location = new System.Drawing.Point(196, 28);
             this.cellContentsBox.Name = "cellContentsBox";
+            this.cellContentsBox.ShortcutsEnabled = false;
             this.cellContentsBox.Size = new System.Drawing.Size(652, 20);
             this.cellContentsBox.TabIndex = 3;
             // 
@@ -155,9 +156,8 @@
             this.spreadsheetPanel1.Size = new System.Drawing.Size(917, 492);
             this.spreadsheetPanel1.TabIndex = 0;
             this.spreadsheetPanel1.SelectionChanged += new SS.SelectionChangedHandler(this.spreadsheetPanel1_SelectionChanged);
-            this.spreadsheetPanel1.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.spreadsheetPanel1_PreviewKeyDown);
             // 
-            // MainWindow
+            // SpreadsheetGUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -168,13 +168,13 @@
             this.Controls.Add(this.enterButton);
             this.Controls.Add(this.spreadsheetPanel1);
             this.Controls.Add(this.menuStrip1);
+            this.KeyPreview = true;
             this.MainMenuStrip = this.menuStrip1;
             this.MinimumSize = new System.Drawing.Size(500, 500);
-            this.Name = "MainWindow";
+            this.Name = "SpreadsheetGUI";
             this.Text = "Super Spreadsheet";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainWindow_FormClosing);
             this.Shown += new System.EventHandler(this.MainWindow_Shown);
-            this.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.MainWindow_PreviewKeyDown);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);

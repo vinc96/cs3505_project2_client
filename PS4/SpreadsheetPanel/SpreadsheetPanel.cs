@@ -90,12 +90,6 @@ namespace SS
 
         }
 
-        protected override bool ProcessDialogKey(Keys keyData)
-        {
-            return true;
-        }
-
-
         /// <summary>
         /// Clears the display.
         /// </summary>
@@ -170,7 +164,10 @@ namespace SS
         {
             int col, row;
             this.GetSelection(out col, out row);
-            this.SetSelection(col, row - 1);
+            if (this.SetSelection(col, row - 1))
+            {
+                this.SelectionChanged(this);
+            }
         }
         /// <summary>
         /// Moves the selected box up one cell
@@ -179,7 +176,10 @@ namespace SS
         {
             int col, row;
             this.GetSelection(out col, out row);
-            this.SetSelection(col, row + 1);
+            if (this.SetSelection(col, row + 1))
+            {
+                this.SelectionChanged(this);
+            }
         }
         /// <summary>
         /// Moves the selected box up one cell
@@ -188,7 +188,10 @@ namespace SS
         {
             int col, row;
             this.GetSelection(out col, out row);
-            this.SetSelection(col - 1, row);
+            if (this.SetSelection(col - 1, row))
+            {
+                this.SelectionChanged(this);
+            }
         }
         /// <summary>
         /// Moves the selected box up one cell
@@ -197,7 +200,10 @@ namespace SS
         {
             int col, row;
             this.GetSelection(out col, out row);
-            this.SetSelection(col + 1, row);
+            if (this.SetSelection(col + 1, row))
+            {
+                this.SelectionChanged(this);
+            }
         }
 
 
