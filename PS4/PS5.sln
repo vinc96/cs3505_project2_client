@@ -9,12 +9,20 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spreadsheet", "Spreadsheet\
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpreadsheetTests", "UnitTestProject1\SpreadsheetTests.csproj", "{3E3CE273-1E1E-4F21-AB51-54E1A7876779}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B3B915FE-57A7-448E-8491-AB2C34D0E8BB} = {B3B915FE-57A7-448E-8491-AB2C34D0E8BB}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Resources", "Project1\Resources.csproj", "{B3B915FE-57A7-448E-8491-AB2C34D0E8BB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GradingTests", "PS4GradingTests\GradingTests.csproj", "{A5EFC9A7-122C-44B9-801E-AA758746A40F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpreadsheetGUI", "WindowsFormsApplication1\SpreadsheetGUI.csproj", "{8F172578-1C43-467B-A5FC-21CBA32067DC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6960A32D-D637-4AE1-83C2-E78066FF343F} = {6960A32D-D637-4AE1-83C2-E78066FF343F}
+		{F31299DC-288F-4E46-A3AF-6BF461B21C79} = {F31299DC-288F-4E46-A3AF-6BF461B21C79}
+		{B3B915FE-57A7-448E-8491-AB2C34D0E8BB} = {B3B915FE-57A7-448E-8491-AB2C34D0E8BB}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpreadsheetPanel", "SpreadsheetPanel\SpreadsheetPanel.csproj", "{F31299DC-288F-4E46-A3AF-6BF461B21C79}"
 EndProject
