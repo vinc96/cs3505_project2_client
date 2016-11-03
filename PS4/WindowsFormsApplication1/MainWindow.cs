@@ -449,5 +449,15 @@ namespace WindowsFormsApplication1
         {
 
         }
+
+        private void MainWindow_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
+        {
+
+        }
+
+        private void spreadsheetPanel1_PreviewKeyDown(object send, PreviewKeyDownEventArgs e)
+        {
+
+        }
     }
 }

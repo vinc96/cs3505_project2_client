@@ -90,11 +90,16 @@ namespace SS
 
         }
 
+        protected override bool ProcessDialogKey(Keys keyData)
+        {
+            return true;
+        }
+
 
         /// <summary>
         /// Clears the display.
         /// </summary>
-        
+
         public void Clear()
         {
             drawingPanel.Clear();
@@ -280,7 +285,10 @@ namespace SS
             // The containing panel
             private SpreadsheetPanel _ssp;
 
-
+            /// <summary>
+            ///  Creates a new DrawingPanel using the specified SpreadsheetPanel
+            /// </summary>
+            /// <param name="ss"></param>
             public DrawingPanel(SpreadsheetPanel ss)
             {
                 DoubleBuffered = true;
@@ -288,20 +296,33 @@ namespace SS
                 _ssp = ss;
             }
 
-
+            /// <summary>
+            /// Returns true if the passed address is an invalid address, false if it's valid.
+            /// </summary>
+            /// <param name="col"></param>
+            /// <param name="row"></param>
+            /// <returns></returns>
             private bool InvalidAddress(int col, int row)
             {
                 return col < 0 || row < 0 || col >= COL_COUNT || row >= ROW_COUNT;
             }
 
-
+            /// <summary>
+            /// Clears all the drawn values of the spreadsheet.
+            /// </summary>
             public void Clear()
             {
                 _values.Clear();
                 Invalidate();
             }
 
-
+            /// <summary>
+            /// Attempts to set the value at the specified coordinates. Returns true if we were successful, false otherwise.
+            /// </summary>
+            /// <param name="col"></param>
+            /// <param name="row"></param>
+            /// <param name="c"></param>
+            /// <returns></returns>
             public bool SetValue(int col, int row, string c)
             {
                 if (InvalidAddress(col, row))
@@ -322,7 +343,14 @@ namespace SS
                 return true;
             }
 
-
+            /// <summary>
+            /// Attemtps to return the value of a specific location. Sets c to be that value, if the inputs are valid. Empty cells return
+            /// and empty string.
+            /// </summary>
+            /// <param name="col"></param>
+            /// <param name="row"></param>
+            /// <param name="c"></param>
+            /// <returns></returns>
             public bool GetValue(int col, int row, out string c)
             {
                 if (InvalidAddress(col, row))
@@ -337,7 +365,13 @@ namespace SS
                 return true;
             }
 
-
+            /// <summary>
+            /// Sets the selection to be the specified column and row, if the passed values are valid.
+            /// Returns true if we succeeded, false otherwise.
+            /// </summary>
+            /// <param name="col"></param>
+            /// <param name="row"></param>
+            /// <returns></returns>
             public bool SetSelection(int col, int row)
             {
                 if (InvalidAddress(col, row))
@@ -346,31 +380,46 @@ namespace SS
                 }
                 _selectedCol = col;
                 _selectedRow = row;
+                //ADDED BY JOSH CHRISTENSEN (u0978248(
+                //Correct the position of the scroll bars.
+                int colsDisplayed = this.Width / DATA_COL_WIDTH;
+                int rowsDisplayed = this.Height / DATA_ROW_HEIGHT;
+                //Scroll left
+                while (_selectedCol < _firstColumn)
+                {
+                    _ssp.hScroll.Left -= DATA_COL_WIDTH;
+                }
+                //Scroll right
+                while ((colsDisplayed + _firstColumn) < colsDisplayed)
+                {
+
+                }
                 Invalidate();
                 return true;
             }
 
-
+            //Returns the currently selected column and row.
             public void GetSelection(out int col, out int row)
             {
                 col = _selectedCol;
                 row = _selectedRow;
             }
 
-
+            //Sets the new first column based upon whatever condition the scrollbars of the panel are in.
             public void HandleHScroll(Object sender, ScrollEventArgs args)
             {
                 _firstColumn = args.NewValue;
                 Invalidate();
             }
 
+            //Sets the new first row based upon whatever condition the scrollbars of the panel are in.
             public void HandleVScroll(Object sender, ScrollEventArgs args)
             {
                 _firstRow = args.NewValue;
                 Invalidate();
             }
 
-
+            //Paints the panel.
             protected override void OnPaint(PaintEventArgs e)
             {
 
