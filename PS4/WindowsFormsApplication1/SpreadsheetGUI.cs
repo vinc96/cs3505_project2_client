@@ -53,6 +53,31 @@ namespace WindowsFormsApplication1
         /// The location where the sheet we're working on was last saved. Null if it hasn't been saved yet.
         /// </summary>
         private string lastSaveLocation;
+        /// <summary>
+        /// The message to be displayed when the user clicks on the help button.
+        /// </summary>
+        private string helpMessage = "How to Use This Spreadsheet: \n\n" +
+            "Entering Data:\n\n" +
+
+            "In order to enter data, simply type it into the editable box at the top of the window. " +
+            "The box ought to be already selected if there's something in the form, allowing you to overwrite it with a single keystroke.\n\n" +
+
+            "In order to save data, type something into the top box, and do one of the following:\n" +
+            "\t Hit the Enter button\n" +
+            "\t Hit the Enter key\n" +
+            "\t Select another box with the arrow keys\n" +
+            "\t Select another box with the mouse\n\n" +
+
+            "Saving/Loading:\n\n" +
+            "Saving and loading works the same as in any other windows application. There is Save, Save As, and load functionality.\n\n" +
+            "In order open a new file, either hit Ctrl+N, or select \"New\" from the file menu.\n" +
+            "In order to open a file, either hit Ctrl+O, or select \"Open\" from the file menu.\n" +
+            "In order to save the form, either hit Ctrl+S, or select \"Save\" from the file menu.\n" +
+            "In order to Save As , either hit Ctrl+Shift+S, or select \"Save As\" from the file menu.\n\n" +
+
+            "Other Assorted Sugar:\n\n" +
+            "When a file is loaded, its file location is in the title bar.\n" +
+            "When a file that's open has unsaved changes, an asterisk (*) appears in the title bar.\n";
 
         public SpreadsheetGUI()
         {
@@ -478,7 +503,7 @@ namespace WindowsFormsApplication1
         /// <param name="e"></param>
         private void helpToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
+            MessageBox.Show(helpMessage);
         }
 
         protected override bool IsInputKey(Keys keyData)
@@ -536,14 +561,14 @@ namespace WindowsFormsApplication1
                     if (ModifierKeys.HasFlag(Keys.Control) && !ModifierKeys.HasFlag(Keys.Shift))
                     {
                         saveFile();//Save
+                        e.SuppressKeyPress = true; //Keeps the form from making a "bing" sound whenever you press this key combo.
                     }
 
                     if (ModifierKeys.HasFlag(Keys.Control) && ModifierKeys.HasFlag(Keys.Shift))
                     {
                         saveDialog.ShowDialog();//Save As
+                        e.SuppressKeyPress = true; //Keeps the form from making a "bing" sound whenever you press this key combo.
                     }
-
-                    e.SuppressKeyPress = true; //Keeps the form from making a "bing" sound whenever you press this key combo.
                     break;
                 case Keys.F4: //Open shortcut
                     if (ModifierKeys.HasFlag(Keys.Alt))
