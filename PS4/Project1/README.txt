@@ -44,7 +44,8 @@ this end, I made the following extra changes:
 	-When selecting a cell that already has stuff in it, the contents are highlighted, so any new input will clear them (this is how it works in Google Sheets)
 	-Named the window something other than "Form1" (I will be incredibly surprised if anyone didn't though...
 As the CodedUI test requirements were lifted, those are not included, but it should be known that during development, I engaged in rigorous testing of 
-the GUI, uncovering several bugs that I then fixed. 
+the GUI, uncovering several bugs that I then fixed. I attempted to implement Unit tests for the SpreadsheetPanel, to test the extra functionality I had added,
+but the panel does not seem to function properly in a unit testing environment.
 
 ------------WARNING--------------
 I've found that there are issues with VS skipping the SpreadsheetPanel build. It ought to work by default, as the current DLL works, but in the case that there 
