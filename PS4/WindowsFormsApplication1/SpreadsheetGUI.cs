@@ -76,13 +76,23 @@ namespace WindowsFormsApplication1
         }
 
         /// <summary>
-        /// The validator we use for our spreadsheet objects. Returns true regardless.
+        /// The validator we use for our spreadsheet objects. Returns true if the cell is within the spreadsheet grid, false otherwise.
         /// </summary>
         /// <param name="s">The string input. This validator returns true regardless.</param>
         /// <returns></returns>
         private bool isValid(String s)
         {
-            return true;
+            int integerPart;
+            int.TryParse(s.Substring(1), out integerPart);
+            //In order to be valid, the first character has to be an uppercase letter, and the second and third together should parse between 1 and 99 (inclusive)
+            if (Char.IsUpper(s[0]) && (1 <= integerPart && integerPart <= 99))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         /// <summary>
@@ -490,6 +500,7 @@ namespace WindowsFormsApplication1
                     break;
                 case Keys.Enter:
                     spreadsheetPanel1.selectDown();
+                    e.SuppressKeyPress = true; //Keeps the form from making a "bing" sound whenever you press enter.
                     break;
             }
 

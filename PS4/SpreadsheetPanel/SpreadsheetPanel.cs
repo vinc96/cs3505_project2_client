@@ -1,4 +1,5 @@
 ﻿// Written by Joe Zachary for CS 3500, September 2011.
+//Modified by Josh Christensen
 
 using System;
 using System.Collections.Generic;
@@ -85,8 +86,8 @@ namespace SS
             Controls.Add(hScroll);
 
             // Arrange for the drawing panel to be notified when it needs to scroll itself.
-            hScroll.Scroll += drawingPanel.HandleHScroll;
-            vScroll.Scroll += drawingPanel.HandleVScroll;
+            hScroll.ValueChanged += drawingPanel.HScrollValueChanged;
+            vScroll.ValueChanged += drawingPanel.VScrollValueChanged;
 
         }
 
@@ -386,19 +387,29 @@ namespace SS
                 }
                 _selectedCol = col;
                 _selectedRow = row;
-                //ADDED BY JOSH CHRISTENSEN (u0978248(
+                //ADDED BY JOSH CHRISTENSEN (u0978248)
                 //Correct the position of the scroll bars.
-                int colsDisplayed = this.Width / DATA_COL_WIDTH;
-                int rowsDisplayed = this.Height / DATA_ROW_HEIGHT;
-                //Scroll left
+                int colsDisplayed = (this.Width - _ssp.vScroll.Width) / DATA_COL_WIDTH;
+                int rowsDisplayed = (this.Height - _ssp.hScroll.Height) / DATA_ROW_HEIGHT - 1;
+                //Scroll left if the box is outside our view, in that direction.
                 while (_selectedCol < _firstColumn)
                 {
-                    _ssp.hScroll.Left -= DATA_COL_WIDTH;
+                    _ssp.hScroll.Value -= 1; 
                 }
-                //Scroll right
-                while ((colsDisplayed + _firstColumn) < colsDisplayed)
+                //Scroll right if the box is outside our view, in that direction.
+                while ((colsDisplayed + _firstColumn) < _selectedCol)
                 {
-
+                    _ssp.hScroll.Value += 1;
+                }
+                //Scroll up if the box is outside our view, in that direction.
+                while (_selectedRow < _firstRow)
+                {
+                    _ssp.vScroll.Value -= 1;
+                }
+                //Scroll up if the box is outside our view, in that direction.
+                while ((rowsDisplayed + _firstRow) < _selectedRow)
+                {
+                    _ssp.vScroll.Value += 1;
                 }
                 Invalidate();
                 return true;
@@ -411,17 +422,19 @@ namespace SS
                 row = _selectedRow;
             }
 
-            //Sets the new first column based upon whatever condition the scrollbars of the panel are in.
-            public void HandleHScroll(Object sender, ScrollEventArgs args)
+            //Sets the new first column based upon whatever condition the scrollbars of the panel are in. Registered with the ValueChanged scroll event.
+            public void HScrollValueChanged(object sender, EventArgs args)
             {
-                _firstColumn = args.NewValue;
+                HScrollBar bar = (HScrollBar) sender;
+                _firstColumn = bar.Value;
                 Invalidate();
             }
 
-            //Sets the new first row based upon whatever condition the scrollbars of the panel are in.
-            public void HandleVScroll(Object sender, ScrollEventArgs args)
+            //Sets the new first row based upon whatever condition the scrollbars of the panel are in. Registered with the ValueChanged scroll event.
+            public void VScrollValueChanged(object sender, EventArgs args)
             {
-                _firstRow = args.NewValue;
+                VScrollBar bar = (VScrollBar) sender;
+                _firstRow = bar.Value;
                 Invalidate();
             }
 
