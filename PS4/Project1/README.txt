@@ -43,3 +43,8 @@ this end, I made the following extra changes:
 	-Added keyboard control, including the arrow keys and the enter key.
 	-When selecting a cell that already has stuff in it, the contents are highlighted, so any new input will clear them (this is how it works in Google Sheets)
 	-Named the window something other than "Form1" (I will be incredibly surprised if anyone didn't though...
+
+------------WARNING--------------
+I've found that there are issues with VS skipping the SpreadsheetPanel build. It ought to work by default, as the current DLL works, but in the case that there 
+are errors, try manually building the SpreadsheetPanel. Despite the fact that it's listed as a dependency of SpreadsheetGUI, VS likes to skip building it for
+some reason.
