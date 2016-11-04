@@ -165,6 +165,15 @@ namespace WindowsFormsApplication1
         /// <param name="e"></param>
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            saveFile();
+        }
+
+        /// <summary>
+        /// Saves the current file. If the saveLocation is null, shows a dialog. If saveLocation is non-null, saves to the previously 
+        /// saved location.
+        /// </summary>
+        private void saveFile()
+        {
             if (ReferenceEquals(lastSaveLocation, null))
             {
                 saveDialog.ShowDialog();
@@ -419,10 +428,18 @@ namespace WindowsFormsApplication1
         /// <param name="e"></param>
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            openNewWindow();
+        }
+        /// <summary>
+        /// Opens a new window by creating another version of this one in a new thread.
+        /// </summary>
+        private void openNewWindow()
+        {
             Thread newThread = new Thread(new ThreadStart(() => { Application.Run(new SpreadsheetGUI()); }));
             newThread.SetApartmentState(ApartmentState.STA); //Open/Save dialogs require STA threads.
             newThread.Start();
         }
+
         /// <summary>
         /// Sets the window title to be up to date, given the current state of the sheet. Grabs the edit state and file
         /// location and concatenates them together into a valid title.
@@ -472,6 +489,7 @@ namespace WindowsFormsApplication1
                 case Keys.Left:
                 case Keys.Up:
                 case Keys.Down:
+                case Keys.Shift:
                     return true;
             }
             return base.IsInputKey(keyData);
@@ -482,26 +500,58 @@ namespace WindowsFormsApplication1
             //If we're getting data from arrow keys, move stuff around
             switch (e.KeyCode)
             {
-                case Keys.Down:
+                case Keys.Down: //Down arrow
                     spreadsheetPanel1.selectDown();
                     e.SuppressKeyPress = true;
                     break;
-                case Keys.Up:
+                case Keys.Up: //Up arrow
                     spreadsheetPanel1.SelectUp();
                     e.SuppressKeyPress = true;
                     break;
-                case Keys.Left:
+                case Keys.Left: //Left arrow
                     spreadsheetPanel1.selectLeft();
                     e.SuppressKeyPress = true;
                     break;
-                case Keys.Right:
+                case Keys.Right: //Right arrow
                     spreadsheetPanel1.selectRight();
                     e.SuppressKeyPress = true;
                     break;
-                case Keys.Enter:
+                case Keys.Enter: //Enter key
                     spreadsheetPanel1.selectDown();
                     e.SuppressKeyPress = true; //Keeps the form from making a "bing" sound whenever you press enter.
                     break;
+                case Keys.N: //New shortcut
+                    if (ModifierKeys.HasFlag(Keys.Control))
+                    {
+                        openNewWindow();
+                    }
+                    break;
+                case Keys.O: //Open shortcut
+                    if (ModifierKeys.HasFlag(Keys.Control))
+                    {
+                        openDialog.ShowDialog();
+                    }
+                    break;
+                case Keys.S: //Save/Save As shortcut
+                    if (ModifierKeys.HasFlag(Keys.Control) && !ModifierKeys.HasFlag(Keys.Shift))
+                    {
+                        saveFile();//Save
+                    }
+
+                    if (ModifierKeys.HasFlag(Keys.Control) && ModifierKeys.HasFlag(Keys.Shift))
+                    {
+                        saveDialog.ShowDialog();//Save As
+                    }
+
+                    e.SuppressKeyPress = true; //Keeps the form from making a "bing" sound whenever you press this key combo.
+                    break;
+                case Keys.F4: //Open shortcut
+                    if (ModifierKeys.HasFlag(Keys.Alt))
+                    {
+                        this.Close();
+                    }
+                    break;
+
             }
 
             base.OnKeyDown(e);
