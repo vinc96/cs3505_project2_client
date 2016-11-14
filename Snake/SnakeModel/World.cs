@@ -12,7 +12,7 @@ namespace SnakeModel
     /// methods to retrieve the current location of every entity in the game, as well 
     /// as to retrieve metadata for these entities (id's, names, etc. for snakes, etc.)
     /// </summary>
-    class World
+    public class World
     {
 
     }
