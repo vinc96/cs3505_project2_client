@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace SnakeClientWindow.Properties
+namespace SnakeClientGUI.Properties
 {
 
 

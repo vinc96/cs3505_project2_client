@@ -35,7 +35,15 @@
   <ItemGroup>
     <Reference Include="Formula, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Project1\Libraries\Formula\Formula.dll</HintPath>
+      <HintPath>..\Project1\Libraries\Formula.dll</HintPath>
+    </Reference>
+    <Reference Include="SpreadsheetPanel, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Project1\Libraries\SpreadsheetPanel.dll</HintPath>
+    </Reference>
+    <Reference Include="SpreadsheetUtilities, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Project1\Libraries\SpreadsheetUtilities.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -84,10 +92,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SpreadsheetPanel\SpreadsheetPanel.csproj">
-      <Project>{f31299dc-288f-4e46-a3af-6bf461b21c79}</Project>
-      <Name>SpreadsheetPanel</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Spreadsheet\Spreadsheet.csproj">
       <Project>{6960a32d-d637-4ae1-83c2-e78066ff343f}</Project>
       <Name>Spreadsheet</Name>

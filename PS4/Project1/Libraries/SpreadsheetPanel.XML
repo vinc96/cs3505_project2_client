@@ -69,6 +69,26 @@
             <param name="col"></param>
             <param name="row"></param>
         </member>
+        <member name="M:SS.SpreadsheetPanel.SelectUp">
+            <summary>
+            Moves the selected box up one cell
+            </summary>
+        </member>
+        <member name="M:SS.SpreadsheetPanel.selectDown">
+            <summary>
+            Moves the selected box up one cell
+            </summary>
+        </member>
+        <member name="M:SS.SpreadsheetPanel.selectLeft">
+            <summary>
+            Moves the selected box up one cell
+            </summary>
+        </member>
+        <member name="M:SS.SpreadsheetPanel.selectRight">
+            <summary>
+            Moves the selected box up one cell
+            </summary>
+        </member>
         <member name="M:SS.SpreadsheetPanel.OnResize(System.EventArgs)">
             <summary>
             When the SpreadsheetPanel is resized, we set the size and locations of the three
@@ -91,6 +111,53 @@
             The panel where the spreadsheet grid is drawn.  It keeps track of the
             current selection as well as what is supposed to be drawn in each cell.
             </summary>
+        </member>
+        <member name="M:SS.SpreadsheetPanel.DrawingPanel.#ctor(SS.SpreadsheetPanel)">
+            <summary>
+             Creates a new DrawingPanel using the specified SpreadsheetPanel
+            </summary>
+            <param name="ss"></param>
+        </member>
+        <member name="M:SS.SpreadsheetPanel.DrawingPanel.InvalidAddress(System.Int32,System.Int32)">
+            <summary>
+            Returns true if the passed address is an invalid address, false if it's valid.
+            </summary>
+            <param name="col"></param>
+            <param name="row"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SS.SpreadsheetPanel.DrawingPanel.Clear">
+            <summary>
+            Clears all the drawn values of the spreadsheet.
+            </summary>
+        </member>
+        <member name="M:SS.SpreadsheetPanel.DrawingPanel.SetValue(System.Int32,System.Int32,System.String)">
+            <summary>
+            Attempts to set the value at the specified coordinates. Returns true if we were successful, false otherwise.
+            </summary>
+            <param name="col"></param>
+            <param name="row"></param>
+            <param name="c"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SS.SpreadsheetPanel.DrawingPanel.GetValue(System.Int32,System.Int32,System.String@)">
+            <summary>
+            Attemtps to return the value of a specific location. Sets c to be that value, if the inputs are valid. Empty cells return
+            and empty string.
+            </summary>
+            <param name="col"></param>
+            <param name="row"></param>
+            <param name="c"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SS.SpreadsheetPanel.DrawingPanel.SetSelection(System.Int32,System.Int32)">
+            <summary>
+            Sets the selection to be the specified column and row, if the passed values are valid.
+            Returns true if we succeeded, false otherwise.
+            </summary>
+            <param name="col"></param>
+            <param name="row"></param>
+            <returns></returns>
         </member>
         <member name="M:SS.SpreadsheetPanel.DrawingPanel.DrawColumnLabel(System.Drawing.Graphics,System.Int32,System.Drawing.Font)">
             <summary>
