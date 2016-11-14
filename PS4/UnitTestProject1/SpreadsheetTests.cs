@@ -12,32 +12,186 @@ namespace UnitTestProject1
     public class SpreadsheetTests
     {
         /// <summary>
+        /// Corresponds to a directory containing our test XML files. This string includes a trailing slash, so you just have to append a filename.
+        /// </summary>
+        String XMLLocation = "..\\..\\TestXMLs\\";
+        /// <summary>
         /// The maximum size of the stress tests (The largest our spreadsheet gets in these tests)
         /// </summary>
-        int MAXSIZE = 10000;
+        int MAXSIZE = 10;
         //Constructor Tests *******************************************************************************
 
-        //Calling the constructor should be uneventful (no exceptions thrown)
+        //Calling the constructor should be uneventful (no exceptions thrown) (parameterless constructor)
         [TestMethod]
         public void PublicConstructorDefault()
         {
             AbstractSpreadsheet a1 = new Spreadsheet(); 
         }
 
-        //Constructors should provide empty spreadsheets
+        //Calling the constructor should be uneventful (no exceptions thrown) (Three Argument constructor)
         [TestMethod]
-        public void PublicConstructorIsEmpty()
+        public void PublicConstructorThreeArgument()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(s => true, s => s, "trivial version");
+        }
+
+        //Calling the constructor should be uneventful (no exceptions thrown) (Four Argument constructor)
+        [TestMethod]
+        public void PublicConstructorFourArgument()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(XMLLocation + "TrivialEmptyFile", s => true, s => s, "EmptyVersion");
+        }
+
+        //Constructors should provide empty spreadsheets (Single Argument Constructor)
+        [TestMethod]
+        public void PublicConstructorIsEmptySingleArgument()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
             Assert.AreEqual(0, a1.GetNamesOfAllNonemptyCells().Count());
         }
 
-        //We should be able to edit spreadsheets without throwing exceptions
+        //Constructors should provide empty spreadsheets (Three Argument Constructor)
         [TestMethod]
-        public void PublicConstructorCanEdit()
+        public void PublicConstructorIsEmptyThreeArgument()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(s => true, s => s, "trivial version");
+            Assert.AreEqual(0, a1.GetNamesOfAllNonemptyCells().Count());
+        }
+
+        //Constructors should provide empty spreadsheets (Four Argument Constructor)
+        [TestMethod]
+        public void PublicConstructorIsEmptyFourArgument()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(XMLLocation + "TrivialEmptyFile", s => true, s => s, "EmptyVersion");
+            Assert.AreEqual(0, a1.GetNamesOfAllNonemptyCells().Count());
+        }
+
+        //We should be able to edit spreadsheets without throwing exceptions (Single Argument Constructor)
+        [TestMethod]
+        public void PublicConstructorCanEditSingleArgument()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("A1", 12034.1);
+            a1.SetContentsOfCell("A1", "12034.1");
+        }
+
+        //We should be able to edit spreadsheets without throwing exceptions (Triple Argument Constructor)
+        [TestMethod]
+        public void PublicConstructorCanEditThreeArgument()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(s => true, s => s, "trivial version");
+            a1.SetContentsOfCell("A1", "12034.1");
+        }
+
+        //We should be able to edit spreadsheets without throwing exceptions (Four Argument Constructor, empty file)
+        [TestMethod]
+        public void PublicConstructorCanEditFourArgumentEmpty()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(XMLLocation + "TrivialEmptyFile", s => true, s => s, "EmptyVersion");
+            a1.SetContentsOfCell("A1", "12034.1");
+        }
+
+        //We should be able to edit spreadsheets without throwing exceptions (Four Argument Constructor, non-empty file)
+        [TestMethod]
+        public void PublicConstructorCanEditFourArgumentNonEmpty()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(XMLLocation + "TrivialSmallFile", s => true, s => s, "SmallVersion");
+            a1.SetContentsOfCell("A1", "12034.1");
+        }
+
+        //Our default constructor should have an identiy normalize function
+        [TestMethod]
+        public void PublicConstructorIdentityNormalize()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "NonEmpty");
+            a1.SetContentsOfCell("a1", "NonEmptyAgain");
+            Assert.AreEqual(2, a1.GetNamesOfAllNonemptyCells().Count());
+            Assert.IsTrue(a1.GetCellContents("A1").Equals("NonEmpty"));
+            Assert.IsTrue(a1.GetCellContents("a1").Equals("NonEmptyAgain"));
+        }
+
+        //We should respect the normalize function passed to our constructor (3 argument version)
+        [TestMethod]
+        public void PublicConstructorRespectNormalize3Argument()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(s => true, s => s.ToUpper(), "default" );
+            a1.SetContentsOfCell("A1", "NonEmpty");
+            a1.SetContentsOfCell("a1", "NonEmptyAgain");
+            Assert.AreEqual(1, a1.GetNamesOfAllNonemptyCells().Count());
+            Assert.IsTrue(a1.GetCellContents("A1").Equals("NonEmptyAgain"));
+            Assert.IsTrue(a1.GetCellContents("a1").Equals("NonEmptyAgain"));
+        }
+
+        //We should respect the normalize function passed to our constructor (4 argument version)
+        [TestMethod]
+        public void PublicConstructorRespectNormalize4Argument()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(XMLLocation + "TrivialEmptyFile", s => true, s => s.ToUpper(), "EmptyVersion");
+            a1.SetContentsOfCell("A1", "NonEmpty");
+            a1.SetContentsOfCell("a1", "NonEmptyAgain");
+            Assert.AreEqual(1, a1.GetNamesOfAllNonemptyCells().Count());
+            Assert.IsTrue(a1.GetCellContents("A1").Equals("NonEmptyAgain"));
+            Assert.IsTrue(a1.GetCellContents("a1").Equals("NonEmptyAgain"));
+        }
+
+        //When we load from a file, our normalizer is used on that file
+        [TestMethod]
+        public void PublicConstructorNormalizeLoadingFromFile()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(XMLLocation + "TrivialSmallFile", s => true, s => s.ToLower(), "SmallVersion");
+            Assert.AreEqual("TestString", (string) a1.GetCellContents("a1"));
+            Assert.AreEqual(2.564234, (double) a1.GetCellContents("a2"));
+            Assert.AreEqual(new Formula("2 * a2"), a1.GetCellContents("a3"));
+        }
+
+        //We should respect the variable validity of the validator passed to our constructor (3 argument version)
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void PublicConstructorRespectValidator3Argument()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(s => false, s => s, "default");
+            a1.SetContentsOfCell("A1", "NonEmpty");
+        }
+
+        //We should respect the variable validity of the validator passed to our constructor (4 argument version)
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void PublicConstructorRespectValidator4Argument()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(XMLLocation + "TrivialEmptyFile", s => false, s => s, "EmptyVersion");
+            a1.SetContentsOfCell("A1", "NonEmpty");
+        }
+
+        //We should respect the variable validity of the validator passed to our constructor (4 argument version, loading from file)
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void PublicConstructorRespectValidator4ArgumentLoadFile()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(XMLLocation + "TrivialSmallFile", s => false, s => s.ToLower(), "SmallVersion");
+        }
+
+        //Our no argument constructor should have version "default"
+        [TestMethod]
+        public void PublicConstructorVersionNoArguments()
+        {
+            Spreadsheet a1 = new Spreadsheet();
+            Assert.AreEqual("default", a1.Version);
+        }
+
+        //Our three argument constructor should have version equalling what we set it
+        [TestMethod]
+        public void PublicConstructorVersionThreeArguments()
+        {
+            Spreadsheet a1 = new Spreadsheet(s => true, s => s, "defaultVersion");
+            Assert.AreEqual("defaultVersion", a1.Version);
+        }
+
+        //Our four argument constructor should have version equalling what we set it
+        [TestMethod]
+        public void PublicConstructorVersionFourArguments()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(XMLLocation + "TrivialEmptyFile", s => true, s => s, "EmptyVersion");
+            Assert.AreEqual("EmptyVersion", a1.Version);
         }
 
         //GetNamesOfAllNonEmptyCells Tests *******************************************************************
@@ -55,8 +209,8 @@ namespace UnitTestProject1
         public void PublicGetNamesOfAllNonEmptyCellsSetToEmpty()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("A1", "NonEmpty");
-            a1.SetCellContents("A1", "");
+            a1.SetContentsOfCell("A1", "NonEmpty");
+            a1.SetContentsOfCell("A1", "");
             Assert.AreEqual(0, a1.GetNamesOfAllNonemptyCells().Count());
         }
 
@@ -65,20 +219,30 @@ namespace UnitTestProject1
         public void PublicGetNamesOfAllNonEmptyCellsSingleSpace()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("A1", " ");
+            a1.SetContentsOfCell("A1", " ");
             Assert.AreEqual(1, a1.GetNamesOfAllNonemptyCells().Count());
         }
 
-        //GetNamesOfAllNonEmptyCells should respect case sensitivity
+        //GetNamesOfAllNonEmptyCells should respect case sensitivity with an identity normalizer.
         [TestMethod]
         public void PublicGetNamesOfAllNonEmptyCellsCaseSensitivity()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("A1", "NonEmpty");
-            a1.SetCellContents("a1", "NonEmptyAgain");
+            a1.SetContentsOfCell("A1", "NonEmpty");
+            a1.SetContentsOfCell("a1", "NonEmptyAgain");
             Assert.AreEqual(2, a1.GetNamesOfAllNonemptyCells().Count());
             Assert.IsTrue(a1.GetNamesOfAllNonemptyCells().Contains("A1"));
             Assert.IsTrue(a1.GetNamesOfAllNonemptyCells().Contains("a1"));
+        }
+
+        //GetNamesOfAllNonEmptyCells should respect the passed identity normalizer.
+        [TestMethod]
+        public void PublicGetNamesOfAllNonEmptyCellsRespectIdentityNormalizer()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(s => true, s => s.ToLower(), "default");
+            a1.SetContentsOfCell("A1", "NonEmpty");
+            a1.SetContentsOfCell("a1", "NonEmptyAgain");
+            Assert.AreEqual(1, a1.GetNamesOfAllNonemptyCells().Count());
         }
 
         //Trivial case with mixed data types
@@ -86,9 +250,9 @@ namespace UnitTestProject1
         public void PublicGetNamesOfAllNonEmptyCellsMixedDataTypes()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("A1", "NonEmpty");
-            a1.SetCellContents("A2", 12.1234);
-            a1.SetCellContents("A3", new Formula("A1 + 1 + B2"));
+            a1.SetContentsOfCell("A1", "NonEmpty");
+            a1.SetContentsOfCell("A2", "12.1234");
+            a1.SetContentsOfCell("A3", "=A1 + 1 + B2");
             Assert.AreEqual(3, a1.GetNamesOfAllNonemptyCells().Count());
             Assert.IsTrue(a1.GetNamesOfAllNonemptyCells().Contains("A1"));
             Assert.IsTrue(a1.GetNamesOfAllNonemptyCells().Contains("A2"));
@@ -104,15 +268,15 @@ namespace UnitTestProject1
             for (int i = 0; i < MAXSIZE; i++)
             {
                 Assert.AreEqual(i, a1.GetNamesOfAllNonemptyCells().Count());
-                a1.SetCellContents("_" + i, "SomeString");
-                Assert.IsTrue(a1.GetNamesOfAllNonemptyCells().Contains("_" + i));
+                a1.SetContentsOfCell("A" + i, "SomeString");
+                Assert.IsTrue(a1.GetNamesOfAllNonemptyCells().Contains("A" + i));
             }
             //Remove values
             for (int i = MAXSIZE-1; i >= 0; i--)
             {
                 
-                a1.SetCellContents("_" + i, "");
-                Assert.IsFalse(a1.GetNamesOfAllNonemptyCells().Contains("_" + i));
+                a1.SetContentsOfCell("A" + i, "");
+                Assert.IsFalse(a1.GetNamesOfAllNonemptyCells().Contains("A" + i));
                 Assert.AreEqual(i, a1.GetNamesOfAllNonemptyCells().Count());
             }
         }
@@ -126,15 +290,15 @@ namespace UnitTestProject1
             for (int i = 0; i < MAXSIZE; i++)
             {
                 Assert.AreEqual(i, a1.GetNamesOfAllNonemptyCells().Count());
-                a1.SetCellContents("_" + i, 12.34);
-                Assert.IsTrue(a1.GetNamesOfAllNonemptyCells().Contains("_" + i));
+                a1.SetContentsOfCell("A" + i, "12.34");
+                Assert.IsTrue(a1.GetNamesOfAllNonemptyCells().Contains("A" + i));
             }
             //Remove values
             for (int i = MAXSIZE-1; i >= 0; i--)
             {
                 
-                a1.SetCellContents("_" + i, "");
-                Assert.IsFalse(a1.GetNamesOfAllNonemptyCells().Contains("_" + i));
+                a1.SetContentsOfCell("A" + i, "");
+                Assert.IsFalse(a1.GetNamesOfAllNonemptyCells().Contains("A" + i));
                 Assert.AreEqual(i, a1.GetNamesOfAllNonemptyCells().Count());
             }
         }
@@ -148,15 +312,15 @@ namespace UnitTestProject1
             for (int i = 0; i < MAXSIZE; i++)
             {
                 Assert.AreEqual(i, a1.GetNamesOfAllNonemptyCells().Count());
-                a1.SetCellContents("_" + i, new Formula("1 + A1"));
-                Assert.IsTrue(a1.GetNamesOfAllNonemptyCells().Contains("_" + i));
+                a1.SetContentsOfCell("A" + i, "=1 + B1");
+                Assert.IsTrue(a1.GetNamesOfAllNonemptyCells().Contains("A" + i));
             }
             //Remove values
             for (int i = MAXSIZE-1; i >= 0; i--)
             {
                 
-                a1.SetCellContents("_" + i, "");
-                Assert.IsFalse(a1.GetNamesOfAllNonemptyCells().Contains("_" + i));
+                a1.SetContentsOfCell("A" + i, "");
+                Assert.IsFalse(a1.GetNamesOfAllNonemptyCells().Contains("A" + i));
                 Assert.AreEqual(i, a1.GetNamesOfAllNonemptyCells().Count());
             }
         }
@@ -208,16 +372,71 @@ namespace UnitTestProject1
             a1.GetCellContents(null);
         }
 
-        //GetCellContents Normal Tests *******************************************************************
-
-        //GetCellContents variables can start with underscores
+        //GetCellContents variables can't start with underscores
         [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
         public void PublicGetCellContentsValidVarStartUnderscore()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
             a1.GetCellContents("_A1");
 
         }
+
+        //GetCellContents variables can't contain underscores at all
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void PublicGetCellContentsUnderscore()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.GetCellContents("A_1");
+        }
+
+        //Lone underscores aren't valid characters
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void PublicGetCellContentsSingleUnderscore()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.GetCellContents("_");
+        }
+
+        //Letters, then numbers, then letters in a variable ought to throw exception
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void PublicGetCellContentsLettersNumbersLetters()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.GetCellContents("A1a");
+        }
+
+        //GetCellContents needs to respect the passed Validator.
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void PublicGetCellContentsRespectValidator()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(s => false, s => s, "YardeHarHAR");
+            a1.GetCellContents("A1");
+        }
+
+        //GetCellContents variables aren't valid for solitary valid characters (letter case)
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void PublicGetCellContentsSingleLetter()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.GetCellContents("A");
+        }
+
+        //GetCellContents variables aren't valid without numbers
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void PublicGetCellContentsLetters()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.GetCellContents("AASFDfadsfqadsfFeAFljkhpLKH");
+        }
+
+        //GetCellContents Normal Tests *******************************************************************
 
         //GetCellContents variables can start with letters
         [TestMethod]
@@ -228,7 +447,7 @@ namespace UnitTestProject1
 
         }
 
-        //GetCellContents variables are valid so long as all remaining characters are numbers, letters, or underscores. (Digit Case)
+        //GetCellContents variables are valid so long as all remaining characters are numbers or letters (but not numbers then letters). (Digit Case)
         [TestMethod]
         public void PublicGetCellContentsDigits()
         {
@@ -236,44 +455,12 @@ namespace UnitTestProject1
             a1.GetCellContents("A12145689911111111141545145");
         }
 
-        //GetCellContents variables are valid so long as all remaining characters are numbers, letters, or underscores. (Letter Case)
-        [TestMethod]
-        public void PublicGetCellContentsLetters()
-        {
-            AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.GetCellContents("AASFDfadsfqadsfFeAFljkhpLKH");
-        }
-
-        //GetCellContents variables are valid so long as all remaining characters are numbers, letters, or underscores. (Underscore Case)
-        [TestMethod]
-        public void PublicGetCellContentsUnderscore()
-        {
-            AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.GetCellContents("A_____________________");
-        }
-
-        //GetCellContents variables are valid so long as all remaining characters are numbers, letters, or underscores. (Combined Case)
+        //GetCellContents variables are valid so long as all remaining characters are numbers or letters (but not numbers then letters). (Combined Case)
         [TestMethod]
         public void PublicGetCellContentsCombined()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.GetCellContents("A_____ljkhpL__sfqa15451dsfFe_____AAS1111111FDf12145611445adAF899KH");
-        }
-
-        //GetCellContents variables are valid for solitary valid characters (letter case)
-        [TestMethod]
-        public void PublicGetCellContentsSingleLetter()
-        {
-            AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.GetCellContents("A");
-        }
-
-        //GetCellContents variables are valid for solitary valid characters (underscore case)
-        [TestMethod]
-        public void PublicGetCellContentsSingleUnderscore()
-        {
-            AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.GetCellContents("_");
+            a1.GetCellContents("AljkhpLsfqadsfFeAASFDf12145611445899");
         }
 
         //GetCellContents: Cells that have not been changed must have empty values
@@ -289,7 +476,7 @@ namespace UnitTestProject1
         public void PublicGetCellContentsRetrieveStoredString()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("A1", "ThisISATestString1923%Ann\n");
+            a1.SetContentsOfCell("A1", "ThisISATestString1923%Ann\n");
             Assert.AreEqual("ThisISATestString1923%Ann\n", (string) a1.GetCellContents("A1"));
         }
 
@@ -298,7 +485,7 @@ namespace UnitTestProject1
         public void PublicGetCellContentsRetrieveStoredDouble()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("A1", (double) 978.248);
+            a1.SetContentsOfCell("A1", "978.248");
             Assert.AreEqual((double)978.248, (double) a1.GetCellContents("A1"), 1e-9);
         }
 
@@ -308,32 +495,34 @@ namespace UnitTestProject1
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
             Formula f1 = new Formula("B1 + a2 + 34/2");
-            a1.SetCellContents("A1", f1);
+            a1.SetContentsOfCell("A1", "=B1 + a2 + 34/2");
             Assert.AreEqual(f1, (Formula) a1.GetCellContents("A1"));
         }
 
-        //GetCellContents: Cell names are case sensitive
+        //GetCellContents: Cell names are case sensitive with an identity normalizer
         [TestMethod]
         public void PublicGetCellContentsCellNamesCaseSensitive()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
             Formula f1 = new Formula("B1 + a2 + 34/2");
-            a1.SetCellContents("A1", f1);
-            a1.SetCellContents("a1", "lowercase");
+            a1.SetContentsOfCell("A1", "=B1 + a2 + 34/2");
+            a1.SetContentsOfCell("a1", "lowercase");
             Assert.AreEqual(f1, (Formula) a1.GetCellContents("A1"));
             Assert.AreEqual("lowercase", (string) a1.GetCellContents("a1"));
         }
 
-        //SetCellContents(string, double) Exception Tests *******************************************************************
+        //SetContentsOfCell() Exception Tests *******************************************************************
 
-        //SetCellContents(string, double) if a name exception is thrown, the sheet must not change.
+            //DOUBLES *****************************************************************************************
+
+        //SetContentsOfCell(string, double) if a name exception is thrown, the sheet must not change.
         [TestMethod]
-        public void PublicSetCellContentsStringDoubleExceptionNoChange()
+        public void PublicSetContentsOfCellStringDoubleExceptionNoChange()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
             try
             {
-                a1.SetCellContents("&", 0.0);
+                a1.SetContentsOfCell("&", "0.0");
             }
             catch (InvalidNameException e)
             {
@@ -342,195 +531,70 @@ namespace UnitTestProject1
             Assert.AreEqual(0, a1.GetNamesOfAllNonemptyCells().Count());
         }
 
-        //SetCellContents(string, double) must throw an exception if passed an invalid variable name (Ex. An empty string)
+        //SetContentsOfCell(string, double) must throw an exception if passed an invalid variable name (Ex. An empty string)
         [TestMethod]
         [ExpectedException(typeof(InvalidNameException))]
-        public void PublicSetCellContentsStringDoubleInvalidVarEmptyStr()
+        public void PublicSetContentsOfCellStringDoubleInvalidVarEmptyStr()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("", 0.0);
+            a1.SetContentsOfCell("", "0.0");
         }
 
-        //SetCellContents(string, double) must throw an exception if passed an invalid variable name (Ex. An illegal character)
+        //SetContentsOfCell(string, double) must throw an exception if passed an invalid variable name (Ex. An illegal character)
         [TestMethod]
         [ExpectedException(typeof(InvalidNameException))]
-        public void PublicSetCellContentsStringDoubleInvalidVarIllegalChar()
+        public void PublicSetContentsOfCellStringDoubleInvalidVarIllegalChar()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("AA1&", 0.0);
+            a1.SetContentsOfCell("AA1&", "0.0");
         }
 
-        //SetCellContents(string, double) must throw an exception if passed an invalid variable name (Ex. just a number)
+        //SetContentsOfCell(string, double) must throw an exception if passed an invalid variable name (Ex. just a number)
         [TestMethod]
         [ExpectedException(typeof(InvalidNameException))]
-        public void PublicSetCellContentsStringDoubleInvalidVarNum()
+        public void PublicSetContentsOfCellStringDoubleInvalidVarNum()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("25", 0.0);
+            a1.SetContentsOfCell("25", "0.0");
         }
 
-        //SetCellContents(string, double) must throw an exception if passed an invalid variable name (Ex. Starting w/ a number)
+        //SetContentsOfCell(string, double) must throw an exception if passed an invalid variable name (Ex. Starting w/ a number)
         [TestMethod]
         [ExpectedException(typeof(InvalidNameException))]
-        public void PublicSetCellContentsStringDoubleInvalidVarStartNum()
+        public void PublicSetContentsOfCellStringDoubleInvalidVarStartNum()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("1ABAA111", 0.0);
+            a1.SetContentsOfCell("1ABAA111", "0.0");
         }
 
-        //SetCellContents(string, double) must throw an exception if passed a null variable name
+        //SetContentsOfCell(string, double) must throw an exception if passed a null variable name
         [TestMethod]
         [ExpectedException(typeof(InvalidNameException))]
-        public void PublicSetCellContentsStringDoubleInvalidVarNull()
+        public void PublicSetContentsOfCellStringDoubleInvalidVarNull()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents(null, 0.0);
+            a1.SetContentsOfCell(null, "0.0");
         }
 
-        //SetCellContents(string, double) Normal Tests *******************************************************************
+        //STRINGS *****************************************************************************************
 
-        //SetCellContents(string, double): Cells that we initialize to doubles must return that same double
-        [TestMethod]
-        public void PublicSetCellContentsStrDoubRetrieveStoredDouble()
-        {
-            AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("A1", 978.248);
-            Assert.AreEqual((double)978.248, (double)a1.GetCellContents("A1"), 1e-9);
-        }
-
-        //SetCellContents(string, double): SetCellContents must respect case sensitivity
-        [TestMethod]
-        public void PublicSetCellContentsStrDoubStringDoubleRespectCaseSensitivity()
-        {
-            AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("A1", 978.248);
-            a1.SetCellContents("a1", -978.248);
-            Assert.AreEqual((double)978.248, (double)a1.GetCellContents("A1"), 1e-9);
-            Assert.AreEqual((double)-978.248, (double)a1.GetCellContents("a1"), 1e-9);
-        }
-
-        //SetCellContents(string, double): We should be able to overwrite a value, and retrieve the new value
-        [TestMethod]
-        public void PublicSetCellContentsStrDoubOverwriteDouble()
-        {
-            AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("A1", 978.248);
-            Assert.AreEqual((double)978.248, (double)a1.GetCellContents("A1"), 1e-9);
-            a1.SetCellContents("A1", -978.248);
-            Assert.AreEqual((double)-978.248, (double)a1.GetCellContents("A1"), 1e-9);
-        }
-
-        //SetCellContents(string, double): The method should return a set of cells that depend on this one. (Direct version)
-        [TestMethod]
-        public void PublicSetCellContentsStrDoubDirectDependents()
-        {
-            AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("A1", 978.248);
-            a1.SetCellContents("A2", new Formula("A1 + 10"));
-            a1.SetCellContents("B1", new Formula("A1 + 15"));
-            a1.SetCellContents("C3", new Formula("A1 + 20"));
-            //Set up a set w/ cell names
-            ISet<String> testSet = new HashSet<String>();
-            testSet.Add("A1");//We have to remember to update ourselves
-            testSet.Add("A2");
-            testSet.Add("B1");
-            testSet.Add("C3");
-            Assert.IsTrue(testSet.SetEquals((ISet<string>) a1.SetCellContents("A1", -978.248)));
-        }
-
-        //SetCellContents(string, double): The method should return a set of cells that depend on this one. (Indirect version)
-        [TestMethod]
-        public void PublicSetCellContentsStrDoubIndirectDependents()
-        {
-            AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("A1", 978.248);
-            a1.SetCellContents("A2", new Formula("A1 + 10"));
-            a1.SetCellContents("B1", new Formula("A2 + 15"));
-            a1.SetCellContents("C3", new Formula("B1 + 20"));
-            //Set up a set w/ cell names
-            ISet<String> testSet = new HashSet<String>();
-            testSet.Add("A1");//We have to remember to update ourselves
-            testSet.Add("A2");
-            testSet.Add("B1");
-            testSet.Add("C3");
-            Assert.IsTrue(testSet.SetEquals((ISet<string>) a1.SetCellContents("A1", -978.248)));
-        }
-
-        //SetCellContents(string, double): The method should return a set of cells that depend on this one. (Mixed version)
-        [TestMethod]
-        public void PublicSetCellContentsStrDoubMixedDependents()
-        {
-            AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("A1", 978.248);
-            a1.SetCellContents("A2", new Formula("A1 + 10"));
-            a1.SetCellContents("B1", new Formula("A2 + 15"));
-            a1.SetCellContents("C3", new Formula("A1 + 20"));
-            //Set up a set w/ cell names
-            ISet<String> testSet = new HashSet<String>();
-            testSet.Add("A1");//We have to remember to update ourselves
-            testSet.Add("A2");
-            testSet.Add("B1");
-            testSet.Add("C3");
-            Assert.IsTrue(testSet.SetEquals((ISet<string>) a1.SetCellContents("A1", -978.248)));
-        }
-
-        //SetCellContents(string, double): The set returned must respect case sensitivity 
-        [TestMethod]
-        public void PublicSetCellContentsStrDoubMixedDependentsCaseSensitive()
-        {
-            AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("A1", 978.248);
-            a1.SetCellContents("a1", new Formula("A1 + 10"));
-            a1.SetCellContents("B1", new Formula("a1 + 15"));
-            a1.SetCellContents("c3", new Formula("A1 + 20"));
-            a1.SetCellContents("D4", new Formula("C3 + 25"));
-            //Set up a set w/ cell names
-            ISet<String> testSet = new HashSet<String>();
-            testSet.Add("A1");//We have to remember to update ourselves
-            testSet.Add("a1");
-            testSet.Add("B1");
-            testSet.Add("c3");
-            Assert.IsTrue(testSet.SetEquals((ISet<string>)a1.SetCellContents("A1", -978.248))); //We SHOULD NOT contain D4.
-        }
-
-        //SetCellContents(string, double): We should get a set of changed cells, regardless if the cell has a new value or not.
-        [TestMethod]
-        public void PublicSetCellContentsStrDoubSetNoChange()
-        {
-            AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("A1", 1.0);
-            a1.SetCellContents("A2", new Formula("A1 + 10"));
-            a1.SetCellContents("B1", new Formula("A2 + 15"));
-            a1.SetCellContents("C3", new Formula("A1 + 20"));
-            //Set up a set w/ cell names
-            ISet<String> testSet = new HashSet<String>();
-            testSet.Add("A1");//We have to remember to update ourselves
-            testSet.Add("A2");
-            testSet.Add("B1");
-            testSet.Add("C3");
-            ISet<String> a1Set = (ISet<string>)a1.SetCellContents("A1", 1.0);
-            Assert.IsTrue(testSet.SetEquals(a1Set)); //We have to use a funky equals methods for sets.
-        }
-
-        //SetCellContents(string, string) Exception Tests *******************************************************************
-
-        //SetCellContents(string, string) must throw an exception if passed an invalid variable name (Ex. An empty string)
+        //SetContentsOfCell(string, string) must throw an exception if passed an invalid variable name (Ex. An empty string)
         [TestMethod]
         [ExpectedException(typeof(InvalidNameException))]
-        public void PublicSetCellContentsStringStringInvalidVarEmptyStr()
+        public void PublicSetContentsOfCellStringStringInvalidVarEmptyStr()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("", "String");
+            a1.SetContentsOfCell("", "String");
         }
 
-        //SetCellContents(string, string) if a name exception is thrown, the sheet must not change.
+        //SetContentsOfCell(string, string) if a name exception is thrown, the sheet must not change.
         [TestMethod]
-        public void PublicSetCellContentsStringStringExceptionNoChange()
+        public void PublicSetContentsOfCellStringStringExceptionNoChange()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
             try
             {
-                a1.SetCellContents("&", "String");
+                a1.SetContentsOfCell("&", "String");
             }
             catch (InvalidNameException e)
             {
@@ -539,61 +603,61 @@ namespace UnitTestProject1
             Assert.AreEqual(0, a1.GetNamesOfAllNonemptyCells().Count());
         }
 
-        //SetCellContents(string, string) must throw an exception if passed an invalid variable name (Ex. An illegal character)
+        //SetContentsOfCell(string, string) must throw an exception if passed an invalid variable name (Ex. An illegal character)
         [TestMethod]
         [ExpectedException(typeof(InvalidNameException))]
-        public void PublicSetCellContentsStringStringInvalidVarIllegalChar()
+        public void PublicSetContentsOfCellStringStringInvalidVarIllegalChar()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("AA1&", "SomeTextValue");
+            a1.SetContentsOfCell("AA1&", "SomeTextValue");
         }
 
-        //SetCellContents(string, string) must throw an exception if passed an invalid variable name (Ex. just a number)
+        //SetContentsOfCell(string, string) must throw an exception if passed an invalid variable name (Ex. just a number)
         [TestMethod]
         [ExpectedException(typeof(InvalidNameException))]
-        public void PublicSetCellContentsStringStringInvalidVarNum()
+        public void PublicSetContentsOfCellStringStringInvalidVarNum()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("25", "SomeTextValue");
+            a1.SetContentsOfCell("25", "SomeTextValue");
         }
 
-        //SetCellContents(string, string) must throw an exception if passed an invalid variable name (Ex. Starting w/ a number)
+        //SetContentsOfCell(string, string) must throw an exception if passed an invalid variable name (Ex. Starting w/ a number)
         [TestMethod]
         [ExpectedException(typeof(InvalidNameException))]
-        public void PublicSetCellContentsStringStringInvalidVarStartNum()
+        public void PublicSetContentsOfCellStringStringInvalidVarStartNum()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("1ABAA111", "SomeTextValue");
+            a1.SetContentsOfCell("1ABAA111", "SomeTextValue");
         }
 
-        //SetCellContents(string, string) must throw an exception if passed a null variable name
+        //SetContentsOfCell(string, string) must throw an exception if passed a null variable name
         [TestMethod]
         [ExpectedException(typeof(InvalidNameException))]
-        public void PublicSetCellContentsStringStringInvalidVarNull()
+        public void PublicSetContentsOfCellStringStringInvalidVarNull()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents(null, "SomeTextValue");
+            a1.SetContentsOfCell(null, "SomeTextValue");
         }
 
-        //SetCellContents(string, string) must throw an (ArgumentNull) exception if passed a null text value
+        //SetContentsOfCell(string, string) must throw an (ArgumentNull) exception if passed a null text value
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void PublicSetCellContentsStringStringInvalidTextNull()
+        public void PublicSetContentsOfCellStringStringInvalidTextNull()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
             string str = null;
-            a1.SetCellContents("A1", str);
+            a1.SetContentsOfCell("A1", str);
         }
 
-        //SetCellContents(string, string) if an ArgumentNull exception is thrown, the sheet must not change.
+        //SetContentsOfCell(string, string) if an ArgumentNull exception is thrown, the sheet must not change.
         [TestMethod]
-        public void PublicSetCellContentsStringStringArgNullExceptionNoChange()
+        public void PublicSetContentsOfCellStringStringArgNullExceptionNoChange()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
             try
             {
                 string str = null;
-                a1.SetCellContents("A1", str);
+                a1.SetContentsOfCell("A1", str);
             }
             catch (ArgumentNullException e)
             {
@@ -602,149 +666,25 @@ namespace UnitTestProject1
             Assert.AreEqual(0, a1.GetNamesOfAllNonemptyCells().Count());
         }
 
-        //SetCellContents(string, string) Normal Tests *******************************************************************
+        //FORMULAS************************************************************************************
 
-        //SetCellContents(string, string): Cells that we initialize to string must return that same string
-        [TestMethod]
-        public void PublicSetCellContentsStrStrRetrieveStoredString()
-        {
-            AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("A1", "SomeString");
-            Assert.AreEqual("SomeString", (string)a1.GetCellContents("A1"));
-        }
-
-        //SetCellContents(string, string): SetCellContents must respect case sensitivity
-        [TestMethod]
-        public void PublicSetCellContentsStrStrRespectCaseSensitivity()
-        {
-            AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("A1", "SomeString 1");
-            a1.SetCellContents("a1", "SomeString 2");
-            Assert.AreEqual("SomeString 1", (string)a1.GetCellContents("A1"));
-            Assert.AreEqual("SomeString 2", (string)a1.GetCellContents("a1"));
-        }
-
-        //SetCellContents(string, string): We should be able to overwrite a value, and retrieve the new value
-        [TestMethod]
-        public void PublicSetCellContentsStrStrOverwriteString()
-        {
-            AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("A1", "SomeString 1");
-            Assert.AreEqual("SomeString 1", (string)a1.GetCellContents("A1"));
-            a1.SetCellContents("A1", "SomeString 2");
-            Assert.AreEqual("SomeString 2", (string)a1.GetCellContents("A1"));
-        }
-
-        //SetCellContents(string, string): The method should return a set of cells that depend on this one. (Direct version)
-        [TestMethod]
-        public void PublicSetCellContentsStrStrDirectDependents()
-        {
-            AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("A1", "SomeString");
-            a1.SetCellContents("A2", new Formula("A1 + 10"));
-            a1.SetCellContents("B1", new Formula("A1 + 15"));
-            a1.SetCellContents("C3", new Formula("A1 + 20"));
-            //Set up a set w/ cell names
-            ISet<String> testSet = new HashSet<String>();
-            testSet.Add("A1");//We have to remember to update ourselves
-            testSet.Add("A2");
-            testSet.Add("B1");
-            testSet.Add("C3");
-            Assert.IsTrue(testSet.SetEquals((ISet<string>)a1.SetCellContents("A1", -978.248)));
-        }
-
-        //SetCellContents(string, string): The method should return a set of cells that depend on this one. (Indirect version)
-        [TestMethod]
-        public void PublicSetCellContentsStrStrIndirectDependents()
-        {
-            AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("A1", "SomeString");
-            a1.SetCellContents("A2", new Formula("A1 + 10"));
-            a1.SetCellContents("B1", new Formula("A2 + 15"));
-            a1.SetCellContents("C3", new Formula("B1 + 20"));
-            //Set up a set w/ cell names
-            ISet<String> testSet = new HashSet<String>();
-            testSet.Add("A1");//We have to remember to update ourselves
-            testSet.Add("A2");
-            testSet.Add("B1");
-            testSet.Add("C3");
-            Assert.IsTrue(testSet.SetEquals((ISet<string>)a1.SetCellContents("A1", -978.248)));
-        }
-
-        //SetCellContents(string, string): The method should return a set of cells that depend on this one. (Mixed version)
-        [TestMethod]
-        public void PublicSetCellContentsStrStrMixedDependents()
-        {
-            AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("A1", "SomeString 1");
-            a1.SetCellContents("A2", new Formula("A1 + 10"));
-            a1.SetCellContents("B1", new Formula("A2 + 15"));
-            a1.SetCellContents("C3", new Formula("A1 + 20"));
-            //Set up a set w/ cell names
-            ISet<String> testSet = new HashSet<String>();
-            testSet.Add("A1");//We have to remember to update ourselves
-            testSet.Add("A2");
-            testSet.Add("B1");
-            testSet.Add("C3");
-            Assert.IsTrue(testSet.SetEquals((ISet<string>)a1.SetCellContents("A1", "SomeString 2")));
-        }
-
-        //SetCellContents(string, string): The set returned must respect case sensitivity 
-        [TestMethod]
-        public void PublicSetCellContentsStrStrMixedDependentsCaseSensitive()
-        {
-            AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("A1", "SomeString 1");
-            a1.SetCellContents("a1", new Formula("A1 + 10"));
-            a1.SetCellContents("B1", new Formula("a1 + 15"));
-            a1.SetCellContents("c3", new Formula("A1 + 20"));
-            a1.SetCellContents("D4", new Formula("C3 + 25"));
-            //Set up a set w/ cell names
-            ISet<String> testSet = new HashSet<String>();
-            testSet.Add("A1");//We have to remember to update ourselves
-            testSet.Add("a1");
-            testSet.Add("B1");
-            testSet.Add("c3");
-            Assert.IsTrue(testSet.SetEquals((ISet<string>)a1.SetCellContents("A1", "SomeString 2"))); //We SHOULD NOT contain D4.
-        }
-
-        //SetCellContents(string, string): We should get a set of changed cells, regardless if the cell has a new value or not.
-        [TestMethod]
-        public void PublicSetCellContentsStrStrSetNoChange()
-        {
-            AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("A1", "SomeString");
-            a1.SetCellContents("A2", new Formula("A1 + 10"));
-            a1.SetCellContents("B1", new Formula("A2 + 15"));
-            a1.SetCellContents("C3", new Formula("A1 + 20"));
-            //Set up a set w/ cell names
-            ISet<String> testSet = new HashSet<String>();
-            testSet.Add("A1");//We have to remember to update ourselves
-            testSet.Add("A2");
-            testSet.Add("B1");
-            testSet.Add("C3");
-            Assert.IsTrue(testSet.SetEquals((ISet<string>)a1.SetCellContents("A1", "SomeString")));
-        }
-
-        //SetCellContents(string, formula) Exception Tests *******************************************************************
-
-        //SetCellContents(string, formula) must throw an exception if passed an invalid variable name (Ex. An empty string)
+        //SetContentsOfCell(string, formula) must throw an exception if passed an invalid variable name (Ex. An empty string)
         [TestMethod]
         [ExpectedException(typeof(InvalidNameException))]
-        public void PublicSetCellContentsStringFormulaInvalidVarEmptyStr()
+        public void PublicSetContentsOfCellStringFormulaInvalidVarEmptyStr()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("", new Formula("1 + 1"));
+            a1.SetContentsOfCell("", "=1 + 1");
         }
 
-        //SetCellContents(string, formula) if a name exception is thrown, the sheet must not change.
+        //SetContentsOfCell(string, formula) if a name exception is thrown, the sheet must not change.
         [TestMethod]
-        public void PublicSetCellContentsStringFormulaExceptionNoChange()
+        public void PublicSetContentsOfCellStringFormulaExceptionNoChange()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
             try
             {
-                a1.SetCellContents("&", new Formula("1 + 1"));
+                a1.SetContentsOfCell("&", "=1 + 1");
             }
             catch (InvalidNameException e)
             {
@@ -753,115 +693,88 @@ namespace UnitTestProject1
             Assert.AreEqual(0, a1.GetNamesOfAllNonemptyCells().Count());
         }
 
-        //SetCellContents(string, Formula) must throw an exception if passed an invalid variable name (Ex. An illegal character)
+        //SetContentsOfCell(string, Formula) must throw an exception if passed an invalid variable name (Ex. An illegal character)
         [TestMethod]
         [ExpectedException(typeof(InvalidNameException))]
-        public void PublicSetCellContentsStringFormulaInvalidVarIllegalChar()
+        public void PublicSetContentsOfCellStringFormulaInvalidVarIllegalChar()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("AA1&", new Formula("1 + 2"));
+            a1.SetContentsOfCell("AA1&", "=1 + 2");
         }
 
-        //SetCellContents(string, Formula) must throw an exception if passed an invalid variable name (Ex. just a number)
+        //SetContentsOfCell(string, Formula) must throw an exception if passed an invalid variable name (Ex. just a number)
         [TestMethod]
         [ExpectedException(typeof(InvalidNameException))]
-        public void PublicSetCellContentsStringFormulaInvalidVarNum()
+        public void PublicSetContentsOfCellStringFormulaInvalidVarNum()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("25", new Formula("1 + 2"));
+            a1.SetContentsOfCell("25", "=1 + 2");
         }
 
-        //SetCellContents(string, Formula) must throw an exception if passed an invalid variable name (Ex. Starting w/ a number)
+        //SetContentsOfCell(string, Formula) must throw an exception if passed an invalid variable name (Ex. Starting w/ a number)
         [TestMethod]
         [ExpectedException(typeof(InvalidNameException))]
-        public void PublicSetCellContentsStringFormulaInvalidVarStartNum()
+        public void PublicSetContentsOfCellStringFormulaInvalidVarStartNum()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("1ABAA111", new Formula("1 + 2"));
+            a1.SetContentsOfCell("1ABAA111", "=1 + 2");
         }
 
-        //SetCellContents(string, Formula) must throw an exception if passed a null variable name
+        //SetContentsOfCell(string, Formula) must throw an exception if passed a null variable name
         [TestMethod]
         [ExpectedException(typeof(InvalidNameException))]
-        public void PublicSetCellContentsStringFormulaInvalidVarNull()
+        public void PublicSetContentsOfCellStringFormulaInvalidVarNull()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents(null, new Formula("1 + 2"));
+            a1.SetContentsOfCell(null, "=1 + 2");
         }
 
-        //SetCellContents(string, Formula) must throw an (ArgumentNull) exception if passed a null formula value
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void PublicSetCellContentsStringFormulaInvalidTextNull()
-        {
-            AbstractSpreadsheet a1 = new Spreadsheet();
-            Formula form = null;
-            a1.SetCellContents("A1", form);
-        }
-
-        //SetCellContents(string, Formula) if an ArgumentNull exception is thrown, the sheet must not change.
-        [TestMethod]
-        public void PublicSetCellContentsStringFormulaArgNullExceptionNoChange()
-        {
-            AbstractSpreadsheet a1 = new Spreadsheet();
-            try
-            {
-                Formula form = null;
-                a1.SetCellContents("A1", form);
-            }
-            catch (ArgumentNullException e)
-            {
-                //Do nothing
-            }
-            Assert.AreEqual(0, a1.GetNamesOfAllNonemptyCells().Count());
-        }
-
-        //SetCellContents(string, string): The method should throw a CircularException if the SetCellContents method would cause
+        //SetContentsOfCell(string, string): The method should throw a CircularException if the SetContentsOfCell method would cause
         //a circular dependency (Direct Version)
         [TestMethod]
         [ExpectedException(typeof(CircularException))]
-        public void PublicSetCellContentsStrFormDirectDependentsCircException()
+        public void PublicSetContentsOfCellStrFormDirectDependentsCircException()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("A1", new Formula("A2 + 0"));
-            a1.SetCellContents("A2", new Formula("A1 + 10")); //Throw here
+            a1.SetContentsOfCell("A1", "=A2 + 0");
+            a1.SetContentsOfCell("A2", "=A1 + 10"); //Throw here
         }
 
-        //SetCellContents(string, string): The method should throw a CircularException if the SetCellContents method would cause
+        //SetContentsOfCell(string, string): The method should throw a CircularException if the SetContentsOfCell method would cause
         //a circular dependency (Indirect Version)
         [TestMethod]
         [ExpectedException(typeof(CircularException))]
-        public void PublicSetCellContentsStrFormIndirectDependentsCircException()
+        public void PublicSetContentsOfCellStrFormIndirectDependentsCircException()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("A1", new Formula("A4"));
-            a1.SetCellContents("A2", new Formula("A1 + 10"));
-            a1.SetCellContents("A3", new Formula("A2 + 10"));
-            a1.SetCellContents("A4", new Formula("A3 + 10")); //Throw here
+            a1.SetContentsOfCell("A1", "=A4");
+            a1.SetContentsOfCell("A2", "=A1 + 10");
+            a1.SetContentsOfCell("A3", "=A2 + 10");
+            a1.SetContentsOfCell("A4", "=A3 + 10"); //Throw here
         }
 
-        //SetCellContents(string, string): The method should throw a CircularException if the SetCellContents method would cause
+        //SetContentsOfCell(string, string): The method should throw a CircularException if the SetContentsOfCell method would cause
         //a circular dependency (Mixed Version)
         [TestMethod]
         [ExpectedException(typeof(CircularException))]
-        public void PublicSetCellContentsStrFormMixedDependentsCircException()
+        public void PublicSetContentsOfCellStrFormMixedDependentsCircException()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("A1", new Formula("A4"));
-            a1.SetCellContents("A2", new Formula("A1 + 10"));
-            a1.SetCellContents("A3", new Formula("A2 + 10"));
-            a1.SetCellContents("A4", new Formula("A1 + 10")); //Throw here
+            a1.SetContentsOfCell("A1", "=A4");
+            a1.SetContentsOfCell("A2", "=A1 + 10");
+            a1.SetContentsOfCell("A3", "=A2 + 10");
+            a1.SetContentsOfCell("A4", "=A1 + 10"); //Throw here
         }
 
-        //If we fail with a CircularDependency, the sheet must not change.
+        //If we fail with a CircularDependency, the sheet must not change. (original value double)
         [TestMethod]
-        public void PublicSetCellContentsStrFormCircularDependencyNoChange()
+        public void PublicSetContentsOfCellStrFormCircularDependencyNoChangeDouble()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("A2", new Formula("A1"));
+            a1.SetContentsOfCell("A1", "1");
             try
             {
-                a1.SetCellContents("A1", new Formula("A2"));
+                a1.SetContentsOfCell("A1", "=A1");
             }
             catch (CircularException e)
             {
@@ -870,155 +783,1362 @@ namespace UnitTestProject1
             Assert.AreEqual(1, a1.GetNamesOfAllNonemptyCells().Count()); //No size change
         }
 
-        //SetCellContents(string, formula) Normal Tests *******************************************************************
-
-        //SetCellContents(string, formula): Cells that we initialize to string must return that same formula
+        //If we fail with a CircularDependency, the sheet must not change. (original value string)
         [TestMethod]
-        public void PublicSetCellContentsStrFormRetrieveStoredString()
+        public void PublicSetContentsOfCellStrFormCircularDependencyNoChangeString()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("A1", new Formula("1 + 1"));
-            Assert.AreEqual(new Formula("1 + 1"), (Formula)a1.GetCellContents("A1"));
+            a1.SetContentsOfCell("A1", "SomeString");
+            try
+            {
+                a1.SetContentsOfCell("A1", "=A1");
+            }
+            catch (CircularException e)
+            {
+                //Do nothing
+            }
+            Assert.AreEqual(1, a1.GetNamesOfAllNonemptyCells().Count()); //No size change
         }
 
-        //SetCellContents(string, formula): SetCellContents must respect case sensitivity
+        //If we fail with a CircularDependency, the sheet must not change. (original value formula)
         [TestMethod]
-        public void PublicSetCellContentsStrFormRespectCaseSensitivity()
+        public void PublicSetContentsOfCellStrFormCircularDependencyNoChangeFormula()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("A1", new Formula("1 + 1"));
-            a1.SetCellContents("a1", new Formula("1 + 2"));
-            Assert.AreEqual(new Formula("1 + 1"), (Formula)a1.GetCellContents("A1"));
-            Assert.AreEqual(new Formula("1 + 2"), (Formula)a1.GetCellContents("a1"));
+            a1.SetContentsOfCell("A1", "=1 + 1");
+            try
+            {
+                a1.SetContentsOfCell("A1", "=A1");
+            }
+            catch (CircularException e)
+            {
+                //Do nothing
+            }
+            Assert.AreEqual(1, a1.GetNamesOfAllNonemptyCells().Count()); //No size change
         }
 
-        //SetCellContents(string, formula): We should be able to overwrite a value, and retrieve the new value
+        //SetContentsOfCell Formula Exceptions (Malformed Formulas)
+        //As this logic is almost entirely handled by the Formula class, the majority of the testing should 
+        //be handled by that class. However, I will do limited testing here, as I am technically responsible
+        //for exceptions being thrown
+
+        //Invalid variable name should throw exceptions (tricky, containing underscores, which are allowed in
+        //formula, but not in our definition of variables)
         [TestMethod]
-        public void PublicSetCellContentsStrFormOverwriteString()
+        [ExpectedException(typeof(FormulaFormatException))]
+        public void PublicSetContentsOfCellInvalidVariableFormula()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("A1", new Formula("1 + 1"));
-            Assert.AreEqual(new Formula("1 + 1"), (Formula)a1.GetCellContents("A1"));
-            a1.SetCellContents("A1", new Formula("1 + 2"));
-            Assert.AreEqual(new Formula("1 + 2"), (Formula)a1.GetCellContents("A1"));
+            a1.SetContentsOfCell("A1", "=_A1");
         }
 
-        //SetCellContents(string, formula): The method should return a set of cells that depend on this one. (Direct version)
+        //Invalid variable name should throw exceptions (Vengeful Validator)
         [TestMethod]
-        public void PublicSetCellContentsStrFormDirectDependents()
+        [ExpectedException(typeof(InvalidNameException))]
+        public void PublicSetContentsOfCellInvalidVariableFormulaVengefulValidator()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(s => false, s => s, "default");
+            a1.SetContentsOfCell("A1", "=A1");
+        }
+
+        //Invalid variable name should throw exceptions (breaking normalizer)
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void PublicSetContentsOfCellInvalidVariableFormulaBreakingNormalizer()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(s => true, s => "ThisAintAVariable", "default");
+            a1.SetContentsOfCell("A1", "=A1");
+        }
+
+        //Invalid tokens should throw exceptions
+        [TestMethod]
+        [ExpectedException(typeof(FormulaFormatException))]
+        public void PublicSetContentsOfCellInvalidFormulaToken()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("A1", new Formula("1 + 1"));
-            a1.SetCellContents("A2", new Formula("A1 + 10"));
-            a1.SetCellContents("B1", new Formula("A1 + 15"));
-            a1.SetCellContents("C3", new Formula("A1 + 20"));
+            a1.SetContentsOfCell("A1", "=A1& + 1");
+        }
+
+        //We need at least one token
+        [TestMethod]
+        [ExpectedException(typeof(FormulaFormatException))]
+        public void PublicSetContentsOfCellInvalidFormulaEmpty()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "= ");
+        }
+
+        //Mismatched operators should throw exceptions
+        [TestMethod]
+        [ExpectedException(typeof(FormulaFormatException))]
+        public void PublicSetContentsOfCellInvalidFormulaMismatchedOperators()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=1 + ");
+        }
+
+        //Starting w/ an operator is illegal
+        [TestMethod]
+        [ExpectedException(typeof(FormulaFormatException))]
+        public void PublicSetContentsOfCellInvalidFormulaStartWithOperator()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "= + 1");
+        }
+
+        //We have to match parenthesis (too many open)
+        [TestMethod]
+        [ExpectedException(typeof(FormulaFormatException))]
+        public void PublicSetContentsOfCellInvalidFormulaTooManyOpenParen()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=((1 + 1)");
+        }
+
+        //We have to match parenthesis (too many CloseParen)
+        [TestMethod]
+        [ExpectedException(typeof(FormulaFormatException))]
+        public void PublicSetContentsOfCellInvalidFormulaTooManyCloseParen()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=(1 + 1))");
+        }
+
+        //We can't parse anything larger than Double.MaxValue (1.7e308)
+        [TestMethod]
+        [ExpectedException(typeof(FormulaFormatException))]
+        public void PublicSetContentsOfCellInvalidFormulaNumbersTooBig()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=1 + 1.8e308");
+        }
+
+        //SetContentsOfCell() Normal Tests *******************************************************************
+
+        //DOUBLES **************************************************************************************
+
+        //SetContentsOfCell(string, double): Cells that we initialize to doubles must return that same double
+        [TestMethod]
+        public void PublicSetContentsOfCellStrDoubRetrieveStoredDouble()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "978.248");
+            Assert.AreEqual((double)978.248, (double)a1.GetCellContents("A1"), 1e-9);
+        }
+
+        //SetContentsOfCell(string, double): SetContentsOfCell must respect case sensitivity
+        [TestMethod]
+        public void PublicSetContentsOfCellStrDoubStringDoubleRespectCaseSensitivity()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "978.248");
+            a1.SetContentsOfCell("a1", "-978.248");
+            Assert.AreEqual((double)978.248, (double)a1.GetCellContents("A1"), 1e-9);
+            Assert.AreEqual((double)-978.248, (double)a1.GetCellContents("a1"), 1e-9);
+        }
+
+        //SetContentsOfCell(string, double): We should be able to overwrite a value, and retrieve the new value
+        [TestMethod]
+        public void PublicSetContentsOfCellStrDoubOverwriteDouble()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "978.248");
+            Assert.AreEqual((double)978.248, (double)a1.GetCellContents("A1"), 1e-9);
+            a1.SetContentsOfCell("A1", "-978.248");
+            Assert.AreEqual((double)-978.248, (double)a1.GetCellContents("A1"), 1e-9);
+        }
+
+        //SetContentsOfCell(string, double): The method should return a set of cells that depend on this one. (Direct version)
+        [TestMethod]
+        public void PublicSetContentsOfCellStrDoubDirectDependents()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "978.248");
+            a1.SetContentsOfCell("A2", "=A1 + 10");
+            a1.SetContentsOfCell("B1", "=A1 + 15");
+            a1.SetContentsOfCell("C3", "=A1 + 20");
             //Set up a set w/ cell names
             ISet<String> testSet = new HashSet<String>();
             testSet.Add("A1");//We have to remember to update ourselves
             testSet.Add("A2");
             testSet.Add("B1");
             testSet.Add("C3");
-            Assert.IsTrue(testSet.SetEquals((ISet<string>)a1.SetCellContents("A1", new Formula("1 + 2"))));
+            Assert.IsTrue(testSet.SetEquals((ISet<string>)a1.SetContentsOfCell("A1", "-978.248")));
         }
 
-        //SetCellContents(string, formula): The method should return a set of cells that depend on this one. (Indirect version)
+        //SetContentsOfCell(string, double): The method should return a set of cells that depend on this one. (Indirect version)
         [TestMethod]
-        public void PublicSetCellContentsStrFormIndirectDependents()
+        public void PublicSetContentsOfCellStrDoubIndirectDependents()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("A1", "1 + 1");
-            a1.SetCellContents("A2", new Formula("A1 + 10"));
-            a1.SetCellContents("B1", new Formula("A2 + 15"));
-            a1.SetCellContents("C3", new Formula("B1 + 20"));
+            a1.SetContentsOfCell("A1", "978.248");
+            a1.SetContentsOfCell("A2", "=A1 + 10");
+            a1.SetContentsOfCell("B1", "=A2 + 15");
+            a1.SetContentsOfCell("C3", "=B1 + 20");
             //Set up a set w/ cell names
             ISet<String> testSet = new HashSet<String>();
             testSet.Add("A1");//We have to remember to update ourselves
             testSet.Add("A2");
             testSet.Add("B1");
             testSet.Add("C3");
-            Assert.IsTrue(testSet.SetEquals((ISet<string>)a1.SetCellContents("A1", new Formula("1 + 2"))));
+            Assert.IsTrue(testSet.SetEquals((ISet<string>)a1.SetContentsOfCell("A1", "-978.248")));
         }
 
-        //SetCellContents(string, formula): The method should return a set of cells that depend on this one. (Mixed version)
+        //SetContentsOfCell(string, double): The method should return a set of cells that depend on this one. (Mixed version)
         [TestMethod]
-        public void PublicSetCellContentsStrFormMixedDependents()
+        public void PublicSetContentsOfCellStrDoubMixedDependents()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("A1", "1 + 1");
-            a1.SetCellContents("A2", new Formula("A1 + 10"));
-            a1.SetCellContents("B1", new Formula("A2 + 15"));
-            a1.SetCellContents("C3", new Formula("A1 + 20"));
+            a1.SetContentsOfCell("A1", "978.248");
+            a1.SetContentsOfCell("A2", "=A1 + 10");
+            a1.SetContentsOfCell("B1", "=A2 + 15");
+            a1.SetContentsOfCell("C3", "=A1 + 20");
             //Set up a set w/ cell names
             ISet<String> testSet = new HashSet<String>();
             testSet.Add("A1");//We have to remember to update ourselves
             testSet.Add("A2");
             testSet.Add("B1");
             testSet.Add("C3");
-            Assert.IsTrue(testSet.SetEquals((ISet<string>)a1.SetCellContents("A1", new Formula("1 + 2"))));
+            Assert.IsTrue(testSet.SetEquals((ISet<string>)a1.SetContentsOfCell("A1", "-978.248")));
         }
 
-        //SetCellContents(string, formula): The set returned must respect case sensitivity 
+        //SetContentsOfCell(string, double): The set returned must respect case sensitivity 
         [TestMethod]
-        public void PublicSetCellContentsStrFormMixedDependentsCaseSensitive()
+        public void PublicSetContentsOfCellStrDoubMixedDependentsCaseSensitive()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("A1", "1 + 1");
-            a1.SetCellContents("a1", new Formula("A1 + 10"));
-            a1.SetCellContents("B1", new Formula("a1 + 15"));
-            a1.SetCellContents("c3", new Formula("A1 + 20"));
-            a1.SetCellContents("D4", new Formula("C3 + 25"));
+            a1.SetContentsOfCell("A1", "978.248");
+            a1.SetContentsOfCell("a1", "=A1 + 10");
+            a1.SetContentsOfCell("B1", "=a1 + 15");
+            a1.SetContentsOfCell("c3", "=A1 + 20");
+            a1.SetContentsOfCell("D4", "=C3 + 25");
             //Set up a set w/ cell names
             ISet<String> testSet = new HashSet<String>();
             testSet.Add("A1");//We have to remember to update ourselves
             testSet.Add("a1");
             testSet.Add("B1");
             testSet.Add("c3");
-            Assert.IsTrue(testSet.SetEquals((ISet<string>)a1.SetCellContents("A1", new Formula("1 + 2")))); //We SHOULD NOT contain D4.
+            Assert.IsTrue(testSet.SetEquals((ISet<string>)a1.SetContentsOfCell("A1", "-978.248"))); //We SHOULD NOT contain D4.
         }
 
-        //SetCellContents(string, formula): We should get a set of changed cells, regardless if the cell has a new value or not.
+        //SetContentsOfCell(string, double): We should get a set of changed cells, regardless if the cell has a new value or not.
         [TestMethod]
-        public void PublicSetCellContentsStrFormSetNoChange()
+        public void PublicSetContentsOfCellStrDoubSetNoChange()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("A1", "1 + 1");
-            a1.SetCellContents("A2", new Formula("A1 + 10"));
-            a1.SetCellContents("B1", new Formula("A2 + 15"));
-            a1.SetCellContents("C3", new Formula("A1 + 20"));
+            a1.SetContentsOfCell("A1", "1.0");
+            a1.SetContentsOfCell("A2", "=A1 + 10");
+            a1.SetContentsOfCell("B1", "=A2 + 15");
+            a1.SetContentsOfCell("C3", "=A1 + 20");
             //Set up a set w/ cell names
             ISet<String> testSet = new HashSet<String>();
             testSet.Add("A1");//We have to remember to update ourselves
             testSet.Add("A2");
             testSet.Add("B1");
             testSet.Add("C3");
-            Assert.IsTrue(testSet.SetEquals((ISet<string>)a1.SetCellContents("A1", new Formula("1 + 2"))));
+            ISet<String> a1Set = (ISet<string>)a1.SetContentsOfCell("A1", "1.0");
+            Assert.IsTrue(testSet.SetEquals(a1Set)); //We have to use a funky equals methods for sets.
         }
 
-        //SetCellContents(string, formula): We should be able to depend on empty cells
+        //STRINGS **********************************************************************************************************
+
+        //SetContentsOfCell(string, string): Cells that we initialize to string must return that same string
         [TestMethod]
-        public void PublicSetCellContentsStrFormDependOnEmpty()
+        public void PublicSetContentsOfCellStrStrRetrieveStoredString()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("A1", new Formula("A2"));
+            a1.SetContentsOfCell("A1", "SomeString");
+            Assert.AreEqual("SomeString", (string)a1.GetCellContents("A1"));
         }
 
-        //SetCellContents(string, formula): We should be able to depend on cells with strings
+        //SetContentsOfCell(string, string): SetContentsOfCell must respect case sensitivity
         [TestMethod]
-        public void PublicSetCellContentsStrFormDependOnString()
+        public void PublicSetContentsOfCellStrStrRespectCaseSensitivity()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("A2", "STRING!");
-            a1.SetCellContents("A1", new Formula("A2"));
+            a1.SetContentsOfCell("A1", "SomeString 1");
+            a1.SetContentsOfCell("a1", "SomeString 2");
+            Assert.AreEqual("SomeString 1", (string)a1.GetCellContents("A1"));
+            Assert.AreEqual("SomeString 2", (string)a1.GetCellContents("a1"));
         }
 
-        //SetCellContents(string, formula): We should be able to depend on cells with doubles
+        //SetContentsOfCell(string, string): We should be able to overwrite a value, and retrieve the new value
         [TestMethod]
-        public void PublicSetCellContentsStrFormDependOnDouble()
+        public void PublicSetContentsOfCellStrStrOverwriteString()
         {
             AbstractSpreadsheet a1 = new Spreadsheet();
-            a1.SetCellContents("A2", 1.346);
-            a1.SetCellContents("A1", new Formula("A2"));
+            a1.SetContentsOfCell("A1", "SomeString 1");
+            Assert.AreEqual("SomeString 1", (string)a1.GetCellContents("A1"));
+            a1.SetContentsOfCell("A1", "SomeString 2");
+            Assert.AreEqual("SomeString 2", (string)a1.GetCellContents("A1"));
         }
 
+        //SetContentsOfCell(string, string): The method should return a set of cells that depend on this one. (Direct version)
+        [TestMethod]
+        public void PublicSetContentsOfCellStrStrDirectDependents()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "SomeString");
+            a1.SetContentsOfCell("A2", "=A1 + 10");
+            a1.SetContentsOfCell("B1", "=A1 + 15");
+            a1.SetContentsOfCell("C3", "=A1 + 20");
+            //Set up a set w/ cell names
+            ISet<String> testSet = new HashSet<String>();
+            testSet.Add("A1");//We have to remember to update ourselves
+            testSet.Add("A2");
+            testSet.Add("B1");
+            testSet.Add("C3");
+            Assert.IsTrue(testSet.SetEquals((ISet<string>)a1.SetContentsOfCell("A1", "-978.248")));
+        }
+
+        //SetContentsOfCell(string, string): The method should return a set of cells that depend on this one. (Indirect version)
+        [TestMethod]
+        public void PublicSetContentsOfCellStrStrIndirectDependents()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "SomeString");
+            a1.SetContentsOfCell("A2", "=A1 + 10");
+            a1.SetContentsOfCell("B1", "=A2 + 15");
+            a1.SetContentsOfCell("C3", "=B1 + 20");
+            //Set up a set w/ cell names
+            ISet<String> testSet = new HashSet<String>();
+            testSet.Add("A1");//We have to remember to update ourselves
+            testSet.Add("A2");
+            testSet.Add("B1");
+            testSet.Add("C3");
+            Assert.IsTrue(testSet.SetEquals((ISet<string>)a1.SetContentsOfCell("A1", "-978.248")));
+        }
+
+        //SetContentsOfCell(string, string): The method should return a set of cells that depend on this one. (Mixed version)
+        [TestMethod]
+        public void PublicSetContentsOfCellStrStrMixedDependents()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "SomeString 1");
+            a1.SetContentsOfCell("A2", "=A1 + 10");
+            a1.SetContentsOfCell("B1", "=A2 + 15");
+            a1.SetContentsOfCell("C3", "=A1 + 20");
+            //Set up a set w/ cell names
+            ISet<String> testSet = new HashSet<String>();
+            testSet.Add("A1");//We have to remember to update ourselves
+            testSet.Add("A2");
+            testSet.Add("B1");
+            testSet.Add("C3");
+            Assert.IsTrue(testSet.SetEquals((ISet<string>)a1.SetContentsOfCell("A1", "SomeString 2")));
+        }
+
+        //SetContentsOfCell(string, string): The set returned must respect case sensitivity 
+        [TestMethod]
+        public void PublicSetContentsOfCellStrStrMixedDependentsCaseSensitive()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "SomeString 1");
+            a1.SetContentsOfCell("a1", "=A1 + 10");
+            a1.SetContentsOfCell("B1", "=a1 + 15");
+            a1.SetContentsOfCell("c3", "=A1 + 20");
+            a1.SetContentsOfCell("D4", "=C3 + 25");
+            //Set up a set w/ cell names
+            ISet<String> testSet = new HashSet<String>();
+            testSet.Add("A1");//We have to remember to update ourselves
+            testSet.Add("a1");
+            testSet.Add("B1");
+            testSet.Add("c3");
+            Assert.IsTrue(testSet.SetEquals((ISet<string>)a1.SetContentsOfCell("A1", "SomeString 2"))); //We SHOULD NOT contain D4.
+        }
+
+        //SetContentsOfCell(string, string): We should get a set of changed cells, regardless if the cell has a new value or not.
+        [TestMethod]
+        public void PublicSetContentsOfCellStrStrSetNoChange()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "SomeString");
+            a1.SetContentsOfCell("A2", "=A1 + 10");
+            a1.SetContentsOfCell("B1", "=A2 + 15");
+            a1.SetContentsOfCell("C3", "=A1 + 20");
+            //Set up a set w/ cell names
+            ISet<String> testSet = new HashSet<String>();
+            testSet.Add("A1");//We have to remember to update ourselves
+            testSet.Add("A2");
+            testSet.Add("B1");
+            testSet.Add("C3");
+            Assert.IsTrue(testSet.SetEquals((ISet<string>)a1.SetContentsOfCell("A1", "SomeString")));
+        }
+
+        //FORMULAS ******************************************************************************************************
+
+        //SetContentsOfCell(string, formula): Cells that we initialize to string must return that same formula
+        [TestMethod]
+        public void PublicSetContentsOfCellStrFormRetrieveStoredString()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=1 + 1");
+            Assert.AreEqual(new Formula("1 + 1"), (Formula)a1.GetCellContents("A1"));
+        }
+
+        //SetContentsOfCell(string, formula): SetContentsOfCell must respect case sensitivity
+        [TestMethod]
+        public void PublicSetContentsOfCellStrFormRespectCaseSensitivity()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=1 + 1");
+            a1.SetContentsOfCell("a1", "=1 + 2");
+            Assert.AreEqual(new Formula("1 + 1"), (Formula)a1.GetCellContents("A1"));
+            Assert.AreEqual(new Formula("1 + 2"), (Formula)a1.GetCellContents("a1"));
+        }
+
+        //SetContentsOfCell(string, formula): We should be able to overwrite a value, and retrieve the new value
+        [TestMethod]
+        public void PublicSetContentsOfCellStrFormOverwriteString()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=1 + 1");
+            Assert.AreEqual(new Formula("1 + 1"), (Formula)a1.GetCellContents("A1"));
+            a1.SetContentsOfCell("A1", "=1 + 2");
+            Assert.AreEqual(new Formula("1 + 2"), (Formula)a1.GetCellContents("A1"));
+        }
+
+        //SetContentsOfCell(string, formula): The method should return a set of cells that depend on this one. (Direct version)
+        [TestMethod]
+        public void PublicSetContentsOfCellStrFormDirectDependents()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=1 + 1");
+            a1.SetContentsOfCell("A2", "=A1 + 10");
+            a1.SetContentsOfCell("B1", "=A1 + 15");
+            a1.SetContentsOfCell("C3", "=A1 + 20");
+            //Set up a set w/ cell names
+            ISet<String> testSet = new HashSet<String>();
+            testSet.Add("A1");//We have to remember to update ourselves
+            testSet.Add("A2");
+            testSet.Add("B1");
+            testSet.Add("C3");
+            Assert.IsTrue(testSet.SetEquals((ISet<string>)a1.SetContentsOfCell("A1", "=1 + 2")));
+        }
+
+        //SetContentsOfCell(string, formula): The method should return a set of cells that depend on this one. (Indirect version)
+        [TestMethod]
+        public void PublicSetContentsOfCellStrFormIndirectDependents()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "1 + 1");
+            a1.SetContentsOfCell("A2", "=A1 + 10");
+            a1.SetContentsOfCell("B1", "=A2 + 15");
+            a1.SetContentsOfCell("C3", "=B1 + 20");
+            //Set up a set w/ cell names
+            ISet<String> testSet = new HashSet<String>();
+            testSet.Add("A1");//We have to remember to update ourselves
+            testSet.Add("A2");
+            testSet.Add("B1");
+            testSet.Add("C3");
+            Assert.IsTrue(testSet.SetEquals((ISet<string>)a1.SetContentsOfCell("A1", "=1 + 2")));
+        }
+
+        //SetContentsOfCell(string, formula): The method should return a set of cells that depend on this one. (Mixed version)
+        [TestMethod]
+        public void PublicSetContentsOfCellStrFormMixedDependents()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "1 + 1");
+            a1.SetContentsOfCell("A2", "=A1 + 10");
+            a1.SetContentsOfCell("B1", "=A2 + 15");
+            a1.SetContentsOfCell("C3", "=A1 + 20");
+            //Set up a set w/ cell names
+            ISet<String> testSet = new HashSet<String>();
+            testSet.Add("A1");//We have to remember to update ourselves
+            testSet.Add("A2");
+            testSet.Add("B1");
+            testSet.Add("C3");
+            Assert.IsTrue(testSet.SetEquals((ISet<string>)a1.SetContentsOfCell("A1", "=1 + 2")));
+        }
+
+        //SetContentsOfCell(string, formula): The set returned must respect case sensitivity 
+        [TestMethod]
+        public void PublicSetContentsOfCellStrFormMixedDependentsCaseSensitive()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "1 + 1");
+            a1.SetContentsOfCell("a1", "=A1 + 10");
+            a1.SetContentsOfCell("B1", "=a1 + 15");
+            a1.SetContentsOfCell("c3", "=A1 + 20");
+            a1.SetContentsOfCell("D4", "=C3 + 25");
+            //Set up a set w/ cell names
+            ISet<String> testSet = new HashSet<String>();
+            testSet.Add("A1");//We have to remember to update ourselves
+            testSet.Add("a1");
+            testSet.Add("B1");
+            testSet.Add("c3");
+            Assert.IsTrue(testSet.SetEquals((ISet<string>)a1.SetContentsOfCell("A1", "=1 + 2"))); //We SHOULD NOT contain D4.
+        }
+
+        //SetContentsOfCell(string, formula): We should get a set of changed cells, regardless if the cell has a new value or not.
+        [TestMethod]
+        public void PublicSetContentsOfCellStrFormSetNoChange()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "1 + 1");
+            a1.SetContentsOfCell("A2", "=A1 + 10");
+            a1.SetContentsOfCell("B1", "=A2 + 15");
+            a1.SetContentsOfCell("C3", "=A1 + 20");
+            //Set up a set w/ cell names
+            ISet<String> testSet = new HashSet<String>();
+            testSet.Add("A1");//We have to remember to update ourselves
+            testSet.Add("A2");
+            testSet.Add("B1");
+            testSet.Add("C3");
+            Assert.IsTrue(testSet.SetEquals((ISet<string>)a1.SetContentsOfCell("A1", "=1 + 2")));
+        }
+
+        //SetContentsOfCell(string, formula): We should be able to depend on empty cells
+        [TestMethod]
+        public void PublicSetContentsOfCellStrFormDependOnEmpty()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=A2");
+        }
+
+        //SetContentsOfCell(string, formula): We should be able to depend on cells with strings
+        [TestMethod]
+        public void PublicSetContentsOfCellStrFormDependOnString()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A2", "STRING!");
+            a1.SetContentsOfCell("A1", "=A2");
+        }
+
+        //SetContentsOfCell(string, formula): We should be able to depend on cells with doubles
+        [TestMethod]
+        public void PublicSetContentsOfCellStrFormDependOnDouble()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A2", "1.346");
+            a1.SetContentsOfCell("A1", "=A2");
+        }
+
+        //GetCellValue Exception Tests **********************************************************************************
+
+        //GetCellValue must throw an exception if passed an invalid variable name (Ex. Empty String)
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void PublicGetCellValueInvalidVarEmptyString()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.GetCellValue("");
+        }
+
+        //GetCellValue must throw an exception if passed an invalid variable name (Ex. An illegal character)
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void PublicGetCellValueInvalidVarIllegalChar()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.GetCellValue("AA1&");
+        }
+
+        //GetCellValue must throw an exception if passed an invalid variable name (Ex. just a number)
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void PublicGetCellValueInvalidVarNum()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.GetCellValue("25");
+        }
+
+        //GetCellValue must throw an exception if passed an invalid variable name (Ex. Starting w/ a number)
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void PublicGetCellValueInvalidVarStartNum()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.GetCellValue("1ABAA111");
+        }
+
+        //GetCellValue must throw an exception if passed a null variable name
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void PublicGetCellValueInvalidVarNull()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.GetCellValue(null);
+        }
+
+        //GetCellValue variables can't start with underscores
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void PublicGetCellValueValidVarStartUnderscore()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.GetCellValue("_A1");
+
+        }
+
+        //GetCellValue variables can't contain underscores at all
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void PublicGetCellValueUnderscore()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.GetCellValue("A_1");
+        }
+
+        //Lone underscores aren't valid characters
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void PublicGetCellValueSingleUnderscore()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.GetCellValue("_");
+        }
+
+        //Letters, then numbers, then letters in a variable ought to throw exception
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void PublicGetCellValueLettersNumbersLetters()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.GetCellValue("A1a");
+        }
+
+        //GetCellValue needs to respect the passed Validator.
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void PublicGetCellValueRespectValidator()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(s => false, s => s, "YardeHarHAR");
+            a1.GetCellValue("A1");
+        }
+
+        //GetCellValue variables are valid for solitary valid characters (letter case)
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void PublicGetCellValueSingleLetter()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.GetCellValue("A");
+        }
+
+        //GetCellContents variables aren't valid without numbers
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void PublicGetCellValueLetters()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.GetCellValue("AASFDfadsfqadsfFeAFljkhpLKH");
+        }
+
+        //GetCellValue Normal Tests **********************************************************************************
+
+        //GetCellValue variables can start with letters
+        [TestMethod]
+        public void PublicGetCellValueValidVarStartLetter()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.GetCellValue("A1");
+
+        }
+
+        //GetCellValue variables are valid so long as all remaining characters are numbers or letters (but not numbers then letters). (Digit Case)
+        [TestMethod]
+        public void PublicGetCellValueDigits()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.GetCellValue("A12145689911111111141545145");
+        }
+
+        //GetCellValue variables are valid so long as all remaining characters are numbers or letters (but not numbers then letters). (Combined Case)
+        [TestMethod]
+        public void PublicGetCellValueCombined()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.GetCellValue("AljkhpLsfqadsfFeAASFDf12145611445899");
+        }
+
+        //GetCellValue: Cells that have not been changed must have empty values
+        [TestMethod]
+        public void PublicGetCellValueNonInitializedCellsEmpty()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            Assert.AreEqual("", (string)a1.GetCellValue("A1"));
+        }
+
+        //GetCellValue: Cells that we initialize to strings must return that same string
+        [TestMethod]
+        public void PublicGetCellValueRetrieveStoredString()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "ThisISATestString1923%Ann\n");
+            Assert.AreEqual("ThisISATestString1923%Ann\n", (string)a1.GetCellValue("A1"));
+        }
+
+        //GetCellValue: Cells that we initialize to doubles must return that same double
+        [TestMethod]
+        public void PublicGetCellValueRetrieveStoredDouble()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "978.248");
+            Assert.AreEqual((double)978.248, (double)a1.GetCellValue("A1"), 1e-9);
+        }
+
+        //GetCellValue: Cells that we initialize to invalid formulas must return FormulaErrors (divide by zero)
+        [TestMethod]
+        public void PublicGetCellValueDivideByZero()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=1 / (1 - 1)");
+            Assert.IsTrue(a1.GetCellValue("A1").GetType().Equals(typeof(FormulaError)));
+        }
+
+        //GetCellValue: Cells that we initialize to invalid formulas must return FormulaErrors (empty cell)
+        [TestMethod]
+        public void PublicGetCellValueInvalidEmptyCell()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=A2");
+            Assert.IsTrue(a1.GetCellValue("A1").GetType().Equals(typeof(FormulaError)));
+        }
+
+        //GetCellValue: Cells that we initialize to invalid formulas must return FormulaErrors (strings cell)
+        [TestMethod]
+        public void PublicGetCellValueInvalidDependOnString()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A2", "STRING!");
+            a1.SetContentsOfCell("A1", "=A2");
+            Assert.IsTrue(a1.GetCellValue("A1").GetType().Equals(typeof(FormulaError)));
+        }
+
+        //GetCellValue: Cells that we initialize to invalid formulas must return FormulaErrors (Other invalid formulas)
+        [TestMethod]
+        public void PublicGetCellValueDependOnOtherInvalidFormula()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=A2");
+            a1.SetContentsOfCell("A2", "1 / (1 - 1)");
+            Assert.IsTrue(a1.GetCellValue("A1").GetType().Equals(typeof(FormulaError)));
+        }
+
+
+
+        //GetCellValue: Cell names are case sensitive with an identity normalizer
+        [TestMethod]
+        public void PublicGetCellValueCellNamesCaseSensitive()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=1+ 2 + 3");
+            a1.SetContentsOfCell("a1", "lowercase");
+            Assert.AreEqual(6.0, (double)a1.GetCellValue("A1"), 1e-9);
+            Assert.AreEqual("lowercase", (string)a1.GetCellValue("a1"));
+        }
+
+        //GetCellValue: Evaluate formulas to a double
+        [TestMethod]
+        public void PublicGetCellValueFormulaToDouble()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "1");
+            a1.SetContentsOfCell("A2", "=A1");
+            Assert.AreEqual(1, (double) a1.GetCellValue("A2"), 1e-9);
+        }
+
+        //GetCellValue: Evaluate formulas to a double (formula evaluates to double)
+        [TestMethod]
+        public void PublicGetCellValueFormulaToDoubleFormula()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=1+1");
+            a1.SetContentsOfCell("A2", "=A1");
+            Assert.AreEqual(2, (double) a1.GetCellValue("A2"), 1e-9);
+        }
+
+        //GetCellValue formula tests ******************************************************************************************
+        //As this logic is almost entirely handled by the Formula class, the majority of the testing should 
+        //be handled by that class. However, I will do limited testing here, as I am technically responsible
+        //for the validity of the results.
+
+        //BASIC ARITHMETIC
+
+        //Multiplication by 0
+        [TestMethod]
+        public void PublicGetCellValueFormulaMultiplyByZero()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=10 * (10 - 10)");
+            Formula f1 = new Formula("10 * (10 - 10)");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(result, (double) a1.GetCellValue("A1"), 1e-9);
+        }
+        //Trivial Addition 1 (Standard Addition)
+        [TestMethod]
+        public void PublicGetCellValueFormulaTrivialAddition1()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=15 + 35");
+            Formula f1 = new Formula("15 + 35");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(result, (double)a1.GetCellValue("A1"), 1e-9);
+        }
+        //Trivial Addition 2 (Decimal Addition)
+        [TestMethod]
+        public void PublicGetCellValueFormulaTrivialAddition2()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=153.02 + 45.003");
+            Formula f1 = new Formula("153.02 + 45.003");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(result, (double)a1.GetCellValue("A1"), 1e-9);
+        }
+        //Trivial Addition 3 (Negative Addition)
+        [TestMethod]
+        public void PublicGetCellValueFormulaTrivialAddition3()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=150 + (0 - 45)");
+            Formula f1 = new Formula("150 + (0 - 45)");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(result, (double)a1.GetCellValue("A1"), 1e-9);
+        }
+        //Trivial Subtraction 1 (Standard subtraction)
+        [TestMethod]
+        public void PublicGetCellValueFormulaTrivialSubtraction1()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=40 - 10");
+            Formula f1 = new Formula("40 - 10");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(result, (double)a1.GetCellValue("A1"), 1e-9);
+        }
+        //Trivial Subtraction 2 (Decimal Point Subtraction)
+        [TestMethod]
+        public void PublicGetCellValueFormulaTrivialSubtraction2()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=1 - .12516");
+            Formula f1 = new Formula("1 - .12516");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(result, (double)a1.GetCellValue("A1"), 1e-9);
+        }
+        //Trivial Subtraction 3 (Double Negative subtraction)
+        [TestMethod]
+        public void PublicGetCellValueFormulaTrivialSubtraction3()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=0 - (0 - 14565)");
+            Formula f1 = new Formula("0 - (0 - 14565)");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(result, (double)a1.GetCellValue("A1"), 1e-9);
+        }
+        //Trivial Subtraction 4 (Negative Result)
+        [TestMethod]
+        public void PublicGetCellValueFormulaTrivialSubtraction4()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=(0 - 14565)");
+            Formula f1 = new Formula("(0 - 14565)");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(result, (double)a1.GetCellValue("A1"), 1e-9);
+        }
+        //Trivial Division 1 (Standard Division)
+        [TestMethod]
+        public void PublicGetCellValueFormulaTrivialDivision1()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=25 / 5");
+            Formula f1 = new Formula("25 / 5");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(result, (double)a1.GetCellValue("A1"), 1e-9);
+        }
+        //Trivial Division 2 (Division using and resulting in negatives)
+        [TestMethod]
+        public void PublicGetCellValueFormulaTrivialDivision2()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=25 / (0-5)");
+            Formula f1 = new Formula("25 / (0-5)");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(result, (double)a1.GetCellValue("A1"), 1e-9);
+        }
+        //Trivial Division 3 (Division resulting in decimals)
+        [TestMethod]
+        public void PublicGetCellValueFormulaTrivialDivision3()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=10 / 4");
+            Formula f1 = new Formula("10 / 4");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(result, (double)a1.GetCellValue("A1"), 1e-9);
+        }
+        //Trivial Division 4 (Division inside parenthesis)
+        [TestMethod]
+        public void PublicGetCellValueFormulaTrivialDivision4()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=(0 / 148) - 32");
+            Formula f1 = new Formula("(0 / 148) - 32");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(result, (double)a1.GetCellValue("A1"), 1e-9);
+        }
+        //Trivial Multiplication 1 (Standard Multiplication)
+        [TestMethod]
+        public void PublicGetCellValueFormulaTrivialMultiplication1()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=25 * 5");
+            Formula f1 = new Formula("25 * 5");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(result, (double)a1.GetCellValue("A1"), 1e-9);
+        }
+        //Trivial Multiplication 2 (Decimal Multiplication)
+        [TestMethod]
+        public void PublicGetCellValueFormulaTrivialMultiplication2()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=13 * 5.5");
+            Formula f1 = new Formula("13 * 5.5");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(result, (double)a1.GetCellValue("A1"), 1e-9);
+        }
+        //Trivial Multiplication 3 (Multiplication using and resulting in negatives)
+        [TestMethod]
+        public void PublicGetCellValueFormulaTrivialMultiplication3()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=148 * (0 - 32)");
+            Formula f1 = new Formula("148 * (0 - 32)");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(result, (double)a1.GetCellValue("A1"), 1e-9);
+        }
+        //Trivial Multiplication 4 (Multiplication inside parenthesis)
+        [TestMethod]
+        public void PublicGetCellValueFormulaTrivialMultiplication4()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "=(148 * 0) - 32");
+            Formula f1 = new Formula("(148 * 0) - 32");
+            double result = (double)f1.Evaluate(s => 0);
+            Assert.AreEqual(result, (double)a1.GetCellValue("A1"), 1e-9);
+        }
+
+        //Changed Normal Tests **********************************************************************
+
+
+        //Spreadsheets aren't changed when they're opened (default version)
+        [TestMethod]
+        public void PublicChangedDefaultConstructor()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            Assert.IsFalse(a1.Changed);
+        }
+
+        //Spreadsheets aren't changed when they're opened (3 argument version)
+        [TestMethod]
+        public void PublicChangedThreeArgument()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(s => true, s => s.ToUpper(), "default");
+            Assert.IsFalse(a1.Changed);
+        }
+
+        //We should respect the normalize function passed to our constructor (4 argument version)
+        [TestMethod]
+        public void PublicChangedFourArgument()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(XMLLocation + "TrivialEmptyFile", s => true, s => s.ToUpper(), "EmptyVersion");
+            Assert.IsFalse(a1.Changed);
+        }
+
+        //When we change something, changed is no longer false (String)
+        [TestMethod]
+        public void PublicChangedOnEditString()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            Assert.IsFalse(a1.Changed);
+            a1.SetContentsOfCell("A1", "SomeChange");
+            Assert.IsTrue(a1.Changed);
+        }
+
+        //When we change something, changed is no longer false (Double)
+        [TestMethod]
+        public void PublicChangedOnEditDouble()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            Assert.IsFalse(a1.Changed);
+            a1.SetContentsOfCell("A1", "15.256");
+            Assert.IsTrue(a1.Changed);
+        }
+
+        //When we change something, changed is no longer false (Formula)
+        [TestMethod]
+        public void PublicChangedOnEditFormula()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            Assert.IsFalse(a1.Changed);
+            a1.SetContentsOfCell("A1", "=A2 + 1");
+            Assert.IsTrue(a1.Changed);
+        }
+
+        //When we save the formula, changed is back to false.
+        [TestMethod]
+        public void PublicChangedOnEditThenSave()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            Assert.IsFalse(a1.Changed);
+            a1.SetContentsOfCell("A1", "SomeChange");
+            Assert.IsTrue(a1.Changed);
+            a1.Save(XMLLocation + "JunkSave");
+            Assert.IsFalse(a1.Changed);
+        }
+
+        //When an ArgumentNullException is thrown, we haven't changed anything
+        [TestMethod]
+        public void PublicChangedNullArgument()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            Assert.IsFalse(a1.Changed);
+            try
+            {
+                a1.SetContentsOfCell("A1", null);
+            }
+            catch (ArgumentNullException)
+            {
+                //Do nothing
+            }
+            Assert.IsFalse(a1.Changed);
+        }
+
+        //When an InvalidNameException is thrown, we haven't changed anything (invalid variable)
+        [TestMethod]
+        public void PublicChangedInvalidNameInvalidVariable()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            Assert.IsFalse(a1.Changed);
+            try
+            {
+                a1.SetContentsOfCell("A1A", "Something");
+            }
+            catch (InvalidNameException)
+            {
+                //Do nothing
+            }
+            Assert.IsFalse(a1.Changed);
+        }
+
+        //When an InvalidNameException is thrown, we haven't changed anything (null variable)
+        [TestMethod]
+        public void PublicChangedInvalidNameNullVariable()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            Assert.IsFalse(a1.Changed);
+            try
+            {
+                a1.SetContentsOfCell(null, "Something");
+            }
+            catch (InvalidNameException)
+            {
+                //Do nothing
+            }
+            Assert.IsFalse(a1.Changed);
+        }
+
+        //When a CircularException is thrown, we haven't changed anything
+        [TestMethod]
+        public void PublicChangedCircularException()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            Assert.IsFalse(a1.Changed);
+            try
+            {
+                a1.SetContentsOfCell("A1", "=A1");
+            }
+            catch (CircularException)
+            {
+                //Do nothing
+            }
+            Assert.IsFalse(a1.Changed);
+        }
+
+        //If we fail to save, our Changed value won't reset
+        [TestMethod]
+        public void PublicChangedSaveFailure()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "Something");
+            try
+            {
+                a1.Save("<>:|?*"); //Junk save name
+            }
+            catch (SpreadsheetReadWriteException)
+            {
+                //Do nothing
+            }
+            Assert.IsTrue(a1.Changed);
+        }
+
+        //Save Exception Tests ********************************************************************
+
+        //Attempt to write to a nonexistent locaiton
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void PublicSaveNonexistentLocaiton()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.Save("THisFOLDERDoeSNtExist\\Impossible.xml");
+        }
+
+        //Save Normal Tests ************************************************************************
+
+        //Stress test for the save function. Make a huge spreadsheet, save it, then load it, then make sure it contains everything.
+        //(string version)
+        [TestMethod]
+        public void PublicSaveStressTestString()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            for (int i = 0; i < MAXSIZE; i++)
+            {
+                a1.SetContentsOfCell("A" + i, "Something" + i);
+            }
+
+            a1.Save(XMLLocation + "SaveStressTestString");
+
+            AbstractSpreadsheet a2 = new Spreadsheet(XMLLocation + "SaveStressTestString", s => true, s => s, "default");
+            for (int i = 0; i < MAXSIZE; i++)
+            {
+                Assert.AreEqual("Something" + i, (string) a2.GetCellContents("A" + i));
+            }
+
+        }
+
+        //Stress test for the save function. Make a huge spreadsheet, save it, then load it, then make sure it contains everything.
+        //(formula version)
+        [TestMethod]
+        public void PublicSaveStressTestFormula()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            for (int i = 0; i < MAXSIZE; i++)
+            {
+                a1.SetContentsOfCell("A" + i, "=A" + (i+1));
+            }
+
+            a1.Save(XMLLocation + "SaveStressTestFormula");
+
+            AbstractSpreadsheet a2 = new Spreadsheet(XMLLocation + "SaveStressTestFormula", s => true, s => s, "default");
+            for (int i = 0; i < MAXSIZE; i++)
+            {
+                Assert.AreEqual(new Formula("A" + (i + 1)), (Formula) a2.GetCellContents("A" + i));
+            }
+
+        }
+
+        //Stress test for the save function. Make a huge spreadsheet, save it, then load it, then make sure it contains everything.
+        //(double version)
+        [TestMethod]
+        public void PublicSaveStressTestDouble()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            for (int i = 0; i < MAXSIZE; i++)
+            {
+                a1.SetContentsOfCell("A" + i, ((double) i).ToString());
+            }
+
+            a1.Save(XMLLocation + "SaveStressTestDouble");
+
+            AbstractSpreadsheet a2 = new Spreadsheet(XMLLocation + "SaveStressTestDouble", s => true, s => s, "default");
+            for (int i = 0; i < MAXSIZE; i++)
+            {
+                Assert.AreEqual((double) i, (double) a2.GetCellContents("A" + i), 1e-9);
+            }
+
+        }
+
+        //Our save method must not panic when it's told to save and load things that look like XML tags.
+        [TestMethod]
+        public void PublicSaveXMLTags()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.SetContentsOfCell("A1", "</spreadsheet>");
+            a1.Save(XMLLocation + "XMLLike");
+            AbstractSpreadsheet a2 = new Spreadsheet(XMLLocation + "XMLLike", s => true, s => s, "default");
+            Assert.AreEqual("</spreadsheet>", a2.GetCellContents("A1"));
+        }
+
+        //LOADING EXCEPTION TESTS ****************************************************************************************
+
+        //We throw exception if versions don't match
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void PublicLoadFileNoVersionMatch()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(XMLLocation + "TrivialEmptyFile", s => true, s => s, "NOTPROPERVERSION");
+        }
+
+        //We try to load from a file that doesn't exist
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void PublicLoadFileDNE()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet("FILEDNE", s => true, s => s, "default");
+        }
+
+        //We try to load from a file path that doesn't exist
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void PublicLoadFilePathDNE()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet("\\NONEXISTANTPATH\\FILEDNE", s => true, s => s, "default");
+        }
+
+        //We try to load from something that's not a file path
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void PublicLoadNotRealFilePath()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet("!@#$$%#^&", s => true, s => s, "default");
+        }
+
+        //We try to load from a file that throws a circular exception
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void PublicLoadCircularException()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(XMLLocation + "ErrorCircularException", s => true, s => s, "default");
+        }
+
+        //We try to load from a file containing an invalid cell name
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void PublicLoadInvalidCellName()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(XMLLocation + "ErrorInvalidCellName", s => true, s => s, "default");
+        }
+
+        //We try to load from a file containing an invalid formula
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void PublicLoadInvalidFormula()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(XMLLocation + "ErrorInvalidFormula", s => true, s => s, "default");
+        }
+
+        //We try to load from a file containing a malformed cell (no name)
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void PublicLoadBadCellNoName()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(XMLLocation + "ErrorMalformedCellNoName", s => true, s => s, "default");
+        }
+
+        //We try to load from a file containing a malformed cell (no contents)
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void PublicLoadBadCellNoContents()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(XMLLocation + "ErrorMalformedCellNoContents", s => true, s => s, "default");
+        }
+
+        //We try to load from a file containing a malformed starting spreadsheet tag.
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void PublicLoadBadStartingSpreadsheetTag()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(XMLLocation + "ErrorMalformedEndingSpreadsheetTag", s => true, s => s, "default");
+        }
+
+        //We try to load from a file containing a malformed spreadsheet tag (w/out version)
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void PublicLoadNoVersion()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(XMLLocation + "ErrorMalformedStartingTagNoVersion", s => true, s => s, "default");
+        }
+
+        //We try to load from a file containing an open cell without a close
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void PublicLoadOpenCellNoClose()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(XMLLocation + "ErrorNoEndingCellTag", s => true, s => s, "default");
+        }
+
+        //We try to load from a file containing no ending spreadsheet tag.
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void PublicLoadNoEndingSpreadsheetTag()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(XMLLocation + "ErrorNoEndingSpreadsheetTag", s => true, s => s, "default");
+        }
+
+        //We try to load from a file containing no starting spreadsheet tag.
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void PublicLoadNoStartingSpreadsheetTag()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(XMLLocation + "ErrorNoStartingSpreadsheetTag", s => true, s => s, "default");
+        }
+
+        //GetSavedVersion Exception Tests***********************************************************************************
+
+        //We try to get the version of a file that doesn't exist
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void PublicGetSavedVersionDNE()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.GetSavedVersion("FILEDNE");
+        }
+
+        //We try to get the version of a file path that doesn't exist
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void PublicGetSavedVersionFilePathDNE()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.GetSavedVersion("\\NONEXISTANTPATH\\FILEDNE");
+        }
+
+        //We try to get the version of something that's not a file path
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void PublicGetSavedVersionNotRealFilePath()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.GetSavedVersion("!@#$$%#^&");
+        }
+
+        //We try to get the version of a file containing a malformed spreadsheet tag (w/out version)
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void PublicGetSavedVersionNoVersion()
+        {
+
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.GetSavedVersion(XMLLocation + "ErrorMalformedStartingTagNoVersion");
+        }
+
+        //We try to get the version of a file containing no starting spreadsheet tag.
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void PublicGetSavedVersionNoStartingSpreadsheetTag()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet();
+            a1.GetSavedVersion(XMLLocation + "ErrorNoStartingSpreadsheetTag");
+        }
+
+
+        //GetSavedVersion Normal Tests***********************************************************************************
+
+        //Get the version of a file with an empty version
+        [TestMethod]
+        public void PublicGetSavedVersionEmptyVersion()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(s => true, s => s, "");
+            a1.Save(XMLLocation + "GetSavedVersionEmpty");
+            Assert.AreEqual("", a1.GetSavedVersion(XMLLocation + "GetSavedVersionEmpty"));
+        }
+
+        //Get the version of a file with a trivial version
+        [TestMethod]
+        public void PublicGetSavedVersionTrivialVersion()
+        {
+            AbstractSpreadsheet a1 = new Spreadsheet(s => true, s => s, "trivial");
+            a1.Save(XMLLocation + "GetSavedVersionTrivial");
+            Assert.AreEqual("trivial", a1.GetSavedVersion(XMLLocation + "GetSavedVersionTrivial"));
+        }
     }
 }

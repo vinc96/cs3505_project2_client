@@ -3,11 +3,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{3E3CE273-1E1E-4F21-AB51-54E1A7876779}</ProjectGuid>
+    <ProjectGuid>{8FC0DAA4-2213-4BD2-A5A8-BE42A816D503}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>UnitTestProject1</RootNamespace>
-    <AssemblyName>UnitTestProject1</AssemblyName>
+    <RootNamespace>SpreadsheetPanelExtraFeaturesTest</RootNamespace>
+    <AssemblyName>SpreadsheetPanelExtraFeaturesTest</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -35,13 +35,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Formula">
-      <HintPath>..\Project1\Libraries\Formula\Formula.dll</HintPath>
-    </Reference>
-    <Reference Include="SpreadsheetUtilities">
-      <HintPath>..\Project1\Libraries\SpreadsheetUtilities\SpreadsheetUtilities.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <Choose>
     <When Condition="('$(VisualStudioVersion)' == '10.0' or '$(VisualStudioVersion)' == '') and '$(TargetFrameworkVersion)' == 'v3.5'">
@@ -56,17 +51,14 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="SpreadsheetTests.cs" />
+    <Compile Include="PanelTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Spreadsheet\Spreadsheet.csproj">
-      <Project>{6960a32d-d637-4ae1-83c2-e78066ff343f}</Project>
-      <Name>Spreadsheet</Name>
+    <ProjectReference Include="..\SpreadsheetPanel\SpreadsheetPanel.csproj">
+      <Project>{f31299dc-288f-4e46-a3af-6bf461b21c79}</Project>
+      <Name>SpreadsheetPanel</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="TestXMLs\" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

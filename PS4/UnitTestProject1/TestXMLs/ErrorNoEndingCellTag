@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<spreadsheet version="default">
+	<cell>
+		<name>
+			A1
+		</name>
+		<contents>
+			TestString
+		</contents>
+	</cell>
+	<cell>
+		<name>
+			A2
+		</name>
+		<contents>
+			2.564234
+		</contents>
+	</cell>
+	<cell>
+		<name>
+			A3
+		</name>
+		<contents>
+			=2 * A2
+		</contents>
+</spreadsheet>
