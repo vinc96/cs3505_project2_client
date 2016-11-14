@@ -30,11 +30,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Formula">
-      <HintPath>..\Project1\Libraries\Formula\Formula.dll</HintPath>
+    <Reference Include="Formula, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Project1\Libraries\Formula.dll</HintPath>
     </Reference>
-    <Reference Include="SpreadsheetUtilities">
-      <HintPath>..\Project1\Libraries\SpreadsheetUtilities\SpreadsheetUtilities.dll</HintPath>
+    <Reference Include="SpreadsheetUtilities, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Project1\Libraries\SpreadsheetUtilities.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

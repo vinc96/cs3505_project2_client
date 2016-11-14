@@ -8,5 +8,6 @@ namespace SnakeModel
 {
     class Networker
     {
+        public static Socket ConnectToServer(Action action, )
     }
 }
