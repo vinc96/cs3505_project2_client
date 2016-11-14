@@ -12,7 +12,7 @@ namespace SnakeModel
     /// defining locations in the snake World.
     /// </summary>
     [JsonObject(MemberSerialization.OptIn)]
-    class Point
+    public class Point
     {
         [JsonProperty]
         private int x;
