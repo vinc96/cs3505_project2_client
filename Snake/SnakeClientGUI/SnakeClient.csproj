@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="SnakeController.cs" />
     <Compile Include="MainWindow.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -83,6 +84,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\NetworkController\NetworkController.csproj">
+      <Project>{7b2644b7-1617-4706-bc13-d531afb27e56}</Project>
+      <Name>NetworkController</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SnakeModel\SnakeModel.csproj">
       <Project>{588F4608-86F7-4212-A675-81E833ADBC51}</Project>
       <Name>SnakeModel</Name>
