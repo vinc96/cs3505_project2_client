@@ -10,7 +10,7 @@ namespace NetworkController
     public class SocketState
     {
         public Socket theSocket;
-        public delegate void EventProccessor(SocketState aSocketStae);
+        public delegate void EventProccessor(SocketState aSocketState);
         public EventProccessor processorCallback;
 
         public byte[] messageBuffer = new byte[1024];
