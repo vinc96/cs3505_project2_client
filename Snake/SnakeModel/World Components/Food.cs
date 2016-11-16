@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace SnakeModel
 {
     [JsonObject(MemberSerialization.OptIn)]
-    class Food
+    public class Food
     {
         [JsonProperty]
         private int ID;

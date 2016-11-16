@@ -9,7 +9,7 @@ namespace SnakeModel
 {
     /// <summary>
     /// A Point represents a single point in 2D space. Simply defined as a helper class to ease organization when it comes to 
-    /// defining locations in the snake World.
+    /// defining locations in the snake World. Points are immutable. 
     /// </summary>
     [JsonObject(MemberSerialization.OptIn)]
     public class Point
@@ -20,6 +20,17 @@ namespace SnakeModel
         private int y;
 
         /// <summary>
+        /// Creates a new point with the specified coordinates.
+        /// </summary>
+        /// <param name="pointX"></param>
+        /// <param name="pointY"></param>
+        public Point(int pointX, int pointY)
+        {
+            x = pointX;
+            y = pointY;
+        }
+
+        /// <summary>
         /// Represents the X position of this point in 2D space. 
         /// </summary>
         public int PointX
@@ -27,10 +38,6 @@ namespace SnakeModel
             get
             {
                 return this.x;
-            }
-            set
-            {
-                this.x = value;
             }
         }
 
@@ -42,10 +49,6 @@ namespace SnakeModel
             get
             {
                 return this.y;
-            }
-            set
-            {
-                this.y = value;
             }
         }
     }
