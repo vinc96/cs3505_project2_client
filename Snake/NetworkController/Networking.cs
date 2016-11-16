@@ -105,7 +105,11 @@ namespace NetworkController
             // When a message arrives, handle it on a new thread with ReceiveCallback
             ss.theSocket.BeginReceive(ss.messageBuffer, 0, ss.messageBuffer.Length, SocketFlags.None, Networking.ReceiveCallback, ss);
         }
-
+        /// <summary>
+        /// Listen for data, while explicitly defining what callback we should use when data is recieved.
+        /// </summary>
+        /// <param name="ss"></param>
+        /// <param name="dataRecievedCallback"></param>
         public static void listenForData(SocketState ss, SocketState.EventProccessor dataRecievedCallback)
         {
             ss.processorCallback = dataRecievedCallback;
@@ -134,27 +138,27 @@ namespace NetworkController
         ///  Helper Function To Quickly Get String Data From SocketState
         /// </summary>
         /// <param name="ss"></param>
-        /// <param name="seperator"></param>
+        /// <param name="terminator"></param>
         /// <returns> Returns The Full Messages that </returns>
-        public static IList<string> getMessageStringsFromBufferSeperatedByCharacter(SocketState ss, Char seperator)
+        public static IList<string> getMessageStringsFromBufferSeperatedByCharacter(SocketState ss, Char terminator)
         {
             List<string> messages = new List<string>();
 
             // Loop until we have processed all messages.
             // We may have received more than one.
             string totalData = ss.stringGrowableBuffer.ToString();
-            foreach (string p in Regex.Split(totalData, @"(?<=[\n])"))
+            foreach (string p in Regex.Split(totalData, @"(?<=[" + terminator + "])"))
             {
                 // Ignore empty strings added by the regex splitter
                 if (p.Length == 0)
                     continue;
                 // The regex splitter will include the last string even if it doesn't end with a '\n',
                 // So we need to ignore it if this happens. 
-                if (p[p.Length - 1] != seperator)
+                if (p[p.Length - 1] != terminator)
                     break;
 
                 // add the string to the message list 
-                messages.Add(p.TrimEnd(seperator));
+                messages.Add(p.TrimEnd(terminator));
 
                 // Then remove it from the SocketState's growable buffer
                 ss.stringGrowableBuffer.Remove(0, p.Length);
