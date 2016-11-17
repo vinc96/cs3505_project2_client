@@ -21,6 +21,11 @@ namespace SnakeModel
         [JsonProperty]
         private List<Point> vertices;
 
+        public Snake()
+        {
+            vertices = new List<Point>();
+        }
+
         /// <summary>
         /// Returns an ordered enumberable containing all the verticies of this snakes. 
         /// </summary>
@@ -28,7 +33,7 @@ namespace SnakeModel
         public IEnumerable<Point> getVerticies()
         {
             //Protects the internals of this class, but just awful complexity (esp. considering how often it's used.) High priority to fix.
-            return new List<Point>(vertices); 
+            return vertices; 
         }
 
         /// <summary>

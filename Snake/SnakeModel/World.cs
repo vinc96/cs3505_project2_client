@@ -23,6 +23,19 @@ namespace SnakeModel
         /// </summary>
         private List<Food> food;
 
+        public struct Dimensions
+        {
+            public Dimensions(int x,  int y) {
+                X = x;
+                Y = y;
+            }
+
+            public int X { get; private set; }
+            public int Y { get; private set; }
+        }
+
+        public Dimensions Size;
+
         /// <summary>
         /// Creates a new World object with the specified live snakes, food, and dimensions
         /// </summary>
@@ -32,6 +45,8 @@ namespace SnakeModel
         {
             this.snakes = snakes;
             this.food = food;
+
+             Size = new Dimensions(width, height);
         }
 
         /// <summary>
