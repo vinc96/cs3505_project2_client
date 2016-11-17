@@ -38,14 +38,14 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.snakeDisplayPanel1.Location = new System.Drawing.Point(12, 12);
             this.snakeDisplayPanel1.Name = "snakeDisplayPanel1";
-            this.snakeDisplayPanel1.Size = new System.Drawing.Size(643, 466);
+            this.snakeDisplayPanel1.Size = new System.Drawing.Size(804, 576);
             this.snakeDisplayPanel1.TabIndex = 0;
             // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(667, 490);
+            this.ClientSize = new System.Drawing.Size(828, 600);
             this.Controls.Add(this.snakeDisplayPanel1);
             this.Name = "MainWindow";
             this.Text = "Form1";
