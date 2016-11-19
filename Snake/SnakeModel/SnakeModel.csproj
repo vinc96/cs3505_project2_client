@@ -45,7 +45,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="World Components\Food.cs" />
-    <Compile Include="Networker.cs" />
     <Compile Include="World Components\Point.cs" />
     <Compile Include="World Components\Snake.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
