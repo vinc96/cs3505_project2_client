@@ -132,7 +132,7 @@ namespace SnakeClientGUI
 
                 Rectangle snakeSegment = new Rectangle(segmentCornerX, segmentCornerY, segmentWidth, segmentHeight);
                 e.Graphics.FillRectangle(snakeBrush, snakeSegment);
-                //e.Graphics.DrawRectangle(Pens.Black, snakeSegment); //Useful for debugging
+                e.Graphics.DrawRectangle(Pens.Black, snakeSegment); //Useful for debugging
                 //our current vert is now the previous vert
                 previousVert = vert;
             }
