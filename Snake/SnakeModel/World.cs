@@ -15,13 +15,13 @@ namespace SnakeModel
     public class World
     {
         /// <summary>
-        /// A list of all active snakes. 
+        /// A dictionary of all active snakes with the key being the id of each snake.
         /// </summary>
-        private List<Snake> snakes;
+        private Dictionary<int, Snake> snakes;
         /// <summary>
-        /// A list of all the food we have in the world. 
+        /// A dictionary of all the food we have in the world with the key being the id of each piece food.
         /// </summary>
-        private List<Food> food;
+        private Dictionary<int, Food> food;
 
         public struct Dimensions
         {
@@ -41,7 +41,7 @@ namespace SnakeModel
         /// </summary>
         /// <param name="snakes"></param>
         /// <param name="food"></param>
-        public World(List<Snake> snakes, List<Food> food, int width, int height)
+        public World(Dictionary<int, Snake> snakes, Dictionary<int, Food> food, int width, int height)
         {
             this.snakes = snakes;
             this.food = food;
@@ -56,15 +56,39 @@ namespace SnakeModel
         /// <returns></returns>
         public bool IsPlayerAlive(int playerID)
         {
-            foreach (Snake s in snakes)
+            return snakes.ContainsKey(playerID);
+        }
+
+        /// <summary>
+        ///  Updates The World's Snakes by Adding, Updating Or Removing The Snake From The Game World
+        /// </summary>
+        /// <param name="s">The Snake To Add, Update Or Remove From The Game World</param>
+        public void updateWorldSnakes(Snake s)
+        {
+            snakes[s.ID] = s;
+
+            Point snakeHead = s.getHead();
+            bool snakeIsDead = (snakeHead.x == -1) && (snakeHead.y == -1);
+            if (snakeIsDead)
             {
-                //If we find a snake with a matching ID, return true.
-                if (s.getID() == playerID)
-                {
-                    return true;
-                }
+                snakes.Remove(s.ID);
             }
-            return false;
+        }
+
+        /// <summary>
+        ///  Updates The Worlds Active Food by Adding, Updating Or Removing The Food From The Game World
+        /// </summary>
+        /// <param name="f">The Food To Add, Update Or Remove From The Game World</param>
+        public void updateWorldFood(Food f)
+        {
+            food[f.ID] = f;
+
+            Point foodLocation= f.loc;
+            bool foodIsEaten = (foodLocation.x == -1) && (foodLocation.y == -1);
+            if (foodIsEaten)
+            {
+                food.Remove(f.ID);
+            }
         }
 
         /// <summary>
@@ -75,20 +99,23 @@ namespace SnakeModel
         /// <returns></returns>
         public Point getHead(int playerID)
         {
-            foreach (Snake s in snakes)
+
+            if (snakes.ContainsKey(playerID))
             {
-                if (s.getID() == playerID)
-                {
-                    return s.getHead();
-                }
+                return snakes[playerID].getHead();
             }
-            throw new NotImplementedException();
+
+            return null;
         }
 
         public IEnumerable<Snake> getLiveSnakes()
         {
-            //Protects the internals of this class, but just awful complexity (esp. considering how often it's used.) High priority to fix.
-            return new List<Snake>(snakes);
+            return snakes.Values;
+        }
+
+        public IEnumerable<Food> getActiveFood()
+        {
+            return food.Values;
         }
     }
 }
