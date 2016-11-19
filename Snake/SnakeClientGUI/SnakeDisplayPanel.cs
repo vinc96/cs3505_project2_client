@@ -21,9 +21,26 @@ namespace SnakeClientGUI
         /// </summary>
         int playerID;
 
-        int cellSize;
-        int PanelSize;
+        /// <summary>
+        /// A struct containing paramaters for drawing a frame. Contains cell size in double form for maximum accuracy.
+        /// </summary>
+        struct ViewParams
+        {
+            public ViewParams(double CellSizeX, double CellSizeY)
+            {
+                this.CellSizeX = CellSizeX;
+                this.CellSizeY = CellSizeY;
+            }
+            public double CellSizeY
+            {
+                get; private set;
+            }
 
+            public double CellSizeX
+            {
+                get; private set;
+            }
+        }
 
 
         /// <summary>
@@ -48,28 +65,23 @@ namespace SnakeClientGUI
         {
             //First, draw the white background
             e.Graphics.Clear(Color.White);
-            if(!ReferenceEquals(world, null))
+            
+
+            if (!ReferenceEquals(world, null))
             {
-                drawWorldBorders(e, world);
-                drawSnakes(e, world, playerID);
+                //Now, calculate cell size and pass it to a new ViewParams object.
+                ViewParams view = new ViewParams(((double)Size.Width / world.Size.X), ((double)Size.Height / world.Size.Y));
+                drawWorldBorders(e, world, view);
+                drawSnakes(e, world, view, playerID);
             }
-
-
-
-            //Insert code here to render the panel.
-            //Draw all the snakes in the world
         }
 
-        private void drawWorldBorders(PaintEventArgs e, World world)
+        private void drawWorldBorders(PaintEventArgs e, World world, ViewParams view)
         {
-            int cellSizeX = Size.Width / world.Size.X;
-            int cellSizeY = Size.Height / world.Size.Y;
-
-
-            Rectangle leftWall = new Rectangle(0, 0, cellSizeX, Size.Height);
-            Rectangle topWall = new Rectangle(0, 0, Size.Width, cellSizeY);
-            Rectangle rightWall = new Rectangle(Size.Width - cellSizeX, 0, cellSizeX, Size.Height);
-            Rectangle bottomWall = new Rectangle(0, Size.Height - cellSizeY, Size.Width, cellSizeY);
+            Rectangle leftWall = new Rectangle(0, 0, (int) view.CellSizeX, Size.Height);
+            Rectangle topWall = new Rectangle(0, 0, Size.Width, (int) view.CellSizeY);
+            Rectangle rightWall = new Rectangle(Size.Width - (int) view.CellSizeX, 0, (int) view.CellSizeX, Size.Height);
+            Rectangle bottomWall = new Rectangle(0, Size.Height - (int) view.CellSizeY, Size.Width, (int) view.CellSizeY);
 
             Rectangle[] walls = { leftWall, topWall, rightWall, bottomWall };
 
@@ -79,12 +91,12 @@ namespace SnakeClientGUI
         /// <summary>
         /// Draws the snakes for the world, centered on the snake designated as PlayerID 
         /// </summary>
-        private void drawSnakes(PaintEventArgs e, World world, int PlayerID)
+        private void drawSnakes(PaintEventArgs e, World world, ViewParams view, int PlayerID)
         {
             //Look at each snake, to see if its worth drawing
             foreach (Snake s in world.getLiveSnakes())
             {
-               drawSnake(e, s);
+               drawSnake(e, view, s);
             }
         }
         /// <summary>
@@ -95,15 +107,14 @@ namespace SnakeClientGUI
         /// <param name="world"></param>
         /// <param name="playerID"></param>
         /// <param name="snakeID"></param>
-        private void drawSnake(PaintEventArgs e, Snake snake)
+        private void drawSnake(PaintEventArgs e, ViewParams view, Snake snake)
         {
-            double cellSizeX = (double) Size.Width / world.Size.X;
-            double cellSizeY = (double) Size.Height / world.Size.Y;
-
             IEnumerable<SnakeModel.Point> verts = snake.getVerticies();
-
+            
             SnakeModel.Point previousVert = null;
 
+            //Derive our brush from our playerID:
+            Brush snakeBrush = new SolidBrush(Color.FromArgb(snake.GetHashCode()));
             foreach(SnakeModel.Point vert in verts)
             {
                 if(ReferenceEquals(previousVert, null))
@@ -111,16 +122,17 @@ namespace SnakeClientGUI
                     previousVert = vert;
                     continue;
                 }
+                //We round all our values in order to attempt to eliminate being off by one pixel.
 
-                int segmentCornerX = (int) (Math.Min(previousVert.PointX, vert.PointX) * cellSizeX);
-                int segmentCornerY = (int)(Math.Min(previousVert.PointY, vert.PointY) * cellSizeY);
+                int segmentCornerX = (int)Math.Round(Math.Min(previousVert.PointX, vert.PointX) * view.CellSizeX);
+                int segmentCornerY = (int)Math.Round(Math.Min(previousVert.PointY, vert.PointY) * view.CellSizeY);
 
-                int segmentWidth = (int)((Math.Abs(previousVert.PointX - vert.PointX) + 1) * cellSizeX);
-                int segmentHeight = (int)((Math.Abs(previousVert.PointY - vert.PointY) + 1) * cellSizeY);
+                int segmentWidth = (int)Math.Round((Math.Abs(previousVert.PointX - vert.PointX) + 1) * view.CellSizeX);
+                int segmentHeight = (int)Math.Round((Math.Abs(previousVert.PointY - vert.PointY) + 1) * view.CellSizeY);
 
                 Rectangle snakeSegment = new Rectangle(segmentCornerX, segmentCornerY, segmentWidth, segmentHeight);
-                e.Graphics.FillRectangle(Brushes.Aqua, snakeSegment);
-                e.Graphics.DrawRectangle(Pens.Black, snakeSegment);
+                e.Graphics.FillRectangle(snakeBrush, snakeSegment);
+                //e.Graphics.DrawRectangle(Pens.Black, snakeSegment); //Useful for debugging
                 //our current vert is now the previous vert
                 previousVert = vert;
             }
