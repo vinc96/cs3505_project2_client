@@ -11,9 +11,9 @@ namespace SnakeModel
     public class Food
     {
         [JsonProperty]
-        private int ID;
+        public int ID { get; private set; }
 
         [JsonProperty]
-        private Point loc;
+        public Point loc { get; private set; }
     }
 }

@@ -15,9 +15,9 @@ namespace SnakeModel
     public class Point
     {
         [JsonProperty]
-        private int x;
+        public int x { get; private set; }
         [JsonProperty]
-        private int y;
+        public int y { get; private set; }
 
         /// <summary>
         /// Creates a new point with the specified coordinates.

@@ -11,10 +11,10 @@ namespace SnakeModel
     public class Snake
     {
         [JsonProperty]
-        private int ID;
+        public int ID { get; private set; }
 
         [JsonProperty]
-        private string name;
+        public string name { get; private set;}
         /// <summary>
         /// All the verticies that make up this snake. Ordered from tail to head, where the last element in the list is the head, and the first is the tail.
         /// </summary>
