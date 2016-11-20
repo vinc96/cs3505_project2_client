@@ -37,14 +37,15 @@ namespace SnakeModel
         public Dimensions Size;
 
         /// <summary>
-        /// Creates a new World object with the specified live snakes, food, and dimensions
+        /// Creates a new World object of the given dimensions
         /// </summary>
         /// <param name="snakes"></param>
         /// <param name="food"></param>
-        public World(Dictionary<int, Snake> snakes, Dictionary<int, Food> food, int width, int height)
+        public World(int width, int height)
         {
-            this.snakes = snakes;
-            this.food = food;
+            // Snakes And Food Should Be Empty When The World Is Made
+            this.snakes = new Dictionary<int, Snake>();
+            this.food = new Dictionary<int, Food>();
 
              Size = new Dimensions(width, height);
         }

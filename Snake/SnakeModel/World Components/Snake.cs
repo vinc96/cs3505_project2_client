@@ -57,7 +57,7 @@ namespace SnakeModel
         internal Point getHead()
         {
             //We can just return the point, as they're immutable.
-            return vertices[vertices.Count];
+            return vertices[vertices.Count - 1];
         }
     }
 

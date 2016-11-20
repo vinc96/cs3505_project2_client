@@ -15,20 +15,103 @@ namespace SnakeClient
 {
     public partial class MainWindow : Form
     {
+        public ClientSnakeNetworkController clientNetworkController;
+
+        private int PlayerId;
+        private World GameWorld;
+
         public MainWindow()
         {
+            clientNetworkController = new ClientSnakeNetworkController();
+
             InitializeComponent();
+        }
 
-            Snake s1 = JsonConvert.DeserializeObject<Snake>("{ \"ID\":1,\"name\":\"Player1\",\"vertices\":[{\"x\":26,\"y\":25},{\"x\":26,\"y\":22},{\"x\":24,\"y\":22},{\"x\":24,\"y\":29},{\"x\":21,\"y\":29}]}");
-            Snake s2 = JsonConvert.DeserializeObject<Snake>("{ \"ID\":2,\"name\":\"Player2\",\"vertices\":[{\"x\":2,\"y\":1},{\"x\":148,\"y\":1},{\"x\":148,\"y\":148}]}");
-            Dictionary<int, Snake> snakes = new Dictionary<int, Snake>();
+        private void btnConnectToServer_Click(object sender, EventArgs e)
+        {
+            string hostname = inpHostname.Text;
+            string playerName = inpPlayerName.Text;
 
-            snakes[s1.ID] = s1;
-            snakes[s2.ID] = s2;
+            if (hostname == "")
+            {
+                return;
+            }
 
-            World world = new World(snakes, null, 150, 150);
+            if (playerName == "")
+            {
+                return;
+            }
 
-            snakeDisplayPanel1.updatePanel(world, 0);
+            clientNetworkController.connectToServer(hostname, playerName, handleHandshakeSuccess);
+        }
+
+        private void handleHandshakeSuccess(ClientSnakeNetworkController.InitData initData)
+        {
+            Invoke(new MethodInvoker(() => {
+                this.inpHostname.Enabled = false;
+                this.inpPlayerName.Enabled = false;
+                this.btnConnectToServer.Enabled = false;
+                this.snakeDisplayPanel1.Focus();
+            }));
+
+            this.PlayerId = initData.PlayerId;
+            this.GameWorld = new World(initData.WorldSize.X, initData.WorldSize.Y);
+
+            clientNetworkController.startDataListenerLoop(recievedData);
+        }
+
+        private void recievedData(IList<string> data)
+        {
+            foreach(string json in data)
+            {
+                object gameObj = parseJsonIntoGameModel(json);
+                
+                if(gameObj is Snake)
+                {
+                    GameWorld.updateWorldSnakes((Snake)gameObj);
+                    continue;
+                }
+
+                if (gameObj is Food)
+                {
+                    GameWorld.updateWorldFood((Food)gameObj);
+                    continue;
+                }
+            }
+
+            Invoke(new MethodInvoker(() => {
+                snakeDisplayPanel1.updatePanel(GameWorld, PlayerId);
+            }));
+            
+        }
+
+        private object parseJsonIntoGameModel(string json)
+        {
+            JObject obj = JObject.Parse(json);
+
+            bool isSnake = obj.Property("vertices") != null;
+            if (isSnake)
+            {
+                return obj.ToObject<Snake>();
+            }
+
+            bool isFood = obj.Property("loc") != null;
+            if (isFood)
+            {
+                return obj.ToObject<Food>();
+            }
+
+            return null;
+        }
+
+        private void snakeDisplayPanel1_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
+        {
+            int direction = e.KeyValue - 37;
+            if (direction >= 0 && direction <= 3)
+            {
+                direction = (direction == 0) ? 4 : direction;
+                clientNetworkController.sendDirection(direction);
+            }
         }
     }
 }
