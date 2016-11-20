@@ -125,10 +125,13 @@ namespace NetworkController
             // If the socket is still open
             if (bytesRead > 0)
             {
-                string theMessage = Encoding.UTF8.GetString(ss.messageBuffer, 0, bytesRead);
-                // Append the received data to the growable buffer.
-                // It may be an incomplete message, so we need to start building it up piece by piece
-                ss.stringGrowableBuffer.Append(theMessage);
+                lock (ss.stringGrowableBuffer)
+                {
+                    string theMessage = Encoding.UTF8.GetString(ss.messageBuffer, 0, bytesRead);
+                    // Append the received data to the growable buffer.
+                    // It may be an incomplete message, so we need to start building it up piece by piece
+                    ss.stringGrowableBuffer.Append(theMessage);
+                }
 
                 ss.processorCallback(ss);
             }
@@ -161,10 +164,33 @@ namespace NetworkController
                 messages.Add(p.TrimEnd(terminator));
 
                 // Then remove it from the SocketState's growable buffer
-                ss.stringGrowableBuffer.Remove(0, p.Length);
+                lock (ss.stringGrowableBuffer)
+                {
+                    ss.stringGrowableBuffer.Remove(0, p.Length);
+                }
             }
 
             return messages;
+        }
+
+        /// <summary>
+        ///  Helper Function To Reset Buffer If Not Enough Data Was Recieved
+        /// </summary>
+        /// <param name="ss"></param>
+        /// <param name="messages"></param>
+        /// <param name="terminator"></param>
+        public static void resetGrowableBufferWithMessagesSeperatedByCharacter(SocketState ss, IList<string> messages,  Char terminator)
+        {
+            string currentStringsInBuffer = ss.stringGrowableBuffer.ToString();
+
+            lock(ss.stringGrowableBuffer){
+                ss.stringGrowableBuffer.Clear();
+
+                foreach (string s in messages)
+                    ss.stringGrowableBuffer.Append(s + terminator);
+
+                ss.stringGrowableBuffer.Append(currentStringsInBuffer);
+            }
         }
 
         /// <summary>
@@ -175,7 +201,7 @@ namespace NetworkController
         public static void Send(Socket s, string data)
         {
             byte[] messageBytes = Encoding.UTF8.GetBytes(data);
-            SocketState socketWrapper = new SocketState(s, (e) => {});
+            SocketState socketWrapper = new SocketState(s, (ss) => {});
             s.BeginSend(messageBytes, 0, messageBytes.Length, SocketFlags.None, Networking.SendCallback, socketWrapper);
         }
 
