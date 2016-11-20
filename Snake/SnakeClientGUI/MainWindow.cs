@@ -65,23 +65,29 @@ namespace SnakeClient
             foreach(string json in data)
             {
                 object gameObj = parseJsonIntoGameModel(json);
-                
-                if(gameObj is Snake)
+                lock (GameWorld)
                 {
-                    GameWorld.updateWorldSnakes((Snake)gameObj);
-                    continue;
-                }
+                    if (gameObj is Snake)
+                    {
+                        GameWorld.updateWorldSnakes((Snake)gameObj);
+                        continue;
+                    }
 
-                if (gameObj is Food)
-                {
-                    GameWorld.updateWorldFood((Food)gameObj);
-                    continue;
+                    if (gameObj is Food)
+                    {
+                        GameWorld.updateWorldFood((Food)gameObj);
+                        continue;
+                    }
                 }
             }
+            if (!Disposing)
+            {
+                Invoke(new MethodInvoker(() =>
+                {
+                    snakeDisplayPanel1.updatePanel(GameWorld, PlayerId);
+                }));
+            }
 
-            Invoke(new MethodInvoker(() => {
-                snakeDisplayPanel1.updatePanel(GameWorld, PlayerId);
-            }));
             
         }
 
