@@ -30,6 +30,8 @@ namespace SnakeClient
             {
                 this.CellSizeX = CellSizeX;
                 this.CellSizeY = CellSizeY;
+                this.CellSizeXRounded = (int)Math.Round(CellSizeX);
+                this.CellSizeYRounded = (int)Math.Round(CellSizeY);
             }
             public double CellSizeY
             {
@@ -37,6 +39,16 @@ namespace SnakeClient
             }
 
             public double CellSizeX
+            {
+                get; private set;
+            }
+
+            public int CellSizeYRounded
+            {
+                get; private set;
+            }
+
+            public int CellSizeXRounded
             {
                 get; private set;
             }
@@ -69,6 +81,8 @@ namespace SnakeClient
 
             if (!ReferenceEquals(world, null))
             {
+                //Turn on antialiasing.
+                e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
                 //Now, calculate cell size and pass it to a new ViewParams object.
                 ViewParams view = new ViewParams(((double)Size.Width / world.Size.X), ((double)Size.Height / world.Size.Y));
                 drawWorldBorders(e, world, view);
@@ -78,10 +92,12 @@ namespace SnakeClient
 
         private void drawWorldBorders(PaintEventArgs e, World world, ViewParams view)
         {
-            Rectangle leftWall = new Rectangle(0, 0, (int) view.CellSizeX, Size.Height);
-            Rectangle topWall = new Rectangle(0, 0, Size.Width, (int) view.CellSizeY);
-            Rectangle rightWall = new Rectangle(Size.Width - (int) view.CellSizeX, 0, (int) view.CellSizeX, Size.Height);
-            Rectangle bottomWall = new Rectangle(0, Size.Height - (int) view.CellSizeY, Size.Width, (int) view.CellSizeY);
+            Rectangle leftWall = new Rectangle(0, 0, view.CellSizeXRounded, Size.Height);
+            Rectangle topWall = new Rectangle(0, 0, Size.Width, view.CellSizeYRounded);
+            Rectangle rightWall = new Rectangle(Size.Width - view.CellSizeXRounded, 0,
+                view.CellSizeXRounded, Size.Height);
+            Rectangle bottomWall = new Rectangle(0, Size.Height - view.CellSizeYRounded, 
+                Size.Width, view.CellSizeYRounded);
 
             Rectangle[] walls = { leftWall, topWall, rightWall, bottomWall };
 
@@ -114,7 +130,7 @@ namespace SnakeClient
             SnakeModel.Point previousVert = null;
 
             //Derive our brush from our playerID:
-            Brush snakeBrush = new SolidBrush(Color.FromArgb(snake.GetHashCode()));
+            Brush snakeBrush = new SolidBrush(Color.Red);
             foreach(SnakeModel.Point vert in verts)
             {
                 if(ReferenceEquals(previousVert, null))
@@ -122,17 +138,43 @@ namespace SnakeClient
                     previousVert = vert;
                     continue;
                 }
+                
                 //We round all our values in order to attempt to eliminate being off by one pixel.
-
-                int segmentCornerX = (int)Math.Round(Math.Min(previousVert.PointX, vert.PointX) * view.CellSizeX);
-                int segmentCornerY = (int)Math.Round(Math.Min(previousVert.PointY, vert.PointY) * view.CellSizeY);
+                int topCornerX = (int)Math.Round(Math.Min(previousVert.PointX, vert.PointX) * view.CellSizeX);
+                int topCornerY = (int)Math.Round(Math.Min(previousVert.PointY, vert.PointY) * view.CellSizeY);
+                int rectangleCornerX, rectangleCornerY;
+                int bottomCornerX, bottomCornerY;
 
                 int segmentWidth = (int)Math.Round((Math.Abs(previousVert.PointX - vert.PointX) + 1) * view.CellSizeX);
                 int segmentHeight = (int)Math.Round((Math.Abs(previousVert.PointY - vert.PointY) + 1) * view.CellSizeY);
+                //Case where the segment is horizontal
+                if (segmentWidth > segmentHeight)
+                {
+                    //Shorten the rectangle part of the segment, and offset it.
+                    segmentWidth -= view.CellSizeXRounded;
+                    rectangleCornerX = topCornerX + view.CellSizeXRounded/2;
+                    rectangleCornerY = topCornerY;
+                    //Set the parameters for the bottom corner circle.
+                    bottomCornerX = topCornerX + segmentWidth;
+                    bottomCornerY = topCornerY;
 
-                Rectangle snakeSegment = new Rectangle(segmentCornerX, segmentCornerY, segmentWidth, segmentHeight);
+                } else //Case where segment is vertical
+                {
+                    segmentHeight -= view.CellSizeYRounded;
+                    rectangleCornerX = topCornerX;
+                    rectangleCornerY = topCornerY + view.CellSizeYRounded/2;
+                    //Set the parameters for the bottom corner circle.
+                    bottomCornerX = topCornerX;
+                    bottomCornerY = topCornerY + segmentHeight;
+                }
+                //Draw the circular endpoints for the snake.
+                Rectangle topEndpoint = new Rectangle(topCornerX, topCornerY, view.CellSizeXRounded, view.CellSizeYRounded);
+                Rectangle snakeSegment = new Rectangle(rectangleCornerX, rectangleCornerY, segmentWidth, segmentHeight);
+                Rectangle bottomEndpoint = new Rectangle(bottomCornerX, bottomCornerY, view.CellSizeXRounded, view.CellSizeYRounded);
                 e.Graphics.FillRectangle(snakeBrush, snakeSegment);
-                e.Graphics.DrawRectangle(Pens.Black, snakeSegment); //Useful for debugging
+                e.Graphics.FillEllipse(snakeBrush, topEndpoint);
+                e.Graphics.FillEllipse(snakeBrush, bottomEndpoint);
+                //e.Graphics.DrawRectangle(Pens.Black, snakeSegment); //Useful for debugging
                 //our current vert is now the previous vert
                 previousVert = vert;
             }

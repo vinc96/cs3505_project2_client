@@ -37,23 +37,6 @@ namespace SnakeModel
         }
 
         /// <summary>
-        /// Returns the name of this snake.
-        /// </summary>
-        /// <returns></returns>
-        public string getName()
-        {
-            return name;
-        }
-
-        /// <summary>
-        /// Returns the numeric ID for this snake.
-        /// </summary>
-        /// <returns></returns>
-        public int getID()
-        {
-            return ID;
-        }
-        /// <summary>
         /// Returns the point location of the head of this snake. 
         /// </summary>
         /// <returns></returns>
