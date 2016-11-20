@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,6 +16,19 @@ namespace SnakeModel
 
         [JsonProperty]
         public string name { get; private set;}
+
+        /// <summary>
+        /// Returns a color for this snake, defined by this snake's ID. Two snakes with the same ID will have the same color. However, Two 
+        /// snakes with different IDs may have the same color, though unlikely (Essentially, the color is a modified Hash).
+        /// </summary>
+        public Color Color {
+            get {
+                int hashCode = (ID.ToString() + "Salt123").GetHashCode();
+                return Color.FromArgb(255, (hashCode & 0x00FF0000) >> 16, (hashCode & 0x0000FF00) >> 8, hashCode & 0x000000FF); //Non-transparent.
+            }
+            private set {}
+        }
+
         /// <summary>
         /// All the verticies that make up this snake. Ordered from tail to head, where the last element in the list is the head, and the first is the tail.
         /// </summary>

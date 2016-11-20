@@ -135,7 +135,7 @@ namespace SnakeClient
             SnakeModel.Point previousVert = null;
 
             //Derive our brush from our playerID:
-            Brush snakeBrush = new SolidBrush(Color.Red);
+            Brush snakeBrush = new SolidBrush(snake.Color);
             foreach(SnakeModel.Point vert in verts)
             {
                 if(ReferenceEquals(previousVert, null))
