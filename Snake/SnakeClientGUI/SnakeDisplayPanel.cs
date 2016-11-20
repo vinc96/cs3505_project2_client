@@ -67,6 +67,7 @@ namespace SnakeClient
         /// <param name="world"></param>
         public void updatePanel(World world, int playerID)
         {
+            SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
             this.world = world;
             this.playerID = playerID;
 
