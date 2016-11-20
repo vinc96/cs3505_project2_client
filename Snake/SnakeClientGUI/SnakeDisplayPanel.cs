@@ -54,6 +54,11 @@ namespace SnakeClientGUI
             }
         }
 
+        override protected void OnResize(EventArgs e)
+        {
+            base.OnResize(e); //Call the parent method.
+            Invalidate();
+        }
 
         /// <summary>
         /// Draws on this panel, the specified world, centering it around the specified player ID. 
