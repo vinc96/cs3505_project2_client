@@ -11,7 +11,7 @@ using System.Windows.Forms;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace SnakeClientGUI
+namespace SnakeClient
 {
     public partial class MainWindow : Form
     {
