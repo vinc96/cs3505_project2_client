@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace SnakeClientGUI
+namespace SnakeClient
 {
     class SnakeDisplayPanel : Panel
     {

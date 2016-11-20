@@ -1,4 +1,4 @@
-﻿namespace SnakeClientGUI
+﻿namespace SnakeClient
 {
     partial class MainWindow
     {
@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.snakeDisplayPanel1 = new SnakeClientGUI.SnakeDisplayPanel();
+            this.snakeDisplayPanel1 = new SnakeClient.SnakeDisplayPanel();
             this.SuspendLayout();
             // 
             // snakeDisplayPanel1
@@ -38,14 +38,14 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.snakeDisplayPanel1.Location = new System.Drawing.Point(12, 12);
             this.snakeDisplayPanel1.Name = "snakeDisplayPanel1";
-            this.snakeDisplayPanel1.Size = new System.Drawing.Size(760, 737);
+            this.snakeDisplayPanel1.Size = new System.Drawing.Size(760, 717);
             this.snakeDisplayPanel1.TabIndex = 0;
             // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(784, 761);
+            this.ClientSize = new System.Drawing.Size(784, 741);
             this.Controls.Add(this.snakeDisplayPanel1);
             this.Name = "MainWindow";
             this.Text = "Form1";

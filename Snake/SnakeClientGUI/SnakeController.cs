@@ -7,7 +7,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SnakeClientGUI
+namespace SnakeClient
 {
     class SnakeController
     {
