@@ -62,6 +62,9 @@
     <Compile Include="SnakeDisplayPanel.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="SnakePlayerPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <EmbeddedResource Include="MainWindow.resx">
       <DependentUpon>MainWindow.cs</DependentUpon>
     </EmbeddedResource>

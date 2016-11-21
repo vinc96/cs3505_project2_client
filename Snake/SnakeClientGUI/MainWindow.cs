@@ -67,6 +67,7 @@ namespace SnakeClient
                 object gameObj = parseJsonIntoGameModel(json);
                 lock (GameWorld)
                 {
+                    
                     if (gameObj is Snake)
                     {
                         GameWorld.updateWorldSnakes((Snake)gameObj);
@@ -80,11 +81,15 @@ namespace SnakeClient
                     }
                 }
             }
-            if (!Disposing)
+            if (!(Disposing || IsDisposed))
             {
                 Invoke(new MethodInvoker(() =>
                 {
+
+                    //Update game display
                     snakeDisplayPanel1.updatePanel(GameWorld, PlayerId);
+                    //Update score panel
+                    snakePlayerPanel1.UpdatePlayerNames(GameWorld, PlayerId);
                 }));
             }
 
@@ -118,6 +123,11 @@ namespace SnakeClient
                 direction = (direction == 0) ? 4 : direction;
                 clientNetworkController.sendDirection(direction);
             }
+        }
+
+        private void MainWindow_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            clientNetworkController.closeConnection();
         }
     }
 }

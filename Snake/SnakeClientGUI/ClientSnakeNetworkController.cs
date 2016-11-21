@@ -106,6 +106,11 @@ namespace SnakeClient
             Networking.Send(clientSocketState.theSocket, "("+direction+")\n");
         }
 
+        internal void closeConnection()
+        {
+            clientSocketState.theSocket.Disconnect(false);
+            clientSocketState.theSocket.Dispose();
+        }
     }
 
 }

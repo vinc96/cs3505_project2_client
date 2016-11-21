@@ -92,23 +92,6 @@ namespace SnakeModel
             }
         }
 
-        /// <summary>
-        /// Returns the global coordinates for the head of the snake specified by the playerID. 
-        /// If the playerID doesn't correspond to a snake currently alive in the world, returns null.
-        /// </summary>
-        /// <param name="playerID"></param>
-        /// <returns></returns>
-        public Point getHead(int playerID)
-        {
-
-            if (snakes.ContainsKey(playerID))
-            {
-                return snakes[playerID].getHead();
-            }
-
-            return null;
-        }
-
         public IEnumerable<Snake> getLiveSnakes()
         {
             return snakes.Values;
@@ -117,6 +100,24 @@ namespace SnakeModel
         public IEnumerable<Food> getActiveFood()
         {
             return food.Values;
+        }
+
+        /// <summary>
+        /// Returns the snake specified by the playerID. If the playerID doesn't correspond to a 
+        /// snake currently alive in the world, returns null.
+        /// </summary>
+        /// <param name="playerID"></param>
+        /// <returns></returns>
+        public Snake getSnakeByID(int playerID)
+        {
+            if (snakes.Keys.Contains(playerID))
+            {
+                return snakes[playerID];
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }

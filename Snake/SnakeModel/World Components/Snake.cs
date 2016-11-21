@@ -17,6 +17,31 @@ namespace SnakeModel
         [JsonProperty]
         public string name { get; private set;}
 
+        public int length
+        {
+            get
+            {
+                int length = 0;
+                Point previousVert = null;
+                foreach (Point vert in vertices)
+                {
+                    if (ReferenceEquals(previousVert, null))
+                    {
+                        previousVert = vert;
+                        continue;
+                    }
+                    length += Math.Max(Math.Abs(previousVert.PointX - vert.PointX), Math.Abs(previousVert.PointY - vert.PointY));
+
+                    previousVert = vert;
+                }
+                return length;
+            }
+            private set
+            {
+                //Do nothing
+            }
+        }
+
         /// <summary>
         /// Returns a color for this snake, defined by this snake's ID. Two snakes with the same ID will have the same color. However, Two 
         /// snakes with different IDs may have the same color, though unlikely (Essentially, the color is a modified Hash).
@@ -54,7 +79,7 @@ namespace SnakeModel
         /// Returns the point location of the head of this snake. 
         /// </summary>
         /// <returns></returns>
-        internal Point getHead()
+        public Point getHead()
         {
             //We can just return the point, as they're immutable.
             return vertices[vertices.Count - 1];

@@ -14,12 +14,12 @@ namespace SnakeClient
         /// <summary>
         /// The world that the updatePanel method was called with most recently.
         /// </summary>
-        World world;
+        private World world;
 
         /// <summary>
         /// The playerID that the updatePanel method was called with most recently.
         /// </summary>
-        int playerID;
+        private int playerID;
 
         /// <summary>
         /// A struct containing paramaters for drawing a frame. Contains cell size in double form for maximum accuracy.
@@ -54,6 +54,14 @@ namespace SnakeClient
             }
         }
 
+        public SnakeDisplayPanel() : base()
+        {
+            this.DoubleBuffered = true;
+        }
+            /// <summary>
+        /// Make sure we invalidate the panel whenever we resize.
+        /// </summary>
+        /// <param name="e"></param>
         override protected void OnResize(EventArgs e)
         {
             base.OnResize(e); //Call the parent method.
@@ -67,7 +75,6 @@ namespace SnakeClient
         /// <param name="world"></param>
         public void updatePanel(World world, int playerID)
         {
-            SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
             this.world = world;
             this.playerID = playerID;
 
@@ -91,11 +98,33 @@ namespace SnakeClient
                 e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
                 //Now, calculate cell size and pass it to a new ViewParams object.
                 ViewParams view = new ViewParams(((double)Size.Width / world.Size.X), ((double)Size.Height / world.Size.Y));
+                e.Graphics.ScaleTransform(1f, 1f);
+                scaleAndTranslateWorld(e, world, playerID, view);
                 drawWorldBorders(e, world, view);
                 drawSnakes(e, world, view, playerID);
+                drawFood(e, world, view, playerID);
+                
             }
         }
-
+        //Scales and translates the world according to the current PlayerID selected.
+        private void scaleAndTranslateWorld(PaintEventArgs e, World world, int PlayerID, ViewParams view)
+        {
+            Snake focusedSnake = world.getSnakeByID(PlayerID);
+            if (!ReferenceEquals(focusedSnake, null))
+            {
+                int zoomedWindowX = (int)(2 * focusedSnake.length * view.CellSizeX);
+                int zoomedWindowY = (int)(2 * focusedSnake.length * view.CellSizeY);
+                e.Graphics.ScaleTransform(Size.Width / zoomedWindowX, Size.Height / zoomedWindowY);
+                e.Graphics.TranslateTransform((float) (-1 * (focusedSnake.getHead().x) * view.CellSizeX + zoomedWindowX/2), 
+                                            (float) (-1 * (focusedSnake.getHead().y) * view.CellSizeY + zoomedWindowY/2));
+                //focusedSnake.length = 
+            }
+            else
+            {
+                //Maybe set the transform back to defaults.
+            }
+            
+        }
         private void drawWorldBorders(PaintEventArgs e, World world, ViewParams view)
         {
             Rectangle leftWall = new Rectangle(0, 0, view.CellSizeXRounded, Size.Height);
@@ -115,10 +144,14 @@ namespace SnakeClient
         /// </summary>
         private void drawSnakes(PaintEventArgs e, World world, ViewParams view, int PlayerID)
         {
-            //Look at each snake, to see if its worth drawing
-            foreach (Snake s in world.getLiveSnakes())
+            //Make sure we don't edit the world when we're drawing it.
+            lock (world)
             {
-               drawSnake(e, view, s);
+                //Look at each snake, to see if its worth drawing
+                foreach (Snake s in world.getLiveSnakes())
+                {
+                    drawSnake(e, view, s);
+                }
             }
         }
         /// <summary>
@@ -185,7 +218,25 @@ namespace SnakeClient
                 previousVert = vert;
             }
         }
-        
+        /// <summary>
+        /// Draws the food for the world, centered on the snake designated as PlayerID 
+        /// </summary>
+        private void drawFood(PaintEventArgs e, World world, ViewParams view, int PlayerID)
+        {
+            //Make sure we don't edit the world when we're drawing it.
+            lock (world)
+            {
+                //Look at each snake, to see if its worth drawing
+                foreach (Food f in world.getActiveFood())
+                {
+                    int foodCornerX = (int)(f.loc.PointX * view.CellSizeX);
+                    int foodCornerY = (int)(f.loc.PointY * view.CellSizeY);
+                    Rectangle foodRect = new Rectangle(foodCornerX, foodCornerY, view.CellSizeXRounded, view.CellSizeYRounded);
+                    e.Graphics.FillEllipse(Brushes.Black, foodRect);
+                }
+            }
+        }
+
 
 
         /// <summary>
@@ -202,7 +253,7 @@ namespace SnakeClient
                 return globalPoint;
             }
             //Grab the player head location
-            SnakeModel.Point playerHead = world.getHead(PlayerID);
+            SnakeModel.Point playerHead = world.getSnakeByID(PlayerID).getHead();
 
             //A relative point is just a global point, minus the head location of the specified snake. 
             return new SnakeModel.Point(globalPoint.PointX - playerHead.PointX, globalPoint.PointY - playerHead.PointY);
