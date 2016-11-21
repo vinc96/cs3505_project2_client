@@ -48,7 +48,7 @@ namespace SnakeModel
         /// </summary>
         public Color Color {
             get {
-                int hashCode = (ID.ToString() + "Salt123").GetHashCode();
+                int hashCode = (ID.ToString() + "This1Is2Different3Salt4").GetHashCode();
                 return Color.FromArgb(255, (hashCode & 0x00FF0000) >> 16, (hashCode & 0x0000FF00) >> 8, hashCode & 0x000000FF); //Non-transparent.
             }
             private set {}

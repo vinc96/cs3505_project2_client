@@ -85,7 +85,6 @@ namespace SnakeClient
             {
                 Invoke(new MethodInvoker(() =>
                 {
-
                     //Update game display
                     snakeDisplayPanel1.updatePanel(GameWorld, PlayerId);
                     //Update score panel
