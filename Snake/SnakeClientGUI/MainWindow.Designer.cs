@@ -83,8 +83,9 @@
             // 
             // spectateButton
             // 
+            this.spectateButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.spectateButton.Enabled = false;
-            this.spectateButton.Location = new System.Drawing.Point(608, 32);
+            this.spectateButton.Location = new System.Drawing.Point(607, 32);
             this.spectateButton.Name = "spectateButton";
             this.spectateButton.Size = new System.Drawing.Size(182, 23);
             this.spectateButton.TabIndex = 7;
