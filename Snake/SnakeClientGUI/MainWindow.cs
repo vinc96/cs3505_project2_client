@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using SnakeClientGUI;
 
 namespace SnakeClient
 {
@@ -23,8 +24,27 @@ namespace SnakeClient
         public MainWindow()
         {
             clientNetworkController = new ClientSnakeNetworkController();
-
             InitializeComponent();
+        }
+        /// <summary>
+        /// Sets the spectate ID to the specified ID. If that ID corresponds to a live snake in the current world, we now view the world from their perspective.
+        /// </summary>
+        /// <param name="id"></param>
+        public void setSpectateID(int id)
+        {
+            PlayerId = id;
+            spectateButton.Text = "Spectating";
+        }
+
+        ///On load, register our own PreviewKeyDown listener with every control on the form.
+        private void MainWindow_Load(object sender, EventArgs e)
+        {
+
+            foreach (Control control in this.Controls)
+            {
+                control.PreviewKeyDown += new PreviewKeyDownEventHandler(MainWindow_PreviewKeyDown);
+            }
+
         }
 
         private void btnConnectToServer_Click(object sender, EventArgs e)
@@ -41,7 +61,7 @@ namespace SnakeClient
             {
                 return;
             }
-
+            spectateButton.Enabled = false;
             clientNetworkController.connectToServer(hostname, playerName, handleHandshakeSuccess);
         }
 
@@ -89,6 +109,15 @@ namespace SnakeClient
                     snakeDisplayPanel1.updatePanel(GameWorld, PlayerId);
                     //Update score panel
                     snakePlayerPanel1.UpdatePlayerNames(GameWorld, PlayerId);
+                    //If we're dead, enable the spectate button.
+                    if (!GameWorld.IsPlayerAlive(PlayerId))
+                    {
+                        if (!spectateButton.Enabled)
+                        {
+                            spectateButton.Enabled = true;
+                        }
+                    }
+
                 }));
             }
 
@@ -113,8 +142,25 @@ namespace SnakeClient
 
             return null;
         }
+        /// <summary>
+        /// Called when our spectate button is clicked. Brings up a selection menu, so you can select which player you want to spectate.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void spectateButton_Click(object sender, EventArgs e)
+        {
+            SpectatorSelect s = new SpectatorSelect(GameWorld.getLiveSnakesOrdered().Values, this);
+            s.ShowDialog();
 
-        private void snakeDisplayPanel1_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
+        }
+
+        /// <summary>
+        /// The PreviewKeyDown listener registered with every control on the form. 
+        /// Ensures that all input will always be forwarded to the snake, as opposed to it being stolen by a dropdown/menu/textbox/etc.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MainWindow_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
         {
             int direction = e.KeyValue - 37;
             if (direction >= 0 && direction <= 3)
@@ -128,5 +174,7 @@ namespace SnakeClient
         {
             clientNetworkController.closeConnection();
         }
+
+        
     }
 }

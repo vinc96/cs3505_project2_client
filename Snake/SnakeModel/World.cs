@@ -36,6 +36,7 @@ namespace SnakeModel
 
         public Dimensions Size;
 
+
         /// <summary>
         /// Creates a new World object of the given dimensions
         /// </summary>
@@ -44,8 +45,8 @@ namespace SnakeModel
         public World(int width, int height)
         {
             // Snakes And Food Should Be Empty When The World Is Made
-            this.snakes = new Dictionary<int, Snake>();
-            this.food = new Dictionary<int, Food>();
+            snakes = new Dictionary<int, Snake>();
+            food = new Dictionary<int, Food>();
 
              Size = new Dimensions(width, height);
         }
@@ -91,10 +92,29 @@ namespace SnakeModel
                 food.Remove(f.ID);
             }
         }
-
+        /// <summary>
+        /// Returns all currently live snakes, with no guarantee as to the order. 
+        /// </summary>
+        /// <returns></returns>
         public IEnumerable<Snake> getLiveSnakes()
         {
             return snakes.Values;
+        }
+        /// <summary>
+        /// Return the snakes, ordered by score from highest to lowest. 
+        /// </summary>
+        /// <returns></returns>
+        public SortedList<int, Snake> getLiveSnakesOrdered()
+        {
+            //Create a new sorted list using snake length as a key (there will be duplicate keys, but we'll
+            //always be enumerating over the Values anyway), defining the comparator to rank higher scores earler.
+            SortedList<int, Snake> sortedSnakes =  new SortedList<int, Snake>(Comparer<int>.Create((i,j) => { if (i == j) { return 1; } else { return j - i; } }));
+            foreach (Snake s in getLiveSnakes())
+            {
+                sortedSnakes.Add(s.length, s); //Poor complexity I know, but doesn't seem to adversely impact performance too badly (O(# of Snakes))
+            }
+            return sortedSnakes;
+          
         }
 
         public IEnumerable<Food> getActiveFood()

@@ -40,11 +40,23 @@ namespace SnakeClientGUI
             {
                 lock (world)
                 {
-                    foreach (Snake s in world.getLiveSnakes())
+                    //Draw the player name at the top of the list, if it exists.
+                    Snake playerSnake = world.getSnakeByID(playerID);
+                    if (!ReferenceEquals(playerSnake, null))
                     {
                         textY += PlayerNameTextHeight + PlayerBuffer;
-                        e.Graphics.DrawString(s.name + ": " + s.length, new Font("Times New Roman", PlayerNameTextHeight,
-                            FontStyle.Bold, new GraphicsUnit()), new SolidBrush(s.Color), 0, textY);
+                        e.Graphics.DrawString(playerSnake.name + ": " + playerSnake.length, new Font("Times New Roman", PlayerNameTextHeight,
+                            FontStyle.Underline | FontStyle.Bold, new GraphicsUnit()), new SolidBrush(playerSnake.Color), 0, textY);
+                    }
+                    foreach (Snake s in world.getLiveSnakesOrdered().Values)
+                    {
+                        //Make sure we don't re-draw the player's name.
+                        if (ReferenceEquals(playerSnake, null) || s.ID != playerSnake.ID)
+                        {
+                            textY += PlayerNameTextHeight + PlayerBuffer;
+                            e.Graphics.DrawString(s.name + ": " + s.length, new Font("Times New Roman", PlayerNameTextHeight,
+                                FontStyle.Bold, new GraphicsUnit()), new SolidBrush(s.Color), 0, textY);
+                        }
                     }
                 }
             }                      

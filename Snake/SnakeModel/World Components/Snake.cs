@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace SnakeModel
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class Snake
+    public class Snake : IComparable<Snake> 
     {
         [JsonProperty]
         public int ID { get; private set; }
@@ -83,6 +83,16 @@ namespace SnakeModel
         {
             //We can just return the point, as they're immutable.
             return vertices[vertices.Count - 1];
+        }
+        //Returns the name and length of this snake in the following way: "(name): (length)"
+        public override string ToString()
+        {
+            return name + ": " + length;
+        }
+
+        public int CompareTo(Snake other)
+        {
+            return length - other.length;
         }
     }
 

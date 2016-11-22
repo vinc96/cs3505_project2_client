@@ -33,6 +33,7 @@
             this.inpPlayerName = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.btnConnectToServer = new System.Windows.Forms.Button();
+            this.spectateButton = new System.Windows.Forms.Button();
             this.snakePlayerPanel1 = new SnakeClientGUI.SnakePlayerPanel();
             this.snakeDisplayPanel1 = new SnakeClient.SnakeDisplayPanel();
             this.SuspendLayout();
@@ -80,14 +81,25 @@
             this.btnConnectToServer.UseVisualStyleBackColor = true;
             this.btnConnectToServer.Click += new System.EventHandler(this.btnConnectToServer_Click);
             // 
+            // spectateButton
+            // 
+            this.spectateButton.Enabled = false;
+            this.spectateButton.Location = new System.Drawing.Point(608, 32);
+            this.spectateButton.Name = "spectateButton";
+            this.spectateButton.Size = new System.Drawing.Size(182, 23);
+            this.spectateButton.TabIndex = 7;
+            this.spectateButton.Text = "Spectate";
+            this.spectateButton.UseVisualStyleBackColor = true;
+            this.spectateButton.Click += new System.EventHandler(this.spectateButton_Click);
+            // 
             // snakePlayerPanel1
             // 
             this.snakePlayerPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.snakePlayerPanel1.AutoScroll = true;
-            this.snakePlayerPanel1.Location = new System.Drawing.Point(608, 32);
+            this.snakePlayerPanel1.Location = new System.Drawing.Point(608, 59);
             this.snakePlayerPanel1.Name = "snakePlayerPanel1";
-            this.snakePlayerPanel1.Size = new System.Drawing.Size(182, 600);
+            this.snakePlayerPanel1.Size = new System.Drawing.Size(182, 573);
             this.snakePlayerPanel1.TabIndex = 6;
             // 
             // snakeDisplayPanel1
@@ -99,13 +111,13 @@
             this.snakeDisplayPanel1.Name = "snakeDisplayPanel1";
             this.snakeDisplayPanel1.Size = new System.Drawing.Size(600, 600);
             this.snakeDisplayPanel1.TabIndex = 0;
-            this.snakeDisplayPanel1.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.snakeDisplayPanel1_PreviewKeyDown);
             // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(802, 641);
+            this.Controls.Add(this.spectateButton);
             this.Controls.Add(this.snakePlayerPanel1);
             this.Controls.Add(this.btnConnectToServer);
             this.Controls.Add(this.inpPlayerName);
@@ -115,8 +127,9 @@
             this.Controls.Add(this.snakeDisplayPanel1);
             this.ImeMode = System.Windows.Forms.ImeMode.On;
             this.Name = "MainWindow";
-            this.Text = "Form1";
+            this.Text = "Watch out for Snakes!";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainWindow_FormClosing);
+            this.Load += new System.EventHandler(this.MainWindow_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -131,6 +144,7 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button btnConnectToServer;
         private SnakeClientGUI.SnakePlayerPanel snakePlayerPanel1;
+        private System.Windows.Forms.Button spectateButton;
     }
 }
 
