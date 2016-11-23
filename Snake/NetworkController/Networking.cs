@@ -11,6 +11,9 @@ using System.Text.RegularExpressions;
 
 namespace NetworkController
 {
+    /// <summary>
+    /// A general class for networking using C# sockets.
+    /// </summary>
     static public class Networking
     {
         public static int DEFAULT_PORT = 11000;
@@ -75,12 +78,20 @@ namespace NetworkController
                 return null;
             }
         }
-
+        /// <summary>
+        /// Connect to a server using the default port for this class.
+        /// </summary>
+        /// <param name="hostName"></param>
+        /// <param name="nodeConnectedCallback"></param>
+        /// <returns></returns>
         public static Socket ConnectToNetworkNode(string hostName, SocketState.EventProccessor nodeConnectedCallback)
         {
             return Networking.ConnectToNetworkNode(hostName, Networking.DEFAULT_PORT, nodeConnectedCallback);
         }
-
+        /// <summary>
+        /// The callback to use when we're finalizing the initial network connect.
+        /// </summary>
+        /// <param name="ar"></param>
         private static void ConnectedToNetworkNode(IAsyncResult ar)
         {
             SocketState ss = (SocketState)ar.AsyncState;
@@ -101,11 +112,15 @@ namespace NetworkController
             // Call The Callback To Signal The Connection Is Complete
             ss.processorCallback(ss);
         }
-
+        /// <summary>
+        /// Listen for data, using the callback defined in the passed SocketState.
+        /// </summary>
+        /// <param name="ss"></param>
         public static void listenForData(SocketState ss)
         {
             Networking.listenForData(ss, ss.processorCallback);
         }
+
         /// <summary>
         /// Listen for data, while explicitly defining what callback we should use when data is recieved.
         /// </summary>
@@ -123,6 +138,11 @@ namespace NetworkController
             ss.theSocket.BeginReceive(ss.messageBuffer, 0, ss.messageBuffer.Length, SocketFlags.None, Networking.ReceiveCallback, ss);
         }
 
+        /// <summary>
+        /// The callback to use when we recieve data on the socket. Parcels the data out of our buffer and into 
+        /// the SocketState stringGrowableBuffer.
+        /// </summary>
+        /// <param name="ar"></param>
         private static void ReceiveCallback(IAsyncResult ar)
         {
             SocketState ss = (SocketState)ar.AsyncState;
@@ -223,19 +243,31 @@ namespace NetworkController
             SocketState ss = (SocketState)ar.AsyncState;
             ss.theSocket.EndSend(ar);
         }
-
+        /// <summary>
+        /// Disconnects the specified socket contained in the passed SocketState, using the processorCallback stored in the SocketState.
+        /// </summary>
+        /// <param name="ss"></param>
+        /// <param name="reuse"></param>
         public static void Disconnect(SocketState ss, bool reuse)
         {
             Networking.Disconnect(ss, reuse, ss.processorCallback);
         }
-
+        /// <summary>
+        /// Disconnects the specified socket contained in the passed SocketState, calling the passed handler when the socket closes.
+        /// </summary>
+        /// <param name="ss"></param>
+        /// <param name="reuse"></param>
+        /// <param name="socketClosedHandler"></param>
         public static void Disconnect(SocketState ss, bool reuse, SocketState.EventProccessor socketClosedHandler)
         {
             ss.processorCallback = socketClosedHandler;
             ss.safeToSendRequest = false;
             ss.theSocket.BeginDisconnect(reuse, DisconnectedCallback, ss);
         }
-
+        /// <summary>
+        /// The AsyncCallback that we use when disconnecting.
+        /// </summary>
+        /// <param name="ar"></param>
         private static void DisconnectedCallback(IAsyncResult ar)
         {
             SocketState ss = (SocketState)ar.AsyncState;

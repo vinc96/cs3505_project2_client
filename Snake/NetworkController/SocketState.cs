@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace NetworkController
 {
+    /// <summary>
+    /// A class to contain the state of a networking socket, including the socket itself, buffers, and callbacks.
+    /// </summary>
     public class SocketState
     {
         public Socket theSocket;
