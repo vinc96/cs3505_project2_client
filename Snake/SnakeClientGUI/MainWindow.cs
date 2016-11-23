@@ -54,15 +54,22 @@ namespace SnakeClient
 
             if (hostname == "")
             {
+                MessageBox.Show("The Server Hostname Cannot Be Blank");
                 return;
             }
 
             if (playerName == "")
             {
+                MessageBox.Show("The Player Name Cannot Be Blank");
                 return;
             }
-            spectateButton.Enabled = false;
-            clientNetworkController.connectToServer(hostname, playerName, handleHandshakeSuccess);
+
+            bool result = clientNetworkController.connectToServer(hostname, playerName, handleHandshakeSuccess);
+
+            if (!result)
+            {
+                MessageBox.Show("Unable To Connect To The Server");
+            }
         }
 
         private void handleHandshakeSuccess(ClientSnakeNetworkController.InitData initData)
