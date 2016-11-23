@@ -19,7 +19,17 @@ namespace NetworkController
 
         public bool safeToSendRequest = false;
 
-        public bool errorOccured = false;
+        public bool _errorOccured = false;
+
+        public bool errorOccured {
+            get { return _errorOccured; }
+            set
+            {
+                safeToSendRequest = safeToSendRequest && !value;
+                _errorOccured = value;
+            }
+        }
+
         public string errorMesssage;
 
         public byte[] messageBuffer = new byte[1024];

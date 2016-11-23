@@ -79,7 +79,7 @@ namespace SnakeClient
         /// <param name="handshakeCompletedHandler"></param>
         public void connectToServer(string hostname, string playerName, handleInitData handshakeCompletedHandler)
         {
-            if (clientSocketState != null) { return; }
+            if (isTheConnectionAlive()) { return; }
 
             int connectedTimeout = 2500;
             Socket s = Networking.ConnectToNetworkNode(
@@ -166,16 +166,16 @@ namespace SnakeClient
         /// <param name="dataReceivedHandler"></param>
         public void receiveDataAndStartListeningForMoreData(SocketState aSocketState, handleDataReceived dataReceivedHandler)
         {
-            if (!isTheConnectionAlive())
+            if (aSocketState.errorOccured)
             {
+                string[] errorStringArray = { "ERROR", aSocketState.errorMesssage };
+                dataReceivedHandler(errorStringArray);
+                closeConnection();
                 return;
             }
 
-            if (aSocketState.errorOccured)
+            if (!isTheConnectionAlive())
             {
-                string[] errorStringArray = {"ERROR", aSocketState.errorMesssage}; 
-                dataReceivedHandler(errorStringArray);
-                closeConnection();
                 return;
             }
 
@@ -204,7 +204,7 @@ namespace SnakeClient
         /// <returns></returns>
         public bool isTheConnectionAlive()
         {
-            return clientSocketState != null && clientSocketState.safeToSendRequest;
+            return clientSocketState != null && clientSocketState.theSocket != null && clientSocketState.safeToSendRequest;
         }       
         /// <summary>
         /// Close the connection for this server, with no callback.

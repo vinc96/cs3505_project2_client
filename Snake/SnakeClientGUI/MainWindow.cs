@@ -88,6 +88,8 @@ namespace SnakeClient
 
 
             this.btnConnectToServer.Enabled = false;
+            this.inpHostname.Enabled = false;
+            this.inpPlayerName.Enabled = false;
             clientNetworkController.connectToServer(hostname, playerName, handleHandshakeSuccess);
         }
         /// <summary>
@@ -103,8 +105,6 @@ namespace SnakeClient
             }
 
             Invoke(new MethodInvoker(() => {
-                this.inpHostname.Enabled = false;
-                this.inpPlayerName.Enabled = false;
                 this.snakeDisplayPanel1.Focus();
             }));
 
@@ -168,9 +168,10 @@ namespace SnakeClient
         private void handleSocketError(string message)
         {
             MessageBox.Show(message);
-            this.inpHostname.Enabled = true;
-            this.inpPlayerName.Enabled = true;
-            this.btnConnectToServer.Enabled = true;
+            inpHostname.Enabled = true;
+            inpPlayerName.Enabled = true;
+            btnConnectToServer.Enabled = true;
+            spectateButton.Enabled = true;
         }
 
         private object parseJsonIntoGameModel(string json)

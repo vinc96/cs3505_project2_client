@@ -54,7 +54,7 @@ namespace NetworkController
                         return null;
                     }
                 }
-                catch (Exception e1)
+                catch (Exception)
                 {
                     // see if host name is actually an ipaddress, i.e., 155.99.123.456
                     System.Diagnostics.Debug.WriteLine("using IP");
@@ -153,7 +153,19 @@ namespace NetworkController
 
             // Start listening for a message
             // When a message arrives, handle it on a new thread with ReceiveCallback
-            ss.theSocket.BeginReceive(ss.messageBuffer, 0, ss.messageBuffer.Length, SocketFlags.None, Networking.ReceiveCallback, ss);
+            try
+            {
+                ss.theSocket.BeginReceive(ss.messageBuffer, 0, ss.messageBuffer.Length, SocketFlags.None, Networking.ReceiveCallback, ss);
+            }
+            catch (Exception e)
+            {
+                //If An Error Occurs Notify The Socket Owner
+                ss.errorOccured = true;
+                ss.errorMesssage = e.Message;
+
+                ss.processorCallback(ss);
+                return;
+            }
         }
 
         /// <summary>
@@ -165,16 +177,12 @@ namespace NetworkController
         {
             
             SocketState ss = (SocketState)ar.AsyncState;
-            if (!ss.safeToSendRequest)
-            {
-                //If we're closing, stop any reads.
-                return;
-            }
 
             int bytesRead;
+
             try
             {
-                 bytesRead = ss.theSocket.EndReceive(ar);
+                bytesRead = ss.theSocket.EndReceive(ar);
             }
             catch (Exception e)
             {
@@ -315,7 +323,7 @@ namespace NetworkController
         {
             SocketState ss = (SocketState)ar.AsyncState;
             ss.theSocket.EndDisconnect(ar);
-
+            
             ss.processorCallback(ss);
         }
     }
