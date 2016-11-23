@@ -11,6 +11,9 @@ using System.Threading.Tasks;
 
 namespace SnakeClient
 {
+    /// <summary>
+    /// The controler for the Snake class. Uses the Networking static class to send and recieve snake commands.
+    /// </summary>
     public class ClientSnakeNetworkController
     {
        
@@ -24,6 +27,9 @@ namespace SnakeClient
         /// </summary>
         bool initialized = false;
 
+        /// <summary>
+        /// The data we recieved from the server on the handshake.
+        /// </summary>
         public struct InitData
         {
             public InitData(int playerId, int WorldWidth, int WorldHeight)
@@ -35,13 +41,28 @@ namespace SnakeClient
             public int PlayerId {get; private set; }
             public World.Dimensions WorldSize {get; private set; }
         }
-
+        /// <summary>
+        /// A delegate used to handle the initial setup data.
+        /// </summary>
+        /// <param name="initData"></param>
         public delegate void handleInitData(InitData initData);
+        /// <summary>
+        /// A delegate used to handle the data we recieve on the socket (in list form)
+        /// </summary>
+        /// <param name="data"></param>
         public delegate void handleDataReceived(IList<string> data);
+        /// <summary>
+        /// A delegate that we use when the socket is closed.
+        /// </summary>
         public delegate void handleSocketClosed();
 
-
-
+        /// <summary>
+        /// Connect this controler to the specified server, using the passed hostname, playername, and handler to call when the handshake is complete.
+        /// </summary>
+        /// <param name="hostname"></param>
+        /// <param name="playerName"></param>
+        /// <param name="handshakeCompletedHandler"></param>
+        /// <returns></returns>
         public bool connectToServer(string hostname, string playerName, handleInitData handshakeCompletedHandler)
         {
             if (clientSocketState != null) { return false; }
@@ -65,11 +86,17 @@ namespace SnakeClient
                     s.Close();
                     return false;
                 }
-            }
+        }
 
             return true;
         }
 
+        /// <summary>
+        /// The method to use when we've connected to a node.
+        /// </summary>
+        /// <param name="aSocketState"></param>
+        /// <param name="playerName"></param>
+        /// <param name="handshakeCompletedHandler"></param>
         private void handleNetworkNodeConnected(SocketState aSocketState, string playerName, handleInitData handshakeCompletedHandler)
         {
             clientSocketState = aSocketState;
@@ -77,7 +104,11 @@ namespace SnakeClient
             Networking.Send(aSocketState.theSocket, playerName + '\n');
             Networking.listenForData(aSocketState, (ss) => { worldSetupDataRecieved(ss, handshakeCompletedHandler); });
         }
-
+        /// <summary>
+        /// Takes the data from the very first server transmission (world size and player ID), and sets up the world using it.
+        /// </summary>
+        /// <param name="aSocketState"></param>
+        /// <param name="handshakeCompletedHandler"></param>
         private void worldSetupDataRecieved(SocketState aSocketState, handleInitData handshakeCompletedHandler)
         {
             if (!isTheConnectionAlive())
@@ -106,12 +137,20 @@ namespace SnakeClient
             handshakeCompletedHandler(new InitData(playerId, worldWidth, worldHeight));
             initialized = true;
         }
-
+        /// <summary>
+        /// Start the loop to constantly listen for snake and food transmissions from the server.
+        /// </summary>
+        /// <param name="dataReceivedHandler"></param>
         public void startDataListenerLoop(handleDataReceived dataReceivedHandler)
         {
             Networking.listenForData(clientSocketState, (ss) => { receiveDataAndStartListeningForMoreData(ss, dataReceivedHandler); });
         }
-
+        /// <summary>
+        /// A callback that takes whatever data the socket has spit out, parse it out into a list of objects, 
+        /// and then passes it out to the specifed handler.
+        /// </summary>
+        /// <param name="aSocketState"></param>
+        /// <param name="dataReceivedHandler"></param>
         public void receiveDataAndStartListeningForMoreData(SocketState aSocketState, handleDataReceived dataReceivedHandler)
         {
             if (!isTheConnectionAlive())
@@ -138,22 +177,34 @@ namespace SnakeClient
 
             Networking.Send(clientSocketState.theSocket, "("+direction+")\n");
         }
-        
+        /// <summary>
+        /// Check to see if the connection is currently alive (e.g. connected to a server).
+        /// </summary>
+        /// <returns></returns>
         public bool isTheConnectionAlive()
         {
             return clientSocketState != null && clientSocketState.safeToSendRequest;
         }       
-
+        /// <summary>
+        /// Close the connection for this server, with no callback.
+        /// </summary>
         internal void closeConnection()
         {
             closeConnection(() => { });
         }
-
+        /// <summary>
+        /// Close the connection for this server, using the specified handler passed.
+        /// </summary>
+        /// <param name="handleDisconnect"></param>
         internal void closeConnection(handleSocketClosed handleDisconnect)
         {
             Networking.Disconnect(clientSocketState, false, (ss) => { socketDisconected(ss, handleDisconnect); });
         }
-
+        /// <summary>
+        /// A callback that's used when we disconnect from the socket using the Networking class.
+        /// </summary>
+        /// <param name="ss"></param>
+        /// <param name="handleDisconnect"></param>
         private void socketDisconected(SocketState ss, handleSocketClosed handleDisconnect)
         {
             ss.theSocket.Close();
