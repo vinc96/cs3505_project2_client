@@ -10,6 +10,9 @@ using System.Windows.Forms;
 
 namespace SnakeClient
 {
+    /// <summary>
+    /// A panel to display the snakes in the world (and the world itself)
+    /// </summary>
     class SnakeDisplayPanel : Panel
     {
         /// <summary>
@@ -27,6 +30,11 @@ namespace SnakeClient
         /// </summary>
         struct ViewParams
         {
+            /// <summary>
+            /// Create a new ViewParams object, with the specified CellSizeX, CellSizeY
+            /// </summary>
+            /// <param name="CellSizeX"></param>
+            /// <param name="CellSizeY"></param>
             public ViewParams(double CellSizeX, double CellSizeY)
             {
                 this.CellSizeX = CellSizeX;
@@ -34,32 +42,44 @@ namespace SnakeClient
                 this.CellSizeXRounded = (int)Math.Round(CellSizeX);
                 this.CellSizeYRounded = (int)Math.Round(CellSizeY);
             }
+            /// <summary>
+            /// The Cell Size for the y direction, in un-rounded pixels.
+            /// </summary>
             public double CellSizeY
             {
                 get; private set;
             }
-
+            /// <summary>
+            /// The Cell Size for the x direction, in un-rounded pixels.
+            /// </summary>
             public double CellSizeX
             {
                 get; private set;
             }
-
+            /// <summary>
+            /// The Cell Size for the y direction, in rounded pixels.
+            /// </summary>
             public int CellSizeYRounded
             {
                 get; private set;
             }
-
+            /// <summary>
+            /// The Cell Size for the x direction, in rounded pixels.
+            /// </summary>
             public int CellSizeXRounded
             {
                 get; private set;
             }
         }
-
+        /// <summary>
+        /// Create a new panel to display the world with.
+        /// </summary>
         public SnakeDisplayPanel() : base()
         {
             this.DoubleBuffered = true;
         }
-            /// <summary>
+        
+        /// <summary>
         /// Make sure we invalidate the panel whenever we resize.
         /// </summary>
         /// <param name="e"></param>
@@ -78,8 +98,6 @@ namespace SnakeClient
         {
             this.world = world;
             this.playerID = playerID;
-
-            //In here, we should do anything we need to do to prepare for painting a panel.
             this.Invalidate();//Tell the form to repaint the panel.
         }
 
@@ -99,7 +117,7 @@ namespace SnakeClient
                 e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
                 //Now, calculate cell size and pass it to a new ViewParams object.
                 ViewParams view = new ViewParams(((double)Size.Width / world.Size.X), ((double)Size.Height / world.Size.Y));
-                e.Graphics.ScaleTransform(1f, 1f);
+                //Scale and translate, then draw world, then food, then snakes.
                 scaleAndTranslateWorld(e, world, playerID, view);
                 drawWorldBorders(e, world, view);
                 drawFood(e, world, view);
@@ -107,7 +125,13 @@ namespace SnakeClient
             }
         }
 
-        //Scales and translates the world according to the current PlayerID selected.
+        /// <summary>
+        /// Scales and translates the world according to the current PlayerID selected.
+        /// </summary>
+        /// <param name="e"></param>
+        /// <param name="world"></param>
+        /// <param name="PlayerID"></param>
+        /// <param name="view"></param>
         private void scaleAndTranslateWorld(PaintEventArgs e, World world, int PlayerID, ViewParams view)
         {
             Snake focusedSnake = world.getSnakeByID(PlayerID);
@@ -125,6 +149,12 @@ namespace SnakeClient
                                             (float) (-1 * (focusedSnake.getHead().y) * view.CellSizeY + (focusedSnake.length * view.CellSizeY)));
             }
         }
+        /// <summary>
+        /// Draw the borders of the world
+        /// </summary>
+        /// <param name="e"></param>
+        /// <param name="world"></param>
+        /// <param name="view"></param>
         private void drawWorldBorders(PaintEventArgs e, World world, ViewParams view)
         {
             Rectangle leftWall = new Rectangle(0, 0, view.CellSizeXRounded, Size.Height);

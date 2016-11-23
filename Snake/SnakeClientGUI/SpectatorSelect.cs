@@ -13,7 +13,9 @@ using System.Windows.Forms;
 
 namespace SnakeClientGUI
 {
-   
+   /// <summary>
+   /// A form to select which snake to spectate.
+   /// </summary>
     public partial class SpectatorSelect : Form
     {
         /// <summary>

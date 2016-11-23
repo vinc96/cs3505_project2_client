@@ -145,7 +145,13 @@ namespace NetworkController
         /// <param name="ar"></param>
         private static void ReceiveCallback(IAsyncResult ar)
         {
+            
             SocketState ss = (SocketState)ar.AsyncState;
+            if (!ss.safeToSendRequest)
+            {
+                //If we're closing, stop any reads.
+                return;
+            }
 
             int bytesRead = ss.theSocket.EndReceive(ar);
 
