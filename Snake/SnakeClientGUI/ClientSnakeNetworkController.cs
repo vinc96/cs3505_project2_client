@@ -1,4 +1,5 @@
-﻿using NetworkController;
+﻿///Written by Josh Christensen (u0978248) and Nathan Veillon (u0984669) 
+using NetworkController;
 using SnakeModel;
 using System;
 using System.Collections.Generic;
