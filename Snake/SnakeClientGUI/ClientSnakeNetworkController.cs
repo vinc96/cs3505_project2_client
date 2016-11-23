@@ -22,6 +22,8 @@ namespace SnakeClient
         /// </summary>
         bool initialized = false;
 
+        bool closing = false;
+
         public struct InitData
         {
             public InitData(int playerId, int WorldWidth, int WorldHeight)
@@ -36,6 +38,7 @@ namespace SnakeClient
 
         public delegate void handleInitData(InitData initData);
         public delegate void handleDataReceived(IList<string> data);
+        public delegate void handleSocketClosed();
 
 
 
@@ -57,6 +60,11 @@ namespace SnakeClient
 
         private void worldSetupDataRecieved(SocketState aSocketState, handleInitData handshakeCompletedHandler)
         {
+            if (!isTheConnectionAlive())
+            {
+                return;
+            }
+
             IList<String> setupData = Networking.getMessageStringsFromBufferSeperatedByCharacter(aSocketState, '\n');
 
             //Expects 3 Lines Of Startup Data, If It Isn't Recieved Continue Listening And Resets Buffer
@@ -74,7 +82,7 @@ namespace SnakeClient
             Int32.TryParse(setupData[0], out playerId);
             Int32.TryParse(setupData[1], out worldWidth);
             Int32.TryParse(setupData[2], out worldHeight);
-
+            
             handshakeCompletedHandler(new InitData(playerId, worldWidth, worldHeight));
             initialized = true;
         }
@@ -86,6 +94,11 @@ namespace SnakeClient
 
         public void receiveDataAndStartListeningForMoreData(SocketState aSocketState, handleDataReceived dataReceivedHandler)
         {
+            if (!isTheConnectionAlive())
+            {
+                return;
+            }
+
             IList<string> data = Networking.getMessageStringsFromBufferSeperatedByCharacter(aSocketState, '\n');
 
             dataReceivedHandler(data);
@@ -105,11 +118,26 @@ namespace SnakeClient
 
             Networking.Send(clientSocketState.theSocket, "("+direction+")\n");
         }
+        
+        public bool isTheConnectionAlive()
+        {
+            return clientSocketState != null && clientSocketState.safeToSendRequest;
+        }       
 
         internal void closeConnection()
         {
-            clientSocketState.theSocket.Disconnect(false);
-            clientSocketState.theSocket.Dispose();
+            closeConnection(() => { });
+        }
+
+        internal void closeConnection(handleSocketClosed handleDisconnect)
+        {
+            Networking.Disconnect(clientSocketState, false, (ss) => { socketDisconected(ss, handleDisconnect); });
+        }
+
+        private void socketDisconected(SocketState ss, handleSocketClosed handleDisconnect)
+        {
+            ss.theSocket.Close();
+            handleDisconnect();
         }
     }
 

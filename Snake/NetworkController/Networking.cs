@@ -95,15 +95,15 @@ namespace NetworkController
                 return;
             }
 
+            ss.safeToSendRequest = true;
+
             // Call The Callback To Signal The Connection Is Complete
             ss.processorCallback(ss);
         }
 
         public static void listenForData(SocketState ss)
         {
-            // Start listening for a message
-            // When a message arrives, handle it on a new thread with ReceiveCallback
-            ss.theSocket.BeginReceive(ss.messageBuffer, 0, ss.messageBuffer.Length, SocketFlags.None, Networking.ReceiveCallback, ss);
+            Networking.listenForData(ss, ss.processorCallback);
         }
         /// <summary>
         /// Listen for data, while explicitly defining what callback we should use when data is recieved.
@@ -112,8 +112,14 @@ namespace NetworkController
         /// <param name="dataRecievedCallback"></param>
         public static void listenForData(SocketState ss, SocketState.EventProccessor dataRecievedCallback)
         {
+
+            if (!ss.safeToSendRequest) { return; }
+
             ss.processorCallback = dataRecievedCallback;
-            Networking.listenForData(ss);
+
+            // Start listening for a message
+            // When a message arrives, handle it on a new thread with ReceiveCallback
+            ss.theSocket.BeginReceive(ss.messageBuffer, 0, ss.messageBuffer.Length, SocketFlags.None, Networking.ReceiveCallback, ss);
         }
 
         private static void ReceiveCallback(IAsyncResult ar)
@@ -200,6 +206,8 @@ namespace NetworkController
         /// <param name="data"> The Data To Send</param>
         public static void Send(Socket s, string data)
         {
+            if (!s.Connected) { return; }
+
             byte[] messageBytes = Encoding.UTF8.GetBytes(data);
             SocketState socketWrapper = new SocketState(s, (ss) => {});
             s.BeginSend(messageBytes, 0, messageBytes.Length, SocketFlags.None, Networking.SendCallback, socketWrapper);
@@ -213,6 +221,26 @@ namespace NetworkController
         {
             SocketState ss = (SocketState)ar.AsyncState;
             ss.theSocket.EndSend(ar);
+        }
+
+        public static void Disconnect(SocketState ss, bool reuse)
+        {
+            Networking.Disconnect(ss, reuse, ss.processorCallback);
+        }
+
+        public static void Disconnect(SocketState ss, bool reuse, SocketState.EventProccessor socketClosedHandler)
+        {
+            ss.processorCallback = socketClosedHandler;
+            ss.safeToSendRequest = false;
+            ss.theSocket.BeginDisconnect(reuse, DisconnectedCallback, ss);
+        }
+
+        private static void DisconnectedCallback(IAsyncResult ar)
+        {
+            SocketState ss = (SocketState)ar.AsyncState;
+            ss.theSocket.EndDisconnect(ar);
+
+            ss.processorCallback(ss);
         }
     }
 }

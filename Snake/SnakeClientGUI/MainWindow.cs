@@ -101,27 +101,23 @@ namespace SnakeClient
                     }
                 }
             }
-            if (!(Disposing || IsDisposed))
+            Invoke(new MethodInvoker(updateView));
+        }
+
+        private void updateView()
+        {
+            //Update game display
+            snakeDisplayPanel1.updatePanel(GameWorld, PlayerId);
+            //Update score panel
+            snakePlayerPanel1.UpdatePlayerNames(GameWorld, PlayerId);
+            //If we're dead, enable the spectate button.
+            if (!GameWorld.IsPlayerAlive(PlayerId))
             {
-                Invoke(new MethodInvoker(() =>
+                if (!spectateButton.Enabled)
                 {
-                    //Update game display
-                    snakeDisplayPanel1.updatePanel(GameWorld, PlayerId);
-                    //Update score panel
-                    snakePlayerPanel1.UpdatePlayerNames(GameWorld, PlayerId);
-                    //If we're dead, enable the spectate button.
-                    if (!GameWorld.IsPlayerAlive(PlayerId))
-                    {
-                        if (!spectateButton.Enabled)
-                        {
-                            spectateButton.Enabled = true;
-                        }
-                    }
-
-                }));
+                    spectateButton.Enabled = true;
+                }
             }
-
-            
         }
 
         private object parseJsonIntoGameModel(string json)
@@ -172,7 +168,18 @@ namespace SnakeClient
 
         private void MainWindow_FormClosing(object sender, FormClosingEventArgs e)
         {
-            clientNetworkController.closeConnection();
+            if (!clientNetworkController.isTheConnectionAlive())
+            {
+                return;
+            }
+
+            clientNetworkController.closeConnection(handleSocketClosed);
+            e.Cancel = true;
+        }
+
+        private void handleSocketClosed()
+        {
+            Invoke(new MethodInvoker(this.Close));
         }
 
         

@@ -13,6 +13,8 @@ namespace NetworkController
         public delegate void EventProccessor(SocketState aSocketState);
         public EventProccessor processorCallback;
 
+        public bool safeToSendRequest = false;
+
         public byte[] messageBuffer = new byte[1024];
         public StringBuilder stringGrowableBuffer = new StringBuilder();
 
