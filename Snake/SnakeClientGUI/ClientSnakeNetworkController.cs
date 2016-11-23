@@ -3,6 +3,7 @@ using NetworkController;
 using SnakeModel;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
@@ -22,8 +23,6 @@ namespace SnakeClient
         /// Indicates whether or not we have completed all the neccisary steps required to send movement connections.
         /// </summary>
         bool initialized = false;
-
-        bool closing = false;
 
         public struct InitData
         {
@@ -46,10 +45,30 @@ namespace SnakeClient
         public bool connectToServer(string hostname, string playerName, handleInitData handshakeCompletedHandler)
         {
             if (clientSocketState != null) { return false; }
-            Socket s = Networking.ConnectToNetworkNode(hostname, Networking.DEFAULT_PORT, (ss) => { handleNetworkNodeConnected(ss, playerName, handshakeCompletedHandler); });
-            return !ReferenceEquals(s, null);
-        }
+            Socket s = Networking.ConnectToNetworkNode(
+                hostname,
+                Networking.DEFAULT_PORT,
+                (ss) => { handleNetworkNodeConnected(ss, playerName, handshakeCompletedHandler); }
+                );
 
+            if(ReferenceEquals(s, null))
+            {
+                return false;
+            }
+
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            while (!s.Connected)
+            {
+                if (sw.ElapsedMilliseconds > 2000)
+                {
+                    s.Close();
+                    return false;
+                }
+            }
+
+            return true;
+        }
 
         private void handleNetworkNodeConnected(SocketState aSocketState, string playerName, handleInitData handshakeCompletedHandler)
         {

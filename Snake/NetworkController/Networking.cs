@@ -78,6 +78,7 @@ namespace NetworkController
                 return null;
             }
         }
+
         /// <summary>
         /// Connect to a server using the default port for this class.
         /// </summary>
@@ -86,8 +87,9 @@ namespace NetworkController
         /// <returns></returns>
         public static Socket ConnectToNetworkNode(string hostName, SocketState.EventProccessor nodeConnectedCallback)
         {
-            return Networking.ConnectToNetworkNode(hostName, Networking.DEFAULT_PORT, nodeConnectedCallback);
+            return Networking.ConnectToNetworkNode(hostName, Networking.DEFAULT_PORT,  nodeConnectedCallback);
         }
+
         /// <summary>
         /// The callback to use when we're finalizing the initial network connect.
         /// </summary>

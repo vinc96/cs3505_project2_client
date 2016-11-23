@@ -65,11 +65,15 @@ namespace SnakeClient
                 return;
             }
 
+
+            this.btnConnectToServer.Enabled = false;
             bool result = clientNetworkController.connectToServer(hostname, playerName, handleHandshakeSuccess);
 
             if (!result)
             {
                 MessageBox.Show("Unable To Connect To The Server");
+                this.btnConnectToServer.Enabled = true;
+                return;
             }
         }
 
@@ -78,7 +82,6 @@ namespace SnakeClient
             Invoke(new MethodInvoker(() => {
                 this.inpHostname.Enabled = false;
                 this.inpPlayerName.Enabled = false;
-                this.btnConnectToServer.Enabled = false;
                 this.snakeDisplayPanel1.Focus();
             }));
 
