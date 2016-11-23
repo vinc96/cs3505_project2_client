@@ -19,6 +19,9 @@ namespace NetworkController
 
         public bool safeToSendRequest = false;
 
+        public bool errorOccured = false;
+        public string errorMesssage;
+
         public byte[] messageBuffer = new byte[1024];
         public StringBuilder stringGrowableBuffer = new StringBuilder();
 

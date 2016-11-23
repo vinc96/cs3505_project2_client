@@ -36,7 +36,22 @@ namespace SnakeClient
             {
                 PlayerId = playerId;
                 WorldSize = new World.Dimensions(WorldWidth, WorldHeight);
+
+                ErrorOccured = false;
+                ErrorMessage = null;
             }
+
+            public InitData(string errorMessage)
+            {
+                ErrorOccured = true;
+                ErrorMessage = errorMessage;
+                PlayerId = -1;
+                WorldSize = new World.Dimensions(-1, -1);
+            }
+
+
+            public bool ErrorOccured { get; private set; }
+            public string ErrorMessage { get; private set; }
 
             public int PlayerId {get; private set; }
             public World.Dimensions WorldSize {get; private set; }
@@ -62,44 +77,35 @@ namespace SnakeClient
         /// <param name="hostname"></param>
         /// <param name="playerName"></param>
         /// <param name="handshakeCompletedHandler"></param>
-        /// <returns></returns>
-        public bool connectToServer(string hostname, string playerName, handleInitData handshakeCompletedHandler)
+        public void connectToServer(string hostname, string playerName, handleInitData handshakeCompletedHandler)
         {
-            if (clientSocketState != null) { return false; }
+            if (clientSocketState != null) { return; }
+
+            int connectedTimeout = 2500;
             Socket s = Networking.ConnectToNetworkNode(
                 hostname,
                 Networking.DEFAULT_PORT,
-                (ss) => { handleNetworkNodeConnected(ss, playerName, handshakeCompletedHandler); }
+                (ss) => { handleConnectedToServer(ss, playerName, handshakeCompletedHandler); },
+                connectedTimeout
                 );
-
-            if(ReferenceEquals(s, null))
-            {
-                return false;
-            }
-
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
-            while (!s.Connected)
-            {
-                if (sw.ElapsedMilliseconds > 2000)
-                {
-                    s.Close();
-                    return false;
-                }
-        }
-
-            return true;
         }
 
         /// <summary>
-        /// The method to use when we've connected to a node.
+        /// The method to use when we've connected to the Server.
         /// </summary>
         /// <param name="aSocketState"></param>
         /// <param name="playerName"></param>
         /// <param name="handshakeCompletedHandler"></param>
-        private void handleNetworkNodeConnected(SocketState aSocketState, string playerName, handleInitData handshakeCompletedHandler)
+        private void handleConnectedToServer(SocketState aSocketState, string playerName, handleInitData handshakeCompletedHandler)
         {
             clientSocketState = aSocketState;
+
+            if (aSocketState.errorOccured)
+            {
+                handshakeCompletedHandler(new InitData(aSocketState.errorMesssage));
+                closeConnection();
+                return;
+            }
 
             Networking.Send(aSocketState.theSocket, playerName + '\n');
             Networking.listenForData(aSocketState, (ss) => { worldSetupDataRecieved(ss, handshakeCompletedHandler); });
@@ -113,6 +119,13 @@ namespace SnakeClient
         {
             if (!isTheConnectionAlive())
             {
+                return;
+            }
+
+            if (aSocketState.errorOccured)
+            {
+                handshakeCompletedHandler(new InitData(aSocketState.errorMesssage));
+                closeConnection();
                 return;
             }
 
@@ -155,6 +168,14 @@ namespace SnakeClient
         {
             if (!isTheConnectionAlive())
             {
+                return;
+            }
+
+            if (aSocketState.errorOccured)
+            {
+                string[] errorStringArray = {"ERROR", aSocketState.errorMesssage}; 
+                dataReceivedHandler(errorStringArray);
+                closeConnection();
                 return;
             }
 

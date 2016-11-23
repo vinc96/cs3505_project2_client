@@ -88,14 +88,7 @@ namespace SnakeClient
 
 
             this.btnConnectToServer.Enabled = false;
-            bool result = clientNetworkController.connectToServer(hostname, playerName, handleHandshakeSuccess);
-
-            if (!result)
-            {
-                MessageBox.Show("Unable To Connect To The Server");
-                this.btnConnectToServer.Enabled = true;
-                return;
-            }
+            clientNetworkController.connectToServer(hostname, playerName, handleHandshakeSuccess);
         }
         /// <summary>
         /// A callback to handle a successful server connection.
@@ -103,6 +96,12 @@ namespace SnakeClient
         /// <param name="initData"></param>
         private void handleHandshakeSuccess(ClientSnakeNetworkController.InitData initData)
         {
+            if (initData.ErrorOccured)
+            {
+                Invoke(new MethodInvoker(() => { handleSocketError(initData.ErrorMessage); }));
+                return;
+            }
+
             Invoke(new MethodInvoker(() => {
                 this.inpHostname.Enabled = false;
                 this.inpPlayerName.Enabled = false;
@@ -120,7 +119,13 @@ namespace SnakeClient
         /// <param name="data"></param>
         private void recievedData(IList<string> data)
         {
-            foreach(string json in data)
+            if (data.FirstOrDefault() == "ERROR")
+            {
+                Invoke(new MethodInvoker(() => {handleSocketError(data[1]);}));
+                return;
+            }
+
+            foreach (string json in data)
             {
                 object gameObj = parseJsonIntoGameModel(json);
                 lock (GameWorld)
@@ -158,6 +163,14 @@ namespace SnakeClient
                     spectateButton.Enabled = true;
                 }
             }
+        }
+
+        private void handleSocketError(string message)
+        {
+            MessageBox.Show(message);
+            this.inpHostname.Enabled = true;
+            this.inpPlayerName.Enabled = true;
+            this.btnConnectToServer.Enabled = true;
         }
 
         private object parseJsonIntoGameModel(string json)

@@ -23,7 +23,7 @@ namespace NetworkController
         /// </summary>
         /// <param name="host_name"> server to connect to </param>
         /// <returns></returns>
-        public static Socket ConnectToNetworkNode(string hostName, int port, SocketState.EventProccessor nodeConnectedCallback)
+        public static Socket ConnectToNetworkNode(string hostName, int port, SocketState.EventProccessor nodeConnectedCallback, int timeoutMs = -1)
         {
             System.Diagnostics.Debug.WriteLine("connecting  to " + hostName);
 
@@ -68,13 +68,27 @@ namespace NetworkController
 
                 SocketState newSocketState = new SocketState(socket, nodeConnectedCallback);
 
-                socket.BeginConnect(ipAddress, port, Networking.ConnectedToNetworkNode, newSocketState);
+                IAsyncResult result = socket.BeginConnect(ipAddress, port, Networking.ConnectedToNetworkNode, newSocketState);
+
+                bool timedOut = !result.AsyncWaitHandle.WaitOne(timeoutMs, true);
+                if (timedOut)
+                {
+                    newSocketState.errorOccured = true;
+                    newSocketState.errorMesssage = "Timeout: Couldn't Connect With The Server";
+
+                    newSocketState.processorCallback(newSocketState);
+                    socket.Close();
+                }
 
                 return socket;
             }
             catch (Exception e)
             {
-                System.Diagnostics.Debug.WriteLine("Unable to connect to server. Error occured: " + e);
+                SocketState errorSocketState = new SocketState(null, nodeConnectedCallback);
+                errorSocketState.errorOccured = true;
+                errorSocketState.errorMesssage = e.Message;
+
+                errorSocketState.processorCallback(errorSocketState);
                 return null;
             }
         }
@@ -85,9 +99,9 @@ namespace NetworkController
         /// <param name="hostName"></param>
         /// <param name="nodeConnectedCallback"></param>
         /// <returns></returns>
-        public static Socket ConnectToNetworkNode(string hostName, SocketState.EventProccessor nodeConnectedCallback)
+        public static Socket ConnectToNetworkNode(string hostName, SocketState.EventProccessor nodeConnectedCallback, int timeoutMs = -1)
         {
-            return Networking.ConnectToNetworkNode(hostName, Networking.DEFAULT_PORT,  nodeConnectedCallback);
+            return Networking.ConnectToNetworkNode(hostName, Networking.DEFAULT_PORT,  nodeConnectedCallback, timeoutMs);
         }
 
         /// <summary>
@@ -105,7 +119,10 @@ namespace NetworkController
             }
             catch (Exception e)
             {
-                System.Diagnostics.Debug.WriteLine("Unable to connect to server. Error occured: " + e);
+                ss.errorOccured = true;
+                ss.errorMesssage = e.Message;
+
+                ss.processorCallback(ss);
                 return;
             }
 
@@ -130,7 +147,6 @@ namespace NetworkController
         /// <param name="dataRecievedCallback"></param>
         public static void listenForData(SocketState ss, SocketState.EventProccessor dataRecievedCallback)
         {
-
             if (!ss.safeToSendRequest) { return; }
 
             ss.processorCallback = dataRecievedCallback;
@@ -155,7 +171,20 @@ namespace NetworkController
                 return;
             }
 
-            int bytesRead = ss.theSocket.EndReceive(ar);
+            int bytesRead;
+            try
+            {
+                 bytesRead = ss.theSocket.EndReceive(ar);
+            }
+            catch (Exception e)
+            {
+                //If An Error Occurs Notify The Socket Owner
+                ss.errorOccured = true;
+                ss.errorMesssage = e.Message;
+
+                ss.processorCallback(ss);
+                return;
+            }
 
             // If the socket is still open
             if (bytesRead > 0)
@@ -268,6 +297,12 @@ namespace NetworkController
         /// <param name="socketClosedHandler"></param>
         public static void Disconnect(SocketState ss, bool reuse, SocketState.EventProccessor socketClosedHandler)
         {
+            if (!ss.theSocket.Connected)
+            {
+                socketClosedHandler(ss);
+                return;
+            }
+
             ss.processorCallback = socketClosedHandler;
             ss.safeToSendRequest = false;
             ss.theSocket.BeginDisconnect(reuse, DisconnectedCallback, ss);
