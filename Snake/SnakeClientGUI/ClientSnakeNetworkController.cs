@@ -228,7 +228,10 @@ namespace SnakeClient
         /// <param name="handleDisconnect"></param>
         private void socketDisconected(SocketState ss, handleSocketClosed handleDisconnect)
         {
-            ss.theSocket.Close();
+            if (ss.theSocket != null)
+            {
+                ss.theSocket.Close();
+            }
             handleDisconnect();
         }
     }

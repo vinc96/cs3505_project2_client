@@ -297,7 +297,7 @@ namespace NetworkController
         /// <param name="socketClosedHandler"></param>
         public static void Disconnect(SocketState ss, bool reuse, SocketState.EventProccessor socketClosedHandler)
         {
-            if (!ss.theSocket.Connected)
+            if (ss.theSocket == null || !ss.theSocket.Connected)
             {
                 socketClosedHandler(ss);
                 return;
