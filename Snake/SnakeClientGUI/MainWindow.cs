@@ -1,4 +1,5 @@
-﻿using SnakeModel;
+﻿///Written by Josh Christensen (u0978248) and Nathan Veillon (u0984669) 
+using SnakeModel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

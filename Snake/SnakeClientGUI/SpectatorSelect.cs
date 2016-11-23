@@ -1,4 +1,5 @@
-﻿using SnakeClient;
+﻿///Written by Josh Christensen (u0978248) and Nathan Veillon (u0984669) 
+using SnakeClient;
 using SnakeModel;
 using System;
 using System.Collections.Generic;
