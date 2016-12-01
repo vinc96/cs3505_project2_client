@@ -108,8 +108,12 @@ namespace SnakeClient
 
         internal void closeConnection()
         {
-            clientSocketState.theSocket.Disconnect(false);
-            clientSocketState.theSocket.Dispose();
+            //If we have a valid socket open, close it.
+            if (!ReferenceEquals(clientSocketState.theSocket, null))
+            {
+                clientSocketState.theSocket.Disconnect(false);
+                clientSocketState.theSocket.Dispose();
+            }
         }
     }
 
