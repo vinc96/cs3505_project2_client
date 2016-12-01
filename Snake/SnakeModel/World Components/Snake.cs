@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿///Written by Josh Christensen (u0978248) and Nathan Veillon (u0984669) 
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -8,15 +9,25 @@ using System.Threading.Tasks;
 
 namespace SnakeModel
 {
+    /// <summary>
+    /// A snake object corresponds to a snake in our game. Has methods to get length, color, name, location, etc.
+    /// </summary>
     [JsonObject(MemberSerialization.OptIn)]
-    public class Snake : IComparable<Snake> 
+    public class Snake
     {
+        /// <summary>
+        /// The ID of this snake. Assigned by the server, all snake IDs are unique in that server.
+        /// </summary>
         [JsonProperty]
         public int ID { get; private set; }
-
+        /// <summary>
+        /// The name of this snake. Set by the player.
+        /// </summary>
         [JsonProperty]
         public string name { get; private set;}
-
+        /// <summary>
+        /// The length of this snake. Corresponds to the the player's score.
+        /// </summary>
         public int length
         {
             get
@@ -44,7 +55,8 @@ namespace SnakeModel
 
         /// <summary>
         /// Returns a color for this snake, defined by this snake's ID. Two snakes with the same ID will have the same color. However, Two 
-        /// snakes with different IDs may have the same color, though unlikely (Essentially, the color is a modified Hash).
+        /// snakes with different IDs may have the same color, though extremely unlikely (color is derived from String's Hash function, which has pretty
+        /// good distribution).
         /// </summary>
         public Color Color {
             get {
@@ -59,7 +71,9 @@ namespace SnakeModel
         /// </summary>
         [JsonProperty]
         private List<Point> vertices;
-
+        /// <summary>
+        /// Creates a new Snake object. 
+        /// </summary>
         public Snake()
         {
             vertices = new List<Point>();
@@ -84,17 +98,13 @@ namespace SnakeModel
             //We can just return the point, as they're immutable.
             return vertices[vertices.Count - 1];
         }
-        //Returns the name and length of this snake in the following way: "(name): (length)"
+        /// <summary>
+        /// Returns the name and length of this snake in the following way: "(name): (length)"
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             return name + ": " + length;
         }
-
-        public int CompareTo(Snake other)
-        {
-            return length - other.length;
-        }
     }
-
-    
 }

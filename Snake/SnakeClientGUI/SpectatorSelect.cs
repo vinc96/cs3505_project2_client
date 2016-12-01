@@ -1,4 +1,5 @@
-﻿using SnakeClient;
+﻿///Written by Josh Christensen (u0978248) and Nathan Veillon (u0984669) 
+using SnakeClient;
 using SnakeModel;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,9 @@ using System.Windows.Forms;
 
 namespace SnakeClientGUI
 {
-   
+   /// <summary>
+   /// A form to select which snake to spectate.
+   /// </summary>
     public partial class SpectatorSelect : Form
     {
         /// <summary>

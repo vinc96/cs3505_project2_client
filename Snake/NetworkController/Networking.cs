@@ -1,4 +1,5 @@
-﻿using System;
+﻿///Written by Josh Christensen (u0978248) and Nathan Veillon (u0984669) 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,6 +11,9 @@ using System.Text.RegularExpressions;
 
 namespace NetworkController
 {
+    /// <summary>
+    /// A general class for networking using C# sockets.
+    /// </summary>
     static public class Networking
     {
         public static int DEFAULT_PORT = 11000;
@@ -19,7 +23,7 @@ namespace NetworkController
         /// </summary>
         /// <param name="host_name"> server to connect to </param>
         /// <returns></returns>
-        public static Socket ConnectToNetworkNode(string hostName, int port, SocketState.EventProccessor nodeConnectedCallback)
+        public static Socket ConnectToNetworkNode(string hostName, int port, SocketState.EventProccessor nodeConnectedCallback, int timeoutMs = -1)
         {
             System.Diagnostics.Debug.WriteLine("connecting  to " + hostName);
 
@@ -50,7 +54,7 @@ namespace NetworkController
                         return null;
                     }
                 }
-                catch (Exception e1)
+                catch (Exception)
                 {
                     // see if host name is actually an ipaddress, i.e., 155.99.123.456
                     System.Diagnostics.Debug.WriteLine("using IP");
@@ -64,22 +68,46 @@ namespace NetworkController
 
                 SocketState newSocketState = new SocketState(socket, nodeConnectedCallback);
 
-                socket.BeginConnect(ipAddress, port, Networking.ConnectedToNetworkNode, newSocketState);
+                IAsyncResult result = socket.BeginConnect(ipAddress, port, Networking.ConnectedToNetworkNode, newSocketState);
+
+                bool timedOut = !result.AsyncWaitHandle.WaitOne(timeoutMs, true);
+                if (timedOut)
+                {
+                    newSocketState.errorOccured = true;
+                    newSocketState.errorMesssage = "Timeout: Couldn't Connect With The Server";
+
+                    newSocketState.processorCallback(newSocketState);
+                    socket.Close();
+                }
 
                 return socket;
             }
             catch (Exception e)
             {
-                System.Diagnostics.Debug.WriteLine("Unable to connect to server. Error occured: " + e);
+                SocketState errorSocketState = new SocketState(null, nodeConnectedCallback);
+                errorSocketState.errorOccured = true;
+                errorSocketState.errorMesssage = e.Message;
+
+                errorSocketState.processorCallback(errorSocketState);
                 return null;
             }
         }
 
-        public static Socket ConnectToNetworkNode(string hostName, SocketState.EventProccessor nodeConnectedCallback)
+        /// <summary>
+        /// Connect to a server using the default port for this class.
+        /// </summary>
+        /// <param name="hostName"></param>
+        /// <param name="nodeConnectedCallback"></param>
+        /// <returns></returns>
+        public static Socket ConnectToNetworkNode(string hostName, SocketState.EventProccessor nodeConnectedCallback, int timeoutMs = -1)
         {
-            return Networking.ConnectToNetworkNode(hostName, Networking.DEFAULT_PORT, nodeConnectedCallback);
+            return Networking.ConnectToNetworkNode(hostName, Networking.DEFAULT_PORT,  nodeConnectedCallback, timeoutMs);
         }
 
+        /// <summary>
+        /// The callback to use when we're finalizing the initial network connect.
+        /// </summary>
+        /// <param name="ar"></param>
         private static void ConnectedToNetworkNode(IAsyncResult ar)
         {
             SocketState ss = (SocketState)ar.AsyncState;
@@ -91,20 +119,27 @@ namespace NetworkController
             }
             catch (Exception e)
             {
-                System.Diagnostics.Debug.WriteLine("Unable to connect to server. Error occured: " + e);
+                ss.errorOccured = true;
+                ss.errorMesssage = e.Message;
+
+                ss.processorCallback(ss);
                 return;
             }
+
+            ss.safeToSendRequest = true;
 
             // Call The Callback To Signal The Connection Is Complete
             ss.processorCallback(ss);
         }
-
+        /// <summary>
+        /// Listen for data, using the callback defined in the passed SocketState.
+        /// </summary>
+        /// <param name="ss"></param>
         public static void listenForData(SocketState ss)
         {
-            // Start listening for a message
-            // When a message arrives, handle it on a new thread with ReceiveCallback
-            ss.theSocket.BeginReceive(ss.messageBuffer, 0, ss.messageBuffer.Length, SocketFlags.None, Networking.ReceiveCallback, ss);
+            Networking.listenForData(ss, ss.processorCallback);
         }
+
         /// <summary>
         /// Listen for data, while explicitly defining what callback we should use when data is recieved.
         /// </summary>
@@ -112,15 +147,52 @@ namespace NetworkController
         /// <param name="dataRecievedCallback"></param>
         public static void listenForData(SocketState ss, SocketState.EventProccessor dataRecievedCallback)
         {
+            if (!ss.safeToSendRequest) { return; }
+
             ss.processorCallback = dataRecievedCallback;
-            Networking.listenForData(ss);
+
+            // Start listening for a message
+            // When a message arrives, handle it on a new thread with ReceiveCallback
+            try
+            {
+                ss.theSocket.BeginReceive(ss.messageBuffer, 0, ss.messageBuffer.Length, SocketFlags.None, Networking.ReceiveCallback, ss);
+            }
+            catch (Exception e)
+            {
+                //If An Error Occurs Notify The Socket Owner
+                ss.errorOccured = true;
+                ss.errorMesssage = e.Message;
+
+                ss.processorCallback(ss);
+                return;
+            }
         }
 
+        /// <summary>
+        /// The callback to use when we recieve data on the socket. Parcels the data out of our buffer and into 
+        /// the SocketState stringGrowableBuffer.
+        /// </summary>
+        /// <param name="ar"></param>
         private static void ReceiveCallback(IAsyncResult ar)
         {
+            
             SocketState ss = (SocketState)ar.AsyncState;
 
-            int bytesRead = ss.theSocket.EndReceive(ar);
+            int bytesRead;
+
+            try
+            {
+                bytesRead = ss.theSocket.EndReceive(ar);
+            }
+            catch (Exception e)
+            {
+                //If An Error Occurs Notify The Socket Owner
+                ss.errorOccured = true;
+                ss.errorMesssage = e.Message;
+
+                ss.processorCallback(ss);
+                return;
+            }
 
             // If the socket is still open
             if (bytesRead > 0)
@@ -200,6 +272,8 @@ namespace NetworkController
         /// <param name="data"> The Data To Send</param>
         public static void Send(Socket s, string data)
         {
+            if (!s.Connected) { return; }
+
             byte[] messageBytes = Encoding.UTF8.GetBytes(data);
             SocketState socketWrapper = new SocketState(s, (ss) => {});
             s.BeginSend(messageBytes, 0, messageBytes.Length, SocketFlags.None, Networking.SendCallback, socketWrapper);
@@ -213,6 +287,44 @@ namespace NetworkController
         {
             SocketState ss = (SocketState)ar.AsyncState;
             ss.theSocket.EndSend(ar);
+        }
+        /// <summary>
+        /// Disconnects the specified socket contained in the passed SocketState, using the processorCallback stored in the SocketState.
+        /// </summary>
+        /// <param name="ss"></param>
+        /// <param name="reuse"></param>
+        public static void Disconnect(SocketState ss, bool reuse)
+        {
+            Networking.Disconnect(ss, reuse, ss.processorCallback);
+        }
+        /// <summary>
+        /// Disconnects the specified socket contained in the passed SocketState, calling the passed handler when the socket closes.
+        /// </summary>
+        /// <param name="ss"></param>
+        /// <param name="reuse"></param>
+        /// <param name="socketClosedHandler"></param>
+        public static void Disconnect(SocketState ss, bool reuse, SocketState.EventProccessor socketClosedHandler)
+        {
+            if (ss.theSocket == null || !ss.theSocket.Connected)
+            {
+                socketClosedHandler(ss);
+                return;
+            }
+
+            ss.processorCallback = socketClosedHandler;
+            ss.safeToSendRequest = false;
+            ss.theSocket.BeginDisconnect(reuse, DisconnectedCallback, ss);
+        }
+        /// <summary>
+        /// The AsyncCallback that we use when disconnecting.
+        /// </summary>
+        /// <param name="ar"></param>
+        private static void DisconnectedCallback(IAsyncResult ar)
+        {
+            SocketState ss = (SocketState)ar.AsyncState;
+            ss.theSocket.EndDisconnect(ar);
+            
+            ss.processorCallback(ss);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿///Written by Josh Christensen (u0978248) and Nathan Veillon (u0984669) 
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,8 +15,14 @@ namespace SnakeModel
     [JsonObject(MemberSerialization.OptIn)]
     public class Point
     {
+        /// <summary>
+        /// The x coordinate of this point.
+        /// </summary>
         [JsonProperty]
         public int x { get; private set; }
+        /// <summary>
+        /// The y coordinate of this point.
+        /// </summary>
         [JsonProperty]
         public int y { get; private set; }
 

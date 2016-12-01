@@ -1,4 +1,5 @@
-﻿using SnakeModel;
+﻿///Written by Josh Christensen (u0978248) and Nathan Veillon (u0984669) 
+using SnakeModel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -14,13 +15,26 @@ using SnakeClientGUI;
 
 namespace SnakeClient
 {
+    /// <summary>
+    /// The main window of the snake client. 
+    /// </summary>
     public partial class MainWindow : Form
     {
+        /// <summary>
+        /// The network controller to recieve and send commands.
+        /// </summary>
         public ClientSnakeNetworkController clientNetworkController;
-
+        /// <summary>
+        /// The PlayerID that we're focusing on.
+        /// </summary>
         private int PlayerId;
+        /// <summary>
+        /// The game world to draw (and pull names from).
+        /// </summary>
         private World GameWorld;
-
+        /// <summary>
+        /// Creates a new MainWindow.
+        /// </summary>
         public MainWindow()
         {
             clientNetworkController = new ClientSnakeNetworkController();
@@ -36,7 +50,11 @@ namespace SnakeClient
             spectateButton.Text = "Spectating";
         }
 
-        ///On load, register our own PreviewKeyDown listener with every control on the form.
+        /// <summary>
+        /// On load, register our own PreviewKeyDown listener with every control on the form.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void MainWindow_Load(object sender, EventArgs e)
         {
 
@@ -46,7 +64,11 @@ namespace SnakeClient
             }
 
         }
-
+        /// <summary>
+        /// Executed when we hit the Connect button. Connects to a server.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void btnConnectToServer_Click(object sender, EventArgs e)
         {
             string hostname = inpHostname.Text;
@@ -54,23 +76,35 @@ namespace SnakeClient
 
             if (hostname == "")
             {
+                MessageBox.Show("The Server Hostname Cannot Be Blank");
                 return;
             }
 
             if (playerName == "")
             {
+                MessageBox.Show("The Player Name Cannot Be Blank");
                 return;
             }
-            spectateButton.Enabled = false;
+
+
+            this.btnConnectToServer.Enabled = false;
+            this.inpHostname.Enabled = false;
+            this.inpPlayerName.Enabled = false;
             clientNetworkController.connectToServer(hostname, playerName, handleHandshakeSuccess);
         }
-
+        /// <summary>
+        /// A callback to handle a successful server connection.
+        /// </summary>
+        /// <param name="initData"></param>
         private void handleHandshakeSuccess(ClientSnakeNetworkController.InitData initData)
         {
+            if (initData.ErrorOccured)
+            {
+                Invoke(new MethodInvoker(() => { handleSocketError(initData.ErrorMessage); }));
+                return;
+            }
+
             Invoke(new MethodInvoker(() => {
-                this.inpHostname.Enabled = false;
-                this.inpPlayerName.Enabled = false;
-                this.btnConnectToServer.Enabled = false;
                 this.snakeDisplayPanel1.Focus();
             }));
 
@@ -79,10 +113,19 @@ namespace SnakeClient
 
             clientNetworkController.startDataListenerLoop(recievedData);
         }
-
+        /// <summary>
+        /// Handle recieving data from the socket. Update the apropriate parts of the model.
+        /// </summary>
+        /// <param name="data"></param>
         private void recievedData(IList<string> data)
         {
-            foreach(string json in data)
+            if (data.FirstOrDefault() == "ERROR")
+            {
+                Invoke(new MethodInvoker(() => {handleSocketError(data[1]);}));
+                return;
+            }
+
+            foreach (string json in data)
             {
                 object gameObj = parseJsonIntoGameModel(json);
                 lock (GameWorld)
@@ -101,27 +144,34 @@ namespace SnakeClient
                     }
                 }
             }
-            if (!(Disposing || IsDisposed))
+            Invoke(new MethodInvoker(updateView));
+        }
+        /// <summary>
+        /// Updates the view. Called on a per-tick basis, whenever there's new data.
+        /// </summary>
+        private void updateView()
+        {
+            //Update game display
+            snakeDisplayPanel1.updatePanel(GameWorld, PlayerId);
+            //Update score panel
+            snakePlayerPanel1.UpdatePlayerNames(GameWorld, PlayerId);
+            //If we're dead, enable the spectate button.
+            if (!GameWorld.IsPlayerAlive(PlayerId))
             {
-                Invoke(new MethodInvoker(() =>
+                if (!spectateButton.Enabled)
                 {
-                    //Update game display
-                    snakeDisplayPanel1.updatePanel(GameWorld, PlayerId);
-                    //Update score panel
-                    snakePlayerPanel1.UpdatePlayerNames(GameWorld, PlayerId);
-                    //If we're dead, enable the spectate button.
-                    if (!GameWorld.IsPlayerAlive(PlayerId))
-                    {
-                        if (!spectateButton.Enabled)
-                        {
-                            spectateButton.Enabled = true;
-                        }
-                    }
-
-                }));
+                    spectateButton.Enabled = true;
+                }
             }
+        }
 
-            
+        private void handleSocketError(string message)
+        {
+            MessageBox.Show(message);
+            inpHostname.Enabled = true;
+            inpPlayerName.Enabled = true;
+            btnConnectToServer.Enabled = true;
+            spectateButton.Enabled = true;
         }
 
         private object parseJsonIntoGameModel(string json)
@@ -169,10 +219,27 @@ namespace SnakeClient
                 clientNetworkController.sendDirection(direction);
             }
         }
-
+        /// <summary>
+        /// When we start to close the form, start closing the connection to the server, with the settings to close the form when the socket is closed.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void MainWindow_FormClosing(object sender, FormClosingEventArgs e)
         {
-            clientNetworkController.closeConnection();
+            if (!clientNetworkController.isTheConnectionAlive())
+            {
+                return;
+            }
+
+            clientNetworkController.closeConnection(handleSocketClosed);
+            e.Cancel = true;
+        }
+        /// <summary>
+        /// A simple callback to close the window. Used as a callback when we're closing the socket.
+        /// </summary>
+        private void handleSocketClosed()
+        {
+            Invoke(new MethodInvoker(this.Close));
         }
 
         

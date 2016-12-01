@@ -1,4 +1,5 @@
-﻿using System;
+﻿///Written by Josh Christensen (u0978248) and Nathan Veillon (u0984669) 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
@@ -7,11 +8,29 @@ using System.Threading.Tasks;
 
 namespace NetworkController
 {
+    /// <summary>
+    /// A class to contain the state of a networking socket, including the socket itself, buffers, and callbacks.
+    /// </summary>
     public class SocketState
     {
         public Socket theSocket;
         public delegate void EventProccessor(SocketState aSocketState);
         public EventProccessor processorCallback;
+
+        public bool safeToSendRequest = false;
+
+        public bool _errorOccured = false;
+
+        public bool errorOccured {
+            get { return _errorOccured; }
+            set
+            {
+                safeToSendRequest = safeToSendRequest && !value;
+                _errorOccured = value;
+            }
+        }
+
+        public string errorMesssage;
 
         public byte[] messageBuffer = new byte[1024];
         public StringBuilder stringGrowableBuffer = new StringBuilder();

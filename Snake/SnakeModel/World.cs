@@ -1,4 +1,5 @@
-﻿using System;
+﻿///Written by Josh Christensen (u0978248) and Nathan Veillon (u0984669) 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,7 +23,9 @@ namespace SnakeModel
         /// A dictionary of all the food we have in the world with the key being the id of each piece food.
         /// </summary>
         private Dictionary<int, Food> food;
-
+        /// <summary>
+        /// An struct that keeps track of world dimensions. Immutable.
+        /// </summary>
         public struct Dimensions
         {
             public Dimensions(int x,  int y) {
@@ -116,7 +119,10 @@ namespace SnakeModel
             return sortedSnakes;
           
         }
-
+        /// <summary>
+        /// Returns the active food (food that has not yet been eaten)
+        /// </summary>
+        /// <returns></returns>
         public IEnumerable<Food> getActiveFood()
         {
             return food.Values;
