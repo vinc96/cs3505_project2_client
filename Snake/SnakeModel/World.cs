@@ -38,7 +38,8 @@ namespace SnakeModel
         /// </summary>
         public struct Dimensions
         {
-            public Dimensions(int x,  int y) {
+            public Dimensions(int x, int y)
+            {
                 X = x;
                 Y = y;
             }
@@ -75,7 +76,7 @@ namespace SnakeModel
                 {
                     //Read stuff, man. Parse it to the delegates of this struct when you've read it.
 
-                    
+
                 }
 
                 //REMOVE ONCE IMPLEMENTED. STUCK HERE TO PREVENT A COMPILER ERROR.
@@ -84,7 +85,7 @@ namespace SnakeModel
                 FoodDensity = 0;
                 SnakeRecycleRate = 0;
                 //Our default gamemode updates nothing.
-                OnTick = ()=> { };
+                OnTick = () => { };
             }
 
             public Dimensions BoardDimensions { get; private set; }
@@ -101,16 +102,16 @@ namespace SnakeModel
             /// food, a recycle rate of zero means that none of the snake turns into food. 
             /// </summary>
             public double SnakeRecycleRate { get; private set; }
-            
+
             /// <summary>
             /// What the game needs to do on a per-tick basis. Should be set to a method that moves snakes, updates food, and takes 
             /// care of other gamerule specific on tick behavior. Functionally defines the rules of the snake game.
             /// </summary>
             public Action OnTick { get; internal set; }
         }
-        
 
-        
+
+
         /// <summary>
         /// The worldSettings for this world. Null for client worlds, as they never have to do any world simulations. 
         /// </summary>
@@ -179,7 +180,7 @@ namespace SnakeModel
         {
             food[f.ID] = f;
 
-            Point foodLocation= f.loc;
+            Point foodLocation = f.loc;
             bool foodIsEaten = (foodLocation.x == -1) && (foodLocation.y == -1);
             if (foodIsEaten)
             {
@@ -202,13 +203,13 @@ namespace SnakeModel
         {
             //Create a new sorted list using snake length as a key (there will be duplicate keys, but we'll
             //always be enumerating over the Values anyway), defining the comparator to rank higher scores earler.
-            SortedList<int, Snake> sortedSnakes =  new SortedList<int, Snake>(Comparer<int>.Create((i,j) => { if (i == j) { return 1; } else { return j - i; } }));
+            SortedList<int, Snake> sortedSnakes = new SortedList<int, Snake>(Comparer<int>.Create((i, j) => { if (i == j) { return 1; } else { return j - i; } }));
             foreach (Snake s in getLiveSnakes())
             {
                 sortedSnakes.Add(s.length, s); //Poor complexity I know, but doesn't seem to adversely impact performance too badly (O(# of Snakes))
             }
             return sortedSnakes;
-          
+
         }
         /// <summary>
         /// Returns the active food (food that has not yet been eaten)
@@ -252,7 +253,7 @@ namespace SnakeModel
                 {
                     //Execute gamerule stuff we see fit to, based upon the defined rules of our server. 
                     worldSettings.OnTick();
-                } 
+                }
             }
         }
         /// <summary>
@@ -266,7 +267,7 @@ namespace SnakeModel
                 s.MoveHead(1);
             }
             CheckCollisions();
-            
+
         }
 
         /// <summary>
@@ -304,10 +305,8 @@ namespace SnakeModel
                     {
                         digestingSnakes.Add(snake);
                     }
+                }
             }
         }
-        
-
-        
     }
 }
