@@ -66,6 +66,8 @@ namespace SnakeModel
             private set {}
         }
 
+        
+
         /// <summary>
         /// All the verticies that make up this snake. Ordered from tail to head, where the last element in the list is the head, and the first is the tail.
         /// </summary>
@@ -105,6 +107,23 @@ namespace SnakeModel
         public override string ToString()
         {
             return name + ": " + length;
+        }
+        /// <summary>
+        /// Moves the head of the snake in the direction the snake is traveling, a distance equal to the distance specified.
+        /// </summary>
+        /// <param name="distance"></param>
+        internal void MoveHead(int distance)
+        {
+            throw new NotImplementedException();
+        }
+        /// <summary>
+        /// Returns true if is snake's head is coliding with the other snake, false otherwise.
+        /// </summary>
+        /// <param name="otherSnake"></param>
+        /// <returns></returns>
+        internal bool Collides(Snake otherSnake)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -54,10 +54,6 @@
       <Project>{7b2644b7-1617-4706-bc13-d531afb27e56}</Project>
       <Name>NetworkController</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Resources\Resources.csproj">
-      <Project>{f6928f2c-7dd5-40e0-847d-e28e7d547080}</Project>
-      <Name>Resources</Name>
-    </ProjectReference>
     <ProjectReference Include="..\SnakeModel\SnakeModel.csproj">
       <Project>{588f4608-86f7-4212-a675-81e833adbc51}</Project>
       <Name>SnakeModel</Name>
