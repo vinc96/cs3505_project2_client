@@ -48,7 +48,7 @@ namespace SnakeModel
             public int Y { get; private set; }
         }
 
-        private Dimensions Size;
+        public Dimensions Size { get; private set; }
 
         /// <summary>
         /// A WorldSettings object. Contains the settings for this game world,
@@ -307,6 +307,12 @@ namespace SnakeModel
                     }
                 }
             }
+        }
+
+        public string ToJson()
+        {
+            // Fill In Json Serialize Code
+            return "{}";
         }
     }
 }

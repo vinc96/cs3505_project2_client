@@ -16,14 +16,40 @@ namespace NetworkController
     /// </summary>
     static public class Networking
     {
-        public static int DEFAULT_PORT = 11000;
+        public const int DEFAULT_PORT = 11000;
+
+        public static TcpListener startListeningForTcpConnections(TcpListenerState.EventProcessor foundConnection, int port = DEFAULT_PORT)
+        {
+            TcpListener listener = new TcpListener(IPAddress.Any, port);
+            listener.Start();
+
+            TcpListenerState newListenerState = new TcpListenerState(listener, foundConnection);
+
+            listener.BeginAcceptSocket(foundTcpConnection, newListenerState);
+
+            return listener;
+        }
+        
+        private static void foundTcpConnection(IAsyncResult ar)
+        {
+            TcpListenerState ts = (TcpListenerState)ar.AsyncState;
+
+            Socket newSocket = ts.TheTcpListener.EndAcceptSocket(ar);
+
+            SocketState newSocketState = new SocketState(newSocket, (ss) => { });
+
+            ts.TheCallback(newSocketState);
+            
+            // Starts Listening For Connections
+            ts.TheTcpListener.BeginAcceptSocket(foundTcpConnection, ts);
+        }
 
         /// <summary>
         /// Start attempting to connect to the server
         /// </summary>
         /// <param name="host_name"> server to connect to </param>
         /// <returns></returns>
-        public static Socket ConnectToNetworkNode(string hostName, int port, SocketState.EventProccessor nodeConnectedCallback, int timeoutMs = -1)
+        public static Socket ConnectToNetworkNode(string hostName, SocketState.EventProcessor nodeConnectedCallback, int port = DEFAULT_PORT, int timeoutMs = -1)
         {
             System.Diagnostics.Debug.WriteLine("connecting  to " + hostName);
 
@@ -73,10 +99,10 @@ namespace NetworkController
                 bool timedOut = !result.AsyncWaitHandle.WaitOne(timeoutMs, true);
                 if (timedOut)
                 {
-                    newSocketState.errorOccured = true;
-                    newSocketState.errorMesssage = "Timeout: Couldn't Connect With The Server";
+                    newSocketState.ErrorOccured = true;
+                    newSocketState.ErrorMesssage = "Timeout: Couldn't Connect With The Server";
 
-                    newSocketState.processorCallback(newSocketState);
+                    newSocketState.TheCallback(newSocketState);
                     socket.Close();
                 }
 
@@ -85,10 +111,10 @@ namespace NetworkController
             catch (Exception e)
             {
                 SocketState errorSocketState = new SocketState(null, nodeConnectedCallback);
-                errorSocketState.errorOccured = true;
-                errorSocketState.errorMesssage = e.Message;
+                errorSocketState.ErrorOccured = true;
+                errorSocketState.ErrorMesssage = e.Message;
 
-                errorSocketState.processorCallback(errorSocketState);
+                errorSocketState.TheCallback(errorSocketState);
                 return null;
             }
         }
@@ -99,9 +125,9 @@ namespace NetworkController
         /// <param name="hostName"></param>
         /// <param name="nodeConnectedCallback"></param>
         /// <returns></returns>
-        public static Socket ConnectToNetworkNode(string hostName, SocketState.EventProccessor nodeConnectedCallback, int timeoutMs = -1)
+        public static Socket ConnectToNetworkNode(string hostName, SocketState.EventProcessor nodeConnectedCallback, int timeoutMs = -1)
         {
-            return Networking.ConnectToNetworkNode(hostName, Networking.DEFAULT_PORT,  nodeConnectedCallback, timeoutMs);
+            return Networking.ConnectToNetworkNode(hostName, nodeConnectedCallback, Networking.DEFAULT_PORT, timeoutMs);
         }
 
         /// <summary>
@@ -115,21 +141,21 @@ namespace NetworkController
             try
             {
                 // Complete the connection.
-                ss.theSocket.EndConnect(ar);
+                ss.TheSocket.EndConnect(ar);
             }
             catch (Exception e)
             {
-                ss.errorOccured = true;
-                ss.errorMesssage = e.Message;
+                ss.ErrorOccured = true;
+                ss.ErrorMesssage = e.Message;
 
-                ss.processorCallback(ss);
+                ss.TheCallback(ss);
                 return;
             }
 
-            ss.safeToSendRequest = true;
+            ss.SafeToSendRequest = true;
 
             // Call The Callback To Signal The Connection Is Complete
-            ss.processorCallback(ss);
+            ss.TheCallback(ss);
         }
         /// <summary>
         /// Listen for data, using the callback defined in the passed SocketState.
@@ -137,7 +163,7 @@ namespace NetworkController
         /// <param name="ss"></param>
         public static void listenForData(SocketState ss)
         {
-            Networking.listenForData(ss, ss.processorCallback);
+            Networking.listenForData(ss, ss.TheCallback);
         }
 
         /// <summary>
@@ -145,25 +171,25 @@ namespace NetworkController
         /// </summary>
         /// <param name="ss"></param>
         /// <param name="dataRecievedCallback"></param>
-        public static void listenForData(SocketState ss, SocketState.EventProccessor dataRecievedCallback)
+        public static void listenForData(SocketState ss, SocketState.EventProcessor dataRecievedCallback)
         {
-            if (!ss.safeToSendRequest) { return; }
+            if (!ss.SafeToSendRequest) { return; }
 
-            ss.processorCallback = dataRecievedCallback;
+            ss.TheCallback = dataRecievedCallback;
 
             // Start listening for a message
             // When a message arrives, handle it on a new thread with ReceiveCallback
             try
             {
-                ss.theSocket.BeginReceive(ss.messageBuffer, 0, ss.messageBuffer.Length, SocketFlags.None, Networking.ReceiveCallback, ss);
+                ss.TheSocket.BeginReceive(ss.MessageBuffer, 0, ss.MessageBuffer.Length, SocketFlags.None, Networking.ReceiveCallback, ss);
             }
             catch (Exception e)
             {
                 //If An Error Occurs Notify The Socket Owner
-                ss.errorOccured = true;
-                ss.errorMesssage = e.Message;
+                ss.ErrorOccured = true;
+                ss.ErrorMesssage = e.Message;
 
-                ss.processorCallback(ss);
+                ss.TheCallback(ss);
                 return;
             }
         }
@@ -182,30 +208,30 @@ namespace NetworkController
 
             try
             {
-                bytesRead = ss.theSocket.EndReceive(ar);
+                bytesRead = ss.TheSocket.EndReceive(ar);
             }
             catch (Exception e)
             {
                 //If An Error Occurs Notify The Socket Owner
-                ss.errorOccured = true;
-                ss.errorMesssage = e.Message;
+                ss.ErrorOccured = true;
+                ss.ErrorMesssage = e.Message;
 
-                ss.processorCallback(ss);
+                ss.TheCallback(ss);
                 return;
             }
 
             // If the socket is still open
             if (bytesRead > 0)
             {
-                lock (ss.stringGrowableBuffer)
+                lock (ss.StringGrowableBuffer)
                 {
-                    string theMessage = Encoding.UTF8.GetString(ss.messageBuffer, 0, bytesRead);
+                    string theMessage = Encoding.UTF8.GetString(ss.MessageBuffer, 0, bytesRead);
                     // Append the received data to the growable buffer.
                     // It may be an incomplete message, so we need to start building it up piece by piece
-                    ss.stringGrowableBuffer.Append(theMessage);
+                    ss.StringGrowableBuffer.Append(theMessage);
                 }
 
-                ss.processorCallback(ss);
+                ss.TheCallback(ss);
             }
         }
 
@@ -221,7 +247,7 @@ namespace NetworkController
 
             // Loop until we have processed all messages.
             // We may have received more than one.
-            string totalData = ss.stringGrowableBuffer.ToString();
+            string totalData = ss.StringGrowableBuffer.ToString();
             foreach (string p in Regex.Split(totalData, @"(?<=[" + terminator + "])"))
             {
                 // Ignore empty strings added by the regex splitter
@@ -236,9 +262,9 @@ namespace NetworkController
                 messages.Add(p.TrimEnd(terminator));
 
                 // Then remove it from the SocketState's growable buffer
-                lock (ss.stringGrowableBuffer)
+                lock (ss.StringGrowableBuffer)
                 {
-                    ss.stringGrowableBuffer.Remove(0, p.Length);
+                    ss.StringGrowableBuffer.Remove(0, p.Length);
                 }
             }
 
@@ -253,15 +279,15 @@ namespace NetworkController
         /// <param name="terminator"></param>
         public static void resetGrowableBufferWithMessagesSeperatedByCharacter(SocketState ss, IList<string> messages,  Char terminator)
         {
-            string currentStringsInBuffer = ss.stringGrowableBuffer.ToString();
+            string currentStringsInBuffer = ss.StringGrowableBuffer.ToString();
 
-            lock(ss.stringGrowableBuffer){
-                ss.stringGrowableBuffer.Clear();
+            lock(ss.StringGrowableBuffer){
+                ss.StringGrowableBuffer.Clear();
 
                 foreach (string s in messages)
-                    ss.stringGrowableBuffer.Append(s + terminator);
+                    ss.StringGrowableBuffer.Append(s + terminator);
 
-                ss.stringGrowableBuffer.Append(currentStringsInBuffer);
+                ss.StringGrowableBuffer.Append(currentStringsInBuffer);
             }
         }
 
@@ -286,7 +312,7 @@ namespace NetworkController
         private static void SendCallback(IAsyncResult ar)
         {
             SocketState ss = (SocketState)ar.AsyncState;
-            ss.theSocket.EndSend(ar);
+            ss.TheSocket.EndSend(ar);
         }
         /// <summary>
         /// Disconnects the specified socket contained in the passed SocketState, using the processorCallback stored in the SocketState.
@@ -295,7 +321,7 @@ namespace NetworkController
         /// <param name="reuse"></param>
         public static void Disconnect(SocketState ss, bool reuse)
         {
-            Networking.Disconnect(ss, reuse, ss.processorCallback);
+            Networking.Disconnect(ss, reuse, ss.TheCallback);
         }
         /// <summary>
         /// Disconnects the specified socket contained in the passed SocketState, calling the passed handler when the socket closes.
@@ -303,17 +329,17 @@ namespace NetworkController
         /// <param name="ss"></param>
         /// <param name="reuse"></param>
         /// <param name="socketClosedHandler"></param>
-        public static void Disconnect(SocketState ss, bool reuse, SocketState.EventProccessor socketClosedHandler)
+        public static void Disconnect(SocketState ss, bool reuse, SocketState.EventProcessor socketClosedHandler)
         {
-            if (ss.theSocket == null || !ss.theSocket.Connected)
+            if (ss.TheSocket == null || !ss.TheSocket.Connected)
             {
                 socketClosedHandler(ss);
                 return;
             }
 
-            ss.processorCallback = socketClosedHandler;
-            ss.safeToSendRequest = false;
-            ss.theSocket.BeginDisconnect(reuse, DisconnectedCallback, ss);
+            ss.TheCallback = socketClosedHandler;
+            ss.SafeToSendRequest = false;
+            ss.TheSocket.BeginDisconnect(reuse, DisconnectedCallback, ss);
         }
         /// <summary>
         /// The AsyncCallback that we use when disconnecting.
@@ -322,9 +348,9 @@ namespace NetworkController
         private static void DisconnectedCallback(IAsyncResult ar)
         {
             SocketState ss = (SocketState)ar.AsyncState;
-            ss.theSocket.EndDisconnect(ar);
+            ss.TheSocket.EndDisconnect(ar);
             
-            ss.processorCallback(ss);
+            ss.TheCallback(ss);
         }
     }
 }

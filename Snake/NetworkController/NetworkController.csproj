@@ -40,6 +40,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="NetworkingState.cs" />
+    <Compile Include="TcpListenerState.cs" />
     <Compile Include="Networking.cs" />
     <Compile Include="SocketState.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
