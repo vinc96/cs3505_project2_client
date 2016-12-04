@@ -38,6 +38,8 @@ namespace NetworkController
 
             SocketState newSocketState = new SocketState(newSocket, (ss) => { });
 
+            newSocketState.SafeToSendRequest = true;
+
             ts.TheCallback(newSocketState);
             
             // Starts Listening For Connections
