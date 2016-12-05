@@ -19,7 +19,7 @@ namespace SnakeModel
         /// <summary>
         /// A dictionary of all active snakes with the key being the id of each snake.
         /// </summary>
-        private Dictionary<int, Snake> snakes;
+        private Dictionary<int, Snake> liveSnakes;
 
         /// <summary>
         /// A list of all snakes that are in the process of dying. Should be populated and cleared inside of an OnTick call.
@@ -118,6 +118,15 @@ namespace SnakeModel
         private WorldSettings worldSettings;
 
         /// <summary>
+        /// The Random object for this world. Used to determine where snakes are placed, as well as food distribution.
+        /// </summary>
+        private Random random;
+        /// <summary>
+        /// An instance variable used to determine the next distributed ID for snakes or food.
+        /// </summary>
+        private int nextID;
+
+        /// <summary>
         /// Creates a new World object of the given dimensions
         /// </summary>
         /// <param name="snakes"></param>
@@ -125,9 +134,10 @@ namespace SnakeModel
         public World(int width, int height)
         {
             // Snakes And Food Should Be Empty When The World Is Made
-            snakes = new Dictionary<int, Snake>();
+            liveSnakes = new Dictionary<int, Snake>();
             food = new Dictionary<int, Food>();
             Size = new Dimensions(width, height);
+            random = new Random();
         }
         /// <summary>
         /// Creates a world that's suitable for simulating game behavior.
@@ -153,7 +163,7 @@ namespace SnakeModel
         /// <returns></returns>
         public bool IsPlayerAlive(int playerID)
         {
-            return snakes.ContainsKey(playerID);
+            return liveSnakes.ContainsKey(playerID);
         }
 
         /// <summary>
@@ -162,13 +172,13 @@ namespace SnakeModel
         /// <param name="s">The Snake To Add, Update Or Remove From The Game World</param>
         public void updateWorldSnakes(Snake s)
         {
-            snakes[s.ID] = s;
+            liveSnakes[s.ID] = s;
 
             Point snakeHead = s.getHead();
             bool snakeIsDead = (snakeHead.x == -1) && (snakeHead.y == -1);
             if (snakeIsDead)
             {
-                snakes.Remove(s.ID);
+                liveSnakes.Remove(s.ID);
             }
         }
 
@@ -193,7 +203,7 @@ namespace SnakeModel
         /// <returns></returns>
         public IEnumerable<Snake> getLiveSnakes()
         {
-            return snakes.Values;
+            return liveSnakes.Values;
         }
         /// <summary>
         /// Return the snakes, ordered by score from highest to lowest. 
@@ -228,9 +238,9 @@ namespace SnakeModel
         /// <returns></returns>
         public Snake getSnakeByID(int playerID)
         {
-            if (snakes.Keys.Contains(playerID))
+            if (liveSnakes.Keys.Contains(playerID))
             {
-                return snakes[playerID];
+                return liveSnakes[playerID];
             }
             else
             {
@@ -262,13 +272,16 @@ namespace SnakeModel
         /// </summary>
         private void DefaultGameRulesOnTick()
         {
-            foreach (Snake s in snakes.Values)
+            foreach (Snake s in liveSnakes.Values)
             {
                 s.MoveHead(1);
             }
             CheckCollisions();
+            HandleDeath(); //Death and eating should be mutually exclusive. 
 
         }
+
+        
 
         /// <summary>
         ///Checks to see if a snake collides with either food or another snake. Takes the proper actions depending on what we colided with. 
@@ -276,10 +289,10 @@ namespace SnakeModel
         /// </summary>
         private void CheckCollisions()
         {
-            foreach (Snake snake in snakes.Values)
+            foreach (Snake snake in liveSnakes.Values)
             {
                 //Check to see if we're colliding with any snakes
-                foreach (Snake otherSnake in snakes.Values)
+                foreach (Snake otherSnake in liveSnakes.Values)
                 {
                     if (snake.Equals(otherSnake)) //We can't collide with ourselves
                     {
@@ -287,14 +300,14 @@ namespace SnakeModel
                     }
                     else if (otherSnake.getHead().Equals(snake.getHead()))
                     {
-                        dyingSnakes.Add(otherSnake); //If the snakes collide, kill both and break
+                        dyingSnakes.Add(otherSnake); //If the snakes collide, kill both and continue
                         dyingSnakes.Add(snake);
-                        break;
+                        continue;
                     }
                     else if (snake.Collides(otherSnake))
                     {
-                        dyingSnakes.Add(snake); //If this snake is colliding with the other snake, this snake dies. Then break.
-                        break;
+                        dyingSnakes.Add(snake); //If this snake is colliding with the other snake, this snake dies. Then continue.
+                        continue;
                     }
 
                 }
@@ -307,6 +320,77 @@ namespace SnakeModel
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// If a snake is in the dyingSnakes set, turn it into food and remove it from the liveSnakes set.
+        /// </summary>
+        private void HandleDeath()
+        {
+            
+            foreach (Snake dyingSnake in dyingSnakes)
+            {
+                //Place the food randomly where the snake is.
+                int foodAmount = (int) (dyingSnake.length * worldSettings.SnakeRecycleRate);
+                int[] foodOffsets = new int[foodAmount];
+                //Generate the offsets from the tail at which we're placing food
+                for(int i = 0; i < foodOffsets.Length; i++)
+                {
+                    int foodOffset;
+
+                    while (true)
+                    {
+                        foodOffset = random.Next(dyingSnake.length);
+                        if (foodOffsets.Contains(foodOffset))
+                        {
+                            continue; //If we're already planning to place food here, reroll the number.
+                        }
+                        else
+                        {
+                            //Otherwise, add this to the list of offsets, and break.
+                            foodOffsets[i] = foodOffset;
+                            break;
+                        }
+                    }
+                    
+                }
+                //Go through the snake's verticies, placing food.
+
+                Point[] snakePoints = dyingSnake.getAllPoints().ToArray();
+                for (int i = 0; i < snakePoints.Length; i++)
+                {
+                    if (foodOffsets.Contains(i))
+                    {
+                        Food f = new Food(GetNextFoodID(), snakePoints[i]);
+                        food.Add(f.ID, f);
+                    }
+                }
+
+                //Remove the snake from the liveSnakes set.
+                liveSnakes.Remove(dyingSnake.ID);
+            }
+        }
+
+        /// <summary>
+        /// Returns an unsude ID for use in assigning IDs to food.
+        /// </summary>
+        /// <returns></returns>
+        private int GetNextFoodID()
+        {
+            //Food and Snake IDs draw from same pool of IDs. Not by spec, but doesn't contradict current spec either.
+            nextID++;
+            return nextID;
+        }
+
+        /// <summary>
+        /// Returns an unused ID for use in assigning IDs to snakes. 
+        /// </summary>
+        /// <returns></returns>
+        private int GetNextSnakeID()
+        {
+            //Food and Snake IDs draw from same pool of IDs. Not by spec, but doesn't contradict current spec either.
+            nextID++;
+            return nextID; 
         }
 
         public string ToJson()
