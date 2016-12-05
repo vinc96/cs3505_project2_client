@@ -58,5 +58,26 @@ namespace SnakeModel
                 return this.y;
             }
         }
+
+        /// <summary>
+        /// Our special implemementation of the Equals method. Returns true if the two points have the same coordinates.
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public override bool Equals(object obj)
+        {
+            //If the object is null, then we aren't equal.
+            if (ReferenceEquals(obj, null))
+            {
+                return false;
+            }
+            //If the object isn't a point, then we aren't equal
+            if (!obj.GetType().Equals(typeof(Point)))
+            {
+                return false;
+            }
+            Point otherPoint = (Point) obj; //It's safe to assume that this is a point now.
+            return (this.x == otherPoint.x && this.y == otherPoint.y);//Points are equal if their locations are the same.
+        }
     }
 }
