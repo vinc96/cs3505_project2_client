@@ -15,6 +15,7 @@ namespace SnakeModel
     [JsonObject(MemberSerialization.OptIn)]
     public class Snake
     {
+        public enum Direction { UP = 1, RIGHT = 2,DOWN = 3,LEFT = 4}
         /// <summary>
         /// The ID of this snake. Assigned by the server, all snake IDs are unique in that server.
         /// </summary>
@@ -25,6 +26,16 @@ namespace SnakeModel
         /// </summary>
         [JsonProperty]
         public string name { get; private set; }
+
+        /// <summary>
+        /// All the verticies that make up this snake. Ordered from tail to head, where the last element in the list is the head, and the first is the tail.
+        /// </summary>
+        [JsonProperty]
+        private List<Point> vertices;
+        /// <summary>
+        /// The direction this snake is traveling. 
+        /// </summary>
+        public Direction direction { get; set; } 
         /// <summary>
         /// The length of this snake. Corresponds to the the player's score.
         /// </summary>
@@ -68,13 +79,6 @@ namespace SnakeModel
             private set { }
         }
 
-
-
-        /// <summary>
-        /// All the verticies that make up this snake. Ordered from tail to head, where the last element in the list is the head, and the first is the tail.
-        /// </summary>
-        [JsonProperty]
-        private List<Point> vertices;
         /// <summary>
         /// Creates a new Snake object. 
         /// </summary>
@@ -164,12 +168,25 @@ namespace SnakeModel
             return name + ": " + length;
         }
         /// <summary>
-        /// Moves the head of the snake in the direction the snake is traveling, a distance equal to the distance specified.
+        /// Moves the head of the snake one cell in the direction the snake is traveling.
         /// </summary>
-        /// <param name="distance"></param>
-        internal void MoveHead(int distance)
+        internal void MoveHead()
         {
-            throw new NotImplementedException();
+            switch (direction)
+            {
+                case Direction.UP:
+                    vertices[vertices.Count] = new Point(vertices[vertices.Count].x, vertices[vertices.Count].y - 1);
+                    break;
+                case Direction.DOWN:
+                    vertices[vertices.Count] = new Point(vertices[vertices.Count].x, vertices[vertices.Count].y + 1);
+                    break;
+                case Direction.LEFT:
+                    vertices[vertices.Count] = new Point(vertices[vertices.Count].x - 1, vertices[vertices.Count].y);
+                    break;
+                case Direction.RIGHT:
+                    vertices[vertices.Count] = new Point(vertices[vertices.Count].x + 1, vertices[vertices.Count].y);
+                    break;
+            }
         }
         /// <summary>
         /// Returns true if this snake's head is coliding with the other snake, false otherwise.
@@ -186,6 +203,13 @@ namespace SnakeModel
                 }
             }
             return false;
+        }
+        /// <summary>
+        /// Retracts the tail of the snake 1 cell.
+        /// </summary>
+        internal void RetractTail()
+        {
+            vertices[0] = getAllPoints().ElementAt(1); //The tail is now the point directly after the tail.
         }
     }
 }
