@@ -35,7 +35,22 @@ namespace SnakeModel
         /// <summary>
         /// The direction this snake is traveling. 
         /// </summary>
-        public Direction direction { get; set; } 
+        public Direction direction {
+            get
+            {
+                return _direction;
+            }
+
+            set
+            {
+                if ((int)value%2 != (int)_direction%2)
+                {
+                    _direction = value; //If both directions are odd/even, then they are opposing. 
+                }
+                    
+            }
+        }
+        private Direction _direction;
         /// <summary>
         /// The length of this snake. Corresponds to the the player's score.
         /// </summary>
@@ -80,12 +95,13 @@ namespace SnakeModel
         }
 
         /// <summary>
-        /// Creates a new Snake object. 
+        /// Creates a new Snake object. Used for deserialization 
         /// </summary>
         public Snake()
         {
             vertices = new List<Point>();
         }
+
         /// <summary>
         /// Creates a new snake object with the specified ID, name, head and direciton. The snake object will have it's head in the specified location, 
         /// traveling in the specified direction, and will consist of one segment of specified length extending in the opposite direction that we're traveling in.
@@ -190,6 +206,7 @@ namespace SnakeModel
             //We can just return the point, as they're immutable.
             return vertices[vertices.Count - 1];
         }
+
         /// <summary>
         /// Returns the name and length of this snake in the following way: "(name): (length)"
         /// </summary>
@@ -198,6 +215,7 @@ namespace SnakeModel
         {
             return name + ": " + length;
         }
+
         /// <summary>
         /// Moves the head of the snake one cell in the direction the snake is traveling.
         /// </summary>
@@ -219,6 +237,7 @@ namespace SnakeModel
                     break;
             }
         }
+
         /// <summary>
         /// Returns true if this snake's head is coliding with the other snake, false otherwise.
         /// </summary>
@@ -235,6 +254,7 @@ namespace SnakeModel
             }
             return false;
         }
+
         /// <summary>
         /// Retracts the tail of the snake 1 cell.
         /// </summary>

@@ -51,68 +51,6 @@ namespace SnakeModel
         public Dimensions Size { get; private set; }
 
         /// <summary>
-        /// A WorldSettings object. Contains the settings for this game world,
-        /// parsed from a settings.xml file with the following layout:
-        /// <SnakeSettings>
-        ///     <BoardWidth>Width of the board, in cells</BoardWidth>
-        ///     <BoardHeight>Height of the board, in cells</BoardHeight>
-        ///     <MSPerFrame>Milliseconds per Frame</MSPerFrame>
-        ///     <FoodDensity>Food per Snake</FoodDensity>
-        ///     <SnakeRecycleRate>Snake recycle rate</SnakeRecycleRate>
-        /// </SnakeSettings>
-        /// </summary>
-        public struct WorldSettings
-        {
-            /// <summary>
-            /// Creates a new WorldSettings object read from the specified filepath, 
-            /// throws a relevant IOException if there's a problem finding/reading the file.
-            /// </summary>
-            /// <param name="filePath"></param>
-            public WorldSettings(string filePath)
-            {
-                XmlReaderSettings settings = new XmlReaderSettings();
-                settings.IgnoreWhitespace = true;
-                using (XmlReader reader = new XmlTextReader(filePath))
-                {
-                    //Read stuff, man. Parse it to the delegates of this struct when you've read it.
-
-
-                }
-
-                //REMOVE ONCE IMPLEMENTED. STUCK HERE TO PREVENT A COMPILER ERROR.
-                BoardDimensions = new Dimensions(0, 0);
-                MSPerFrame = 0;
-                FoodDensity = 0;
-                SnakeRecycleRate = 0;
-                //Our default gamemode updates nothing.
-                OnGameUpdate = () => { };
-            }
-
-            public Dimensions BoardDimensions { get; private set; }
-            /// <summary>
-            /// The period at which we run game GameUpdates. 
-            /// </summary>
-            public int MSPerFrame { get; private set; }
-            /// <summary>
-            /// The number of food items that spawn per snake connected to the server.
-            /// </summary>
-            public int FoodDensity { get; private set; }
-            /// <summary>
-            /// The percentage rate at which snakes are recycled into food. A recycle rate of 1 means that the entire snake becomes
-            /// food, a recycle rate of zero means that none of the snake turns into food. 
-            /// </summary>
-            public double SnakeRecycleRate { get; private set; }
-
-            /// <summary>
-            /// What the game needs to do on a per-GameUpdate basis. Should be set to a method that moves snakes, updates food, and takes 
-            /// care of other gamerule specific on GameUpdate behavior. Functionally defines the rules of the snake game.
-            /// </summary>
-            public Action OnGameUpdate { get; internal set; }
-        }
-
-
-
-        /// <summary>
         /// The worldSettings for this world. Null for client worlds, as they never have to do any world simulations. 
         /// </summary>
         private WorldSettings worldSettings;

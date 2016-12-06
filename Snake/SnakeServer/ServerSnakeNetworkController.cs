@@ -82,7 +82,7 @@ namespace SnakeServer
                 Console.WriteLine(client.ErrorMesssage);
             }
 
-            if (client.SafeToSendRequest)
+            if (!client.SafeToSendRequest)
             {
                 lock (clients)
                 {
