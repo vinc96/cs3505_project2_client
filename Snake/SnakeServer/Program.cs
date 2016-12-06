@@ -17,8 +17,6 @@ namespace SnakeServer
 
             networkingController.startListeningForClients(getInitDataForNewClients, handleRecievedDataFromClient);
 
-
-
             //Take input, and just ignore it.
             while (true)
             {

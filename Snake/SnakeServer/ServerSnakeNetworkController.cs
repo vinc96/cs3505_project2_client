@@ -16,7 +16,6 @@ namespace SnakeServer
     /// </summary>
     public class ServerSnakeNetworkController
     {
-
         TcpListener theTcpListener;
         IList<SocketState> clients;
 
@@ -78,6 +77,19 @@ namespace SnakeServer
 
         public void receiveDataAndStartListeningForMoreData(SocketState client, handleDataReceived dataReceivedHandler)
         {
+            if (client.ErrorOccured)
+            {
+                Console.WriteLine(client.ErrorMesssage);
+            }
+
+            if (client.SafeToSendRequest)
+            {
+                lock (clients)
+                {
+                    clients.Remove(client);
+                }
+                return;
+            }
 
             IList<string> data = Networking.getMessageStringsFromBufferSeperatedByCharacter(client, '\n');
 

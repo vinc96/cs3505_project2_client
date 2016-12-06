@@ -222,6 +222,13 @@ namespace NetworkController
                 return;
             }
 
+            // socket wants to be closed
+            if(bytesRead == 0)
+            {
+                Disconnect(ss, false);
+                return;
+            }
+
             // If the socket is still open
             if (bytesRead > 0)
             {
