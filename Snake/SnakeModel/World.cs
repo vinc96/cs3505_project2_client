@@ -22,17 +22,17 @@ namespace SnakeModel
         private Dictionary<int, Snake> liveSnakes;
 
         /// <summary>
-        /// A list of all snakes that are in the process of dying. Should be populated and cleared inside of an OnTick call.
+        /// A set of all snakes that have died since the last ToJson Call.
         /// </summary>
-        private List<Snake> dyingSnakes;
-        /// <summary>
-        /// A list of all snakes that are in the process of growing. Should be populated and clearead inside of an OnTick call.
-        /// </summary>
-        private List<Snake> digestingSnakes;
+        private HashSet<Snake> deadSnakes;
         /// <summary>
         /// A dictionary of all the food we have in the world with the key being the id of each piece food.
         /// </summary>
         private Dictionary<int, Food> food;
+        /// <summary>
+        /// A set of food that's been eaten since the last ToJson Call. 
+        /// </summary>
+        private HashSet<Food> eatenFood;
         /// <summary>
         /// An struct that keeps track of world dimensions. Immutable.
         /// </summary>
@@ -85,12 +85,12 @@ namespace SnakeModel
                 FoodDensity = 0;
                 SnakeRecycleRate = 0;
                 //Our default gamemode updates nothing.
-                OnTick = () => { };
+                OnGameUpdate = () => { };
             }
 
             public Dimensions BoardDimensions { get; private set; }
             /// <summary>
-            /// The period at which we run game ticks. 
+            /// The period at which we run game GameUpdates. 
             /// </summary>
             public int MSPerFrame { get; private set; }
             /// <summary>
@@ -104,10 +104,10 @@ namespace SnakeModel
             public double SnakeRecycleRate { get; private set; }
 
             /// <summary>
-            /// What the game needs to do on a per-tick basis. Should be set to a method that moves snakes, updates food, and takes 
-            /// care of other gamerule specific on tick behavior. Functionally defines the rules of the snake game.
+            /// What the game needs to do on a per-GameUpdate basis. Should be set to a method that moves snakes, updates food, and takes 
+            /// care of other gamerule specific on GameUpdate behavior. Functionally defines the rules of the snake game.
             /// </summary>
-            public Action OnTick { get; internal set; }
+            public Action OnGameUpdate { get; internal set; }
         }
 
 
@@ -146,13 +146,13 @@ namespace SnakeModel
         public World(WorldSettings worldSettings) : this(worldSettings.BoardDimensions.X, worldSettings.BoardDimensions.Y)
         {
             this.worldSettings = worldSettings;
-            if (false) //This will eventually be "If some worldSetting is enabled, then we use our alternate OnTick method"
+            if (false) //This will eventually be "If some worldSetting is enabled, then we use our alternate OnGameUpdate method"
             {
-                //Use our alternate OnTick method.
+                //Use our alternate OnGameUpdate method.
             }
             else
             {
-                this.worldSettings.OnTick = DefaultGameRulesOnTick;
+                this.worldSettings.OnGameUpdate = DefaultGameRulesOnGameUpdate;
             }
         }
 
@@ -168,6 +168,7 @@ namespace SnakeModel
 
         /// <summary>
         ///  Updates The World's Snakes by Adding, Updating Or Removing The Snake From The Game World
+        ///  Used by the client only.
         /// </summary>
         /// <param name="s">The Snake To Add, Update Or Remove From The Game World</param>
         public void updateWorldSnakes(Snake s)
@@ -183,7 +184,8 @@ namespace SnakeModel
         }
 
         /// <summary>
-        ///  Updates The Worlds Active Food by Adding, Updating Or Removing The Food From The Game World
+        ///  Updates The Worlds Active Food by Adding, Updating Or Removing The Food From The Game World.
+        ///  Used by the client only.
         /// </summary>
         /// <param name="f">The Food To Add, Update Or Remove From The Game World</param>
         public void updateWorldFood(Food f)
@@ -249,9 +251,9 @@ namespace SnakeModel
         }
 
         /// <summary>
-        /// Increments the world by one unit of time. If this object wasn't constructed with a WorldSettings struct, throws InvalidOperationException
+        /// Increments the world by one unit of time. If this object wasn't constructed with a WorldSettings struct, throws InvalidOperationException.
         /// </summary>
-        public void tick()
+        public void GameUpdate()
         {
             if (ReferenceEquals(worldSettings, null))
             {
@@ -259,35 +261,46 @@ namespace SnakeModel
             }
             else
             {
-                lock (this) //Since OnTick ought to be changing the world, we should lock it up.
+                lock (this) //Since OnGameUpdate ought to be changing the world, we should lock it up.
                 {
                     //Execute gamerule stuff we see fit to, based upon the defined rules of our server. 
-                    worldSettings.OnTick();
+                    worldSettings.OnGameUpdate();
                 }
             }
         }
         /// <summary>
         /// The default game mode for the server. Corresponds to the actions taken to facilitate normal snake behavior. 
-        /// Snakes move forward one cell per tick, food extends snakes by 1 cell, if a snake collides with a wall or another snake it dies.
+        /// Snakes move forward one cell per GameUpdate, food extends snakes by 1 cell, if a snake collides with a wall or another snake it dies.
         /// </summary>
-        private void DefaultGameRulesOnTick()
+        private void DefaultGameRulesOnGameUpdate()
         {
+            //The sets that contain the snakes that die and grow in this frame.
+            HashSet<Snake> dyingSnakes = new HashSet<Snake>();
+            HashSet<Snake> digestingSnakes = new HashSet<Snake>();
             foreach (Snake s in liveSnakes.Values)
             {
-                s.MoveHead(1);
+                s.MoveHead();//Move the snake's head head one unit in the direction the snake is heading.
             }
-            CheckCollisions();
-            HandleDeath(); //Death and eating should be mutually exclusive. 
+            CheckCollisions(dyingSnakes, digestingSnakes);
+            HandleDeath(dyingSnakes); //Death and eating should be mutually exclusive. 
+            foreach (Snake s in liveSnakes.Values)
+            {
+                if (!digestingSnakes.Contains(s))
+                {
+                    s.RetractTail(); //Retract the tails of any snake that didn't eat.
+                }
+            }
+
 
         }
 
-        
+
 
         /// <summary>
         ///Checks to see if a snake collides with either food or another snake. Takes the proper actions depending on what we colided with. 
-        ///If a snake collided with a food, it's added to the DigestingSnakes list. If a snake is due to die, then it's added to the dyingSnakes list.
+        ///If a snake collided with a food, it's added to the digestingSnakes set. If a snake is due to die, then it's added to the dyingSnakes set.
         /// </summary>
-        private void CheckCollisions()
+        private void CheckCollisions(ISet<Snake> dyingSnakes, ISet<Snake> digestingSnakes)
         {
             foreach (Snake snake in liveSnakes.Values)
             {
@@ -316,7 +329,10 @@ namespace SnakeModel
                 {
                     if (snake.getHead().Equals(f.loc))
                     {
+                        //Make the snake digest, put the food in the eaten set, and remove it from the active food set.
                         digestingSnakes.Add(snake);
+                        eatenFood.Add(f);
+                        food.Remove(f.ID);
                     }
                 }
             }
@@ -325,7 +341,7 @@ namespace SnakeModel
         /// <summary>
         /// If a snake is in the dyingSnakes set, turn it into food and remove it from the liveSnakes set.
         /// </summary>
-        private void HandleDeath()
+        private void HandleDeath(ISet<Snake> dyingSnakes)
         {
             
             foreach (Snake dyingSnake in dyingSnakes)
@@ -395,7 +411,7 @@ namespace SnakeModel
 
         public string ToJson()
         {
-            // Fill In Json Serialize Code
+            // Fill In Json Serialize Code, remember to clear deadSnakes and eatenFood after you record them.
             return "{}";
         }
     }
