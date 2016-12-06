@@ -86,6 +86,37 @@ namespace SnakeModel
         {
             vertices = new List<Point>();
         }
+        /// <summary>
+        /// Creates a new snake object with the specified ID, name, head and direciton. The snake object will have it's head in the specified location, 
+        /// traveling in the specified direction, and will consist of one segment of specified length extending in the opposite direction that we're traveling in.
+        /// </summary>
+        /// <param name="ID"></param>
+        /// <param name="name"></param>
+        /// <param name="head"></param>
+        /// <param name="direction"></param>
+        public Snake(int ID, string name, Point head, Direction direction, int length) : this()
+        {
+            //Add name and ID.
+            this.ID = ID;
+            this.name = name;
+            vertices.Add(head);//Add the head
+            //Add the tail
+            switch (direction)
+            {
+                case Direction.UP:
+                    vertices.Add(new Point(head.x, head.y + length));
+                    break;
+                case Direction.DOWN:
+                    vertices.Add(new Point(head.x, head.y - length));
+                    break;
+                case Direction.LEFT:
+                    vertices.Add(new Point(head.x + length, head.y));
+                    break;
+                case Direction.RIGHT:
+                    vertices.Add(new Point(head.x - length, head.y));
+                    break;
+            }
+        }
 
         /// <summary>
         /// Returns an ordered enumberable containing all the verticies of this snakes. 

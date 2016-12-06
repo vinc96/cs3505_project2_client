@@ -200,6 +200,22 @@ namespace SnakeModel
             }
         }
         /// <summary>
+        /// Allocates a new snake with the specified name, returning the snake's allocated ID.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public int AllocateNewSnake(string name)
+        {
+            lock (this)
+            {
+                int snakeID = GetNextSnakeID();
+                //TODO: Find a good location, place the snake there, and add it to the liveSnakes list.
+                return snakeID;
+            }
+            
+        }
+
+        /// <summary>
         /// Returns all currently live snakes, with no guarantee as to the order. 
         /// </summary>
         /// <returns></returns>
