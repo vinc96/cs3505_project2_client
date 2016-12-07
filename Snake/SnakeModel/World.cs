@@ -149,9 +149,21 @@ namespace SnakeModel
             lock (this)
             {
                 int snakeID = GetNextSnakeID();
+                Point headPoint = getRandomPointInWorld(10);
+
+                liveSnakes[snakeID] = new Snake(snakeID, name, headPoint, (Snake.Direction)1, 15);
+
                 //TODO: Find a good location, place the snake there, and add it to the liveSnakes list.
                 return snakeID;
             }
+        }
+
+        private Point getRandomPointInWorld(int safteyBoundry)
+        {
+            int x = random.Next(safteyBoundry, Size.X - safteyBoundry);
+            int y = random.Next(safteyBoundry, Size.Y - safteyBoundry);
+
+            return new Point(x, y);
         }
 
         public bool UpdateSnakeDirection(int snakeId, int direction)

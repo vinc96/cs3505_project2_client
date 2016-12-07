@@ -15,7 +15,7 @@ namespace SnakeModel
     [JsonObject(MemberSerialization.OptIn)]
     public class Snake
     {
-        public enum Direction { UP = 1, RIGHT = 2,DOWN = 3,LEFT = 4}
+        public enum Direction { UP = 1, RIGHT, DOWN, LEFT}
         /// <summary>
         /// The ID of this snake. Assigned by the server, all snake IDs are unique in that server.
         /// </summary>
@@ -104,6 +104,9 @@ namespace SnakeModel
             this.ID = ID;
             this.name = name;
             vertices.Add(head);//Add the head
+
+            NextDirection = direction;
+
             //Add the tail
             switch (direction)
             {
@@ -145,9 +148,10 @@ namespace SnakeModel
             {
                 if (ReferenceEquals(lastVert, null))
                 {
+                    lastVert = vert;
                     continue; //We need to count between two verticies. This makes 'vert' the point ahead of the tail, and lastVert the tail.
                 }
-                bool isVertical = (Math.Abs(vert.y - lastVert.y) > Math.Abs(vert.x - lastVert.x));
+                bool isVertical = (vert.x == lastVert.x);
                 bool isIncreasing = isVertical ? (vert.y - lastVert.y > 0) : (vert.x - lastVert.x > 0); //True if the section is pointing in the (+) direction. 
                 int sectionLength = Math.Max(Math.Abs(vert.y - lastVert.y), Math.Abs(vert.x - lastVert.x));
                 for (int i = 0; i < sectionLength; i++)
@@ -178,9 +182,8 @@ namespace SnakeModel
                             yield return new Point(lastVert.x - i, lastVert.y);
                         }
                     }
-
-
                 }
+                lastVert = vert;
             }
 
         }
@@ -214,19 +217,23 @@ namespace SnakeModel
                 CurrentDirection = NextDirection; //If both directions are odd/even, then they are opposing. 
             }
 
+
+            int lastVertIndex = vertices.Count - 1;
+            Point lastVert = vertices[lastVertIndex];
+
             switch (CurrentDirection)
             {
                 case Direction.UP:
-                    vertices[vertices.Count] = new Point(vertices[vertices.Count].x, vertices[vertices.Count].y - 1);
+                    vertices[lastVertIndex] = new Point(lastVert.x, lastVert.y - 1);
                     break;
                 case Direction.DOWN:
-                    vertices[vertices.Count] = new Point(vertices[vertices.Count].x, vertices[vertices.Count].y + 1);
+                    vertices[lastVertIndex] = new Point(lastVert.x, lastVert.y + 1);
                     break;
                 case Direction.LEFT:
-                    vertices[vertices.Count] = new Point(vertices[vertices.Count].x - 1, vertices[vertices.Count].y);
+                    vertices[lastVertIndex] = new Point(lastVert.x - 1, lastVert.y);
                     break;
                 case Direction.RIGHT:
-                    vertices[vertices.Count] = new Point(vertices[vertices.Count].x + 1, vertices[vertices.Count].y);
+                    vertices[lastVertIndex] = new Point(lastVert.x + 1, lastVert.y);
                     break;
             }
         }
