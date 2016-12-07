@@ -116,7 +116,7 @@ namespace SnakeModel
             liveSnakes[s.ID] = s;
 
             Point snakeHead = s.getHead();
-            bool snakeIsDead = (snakeHead.x == -1) && (snakeHead.y == -1);
+            bool snakeIsDead = (snakeHead.X == -1) && (snakeHead.Y == -1);
             if (snakeIsDead)
             {
                 liveSnakes.Remove(s.ID);
@@ -133,7 +133,7 @@ namespace SnakeModel
             food[f.ID] = f;
 
             Point foodLocation = f.loc;
-            bool foodIsEaten = (foodLocation.x == -1) && (foodLocation.y == -1);
+            bool foodIsEaten = (foodLocation.X == -1) && (foodLocation.Y == -1);
             if (foodIsEaten)
             {
                 food.Remove(f.ID);

@@ -14,8 +14,8 @@ namespace SnakeModelTests
         public void TestPointTrivialLocation()
         {
             Point p = new Point(1, 5);
-            Assert.AreEqual(1, p.x);
-            Assert.AreEqual(5, p.y);
+            Assert.AreEqual(1, p.X);
+            Assert.AreEqual(5, p.Y);
         }
 
         /// <summary>
@@ -25,8 +25,8 @@ namespace SnakeModelTests
         public void TestPointTrivialLocationNegatives()
         {
             Point p = new Point(-6, -156);
-            Assert.AreEqual(-6, p.x);
-            Assert.AreEqual(-156, p.y);
+            Assert.AreEqual(-6, p.X);
+            Assert.AreEqual(-156, p.Y);
         }
 
         /// <summary>

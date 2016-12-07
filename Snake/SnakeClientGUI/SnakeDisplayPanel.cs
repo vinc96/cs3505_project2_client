@@ -145,8 +145,8 @@ namespace SnakeClient
                 float zoomedWindowX = (float)(2 * (focusedSnake.length * view.CellSizeX) + view.CellSizeX);
                 float zoomedWindowY = (float)(2 * (focusedSnake.length * view.CellSizeY) + view.CellSizeY);
                 e.Graphics.ScaleTransform(Size.Width / zoomedWindowX, Size.Height / zoomedWindowY);
-                e.Graphics.TranslateTransform((float) (-1 * (focusedSnake.getHead().x) * view.CellSizeX + (focusedSnake.length * view.CellSizeX)), 
-                                            (float) (-1 * (focusedSnake.getHead().y) * view.CellSizeY + (focusedSnake.length * view.CellSizeY)));
+                e.Graphics.TranslateTransform((float) (-1 * (focusedSnake.getHead().X) * view.CellSizeX + (focusedSnake.length * view.CellSizeX)), 
+                                            (float) (-1 * (focusedSnake.getHead().Y) * view.CellSizeY + (focusedSnake.length * view.CellSizeY)));
             }
         }
         /// <summary>

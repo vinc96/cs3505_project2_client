@@ -19,12 +19,12 @@ namespace SnakeModel
         /// The x coordinate of this point.
         /// </summary>
         [JsonProperty]
-        public int x { get; private set; }
+        public int X { get; private set; }
         /// <summary>
         /// The y coordinate of this point.
         /// </summary>
         [JsonProperty]
-        public int y { get; private set; }
+        public int Y { get; private set; }
 
         /// <summary>
         /// Creates a new point with the specified coordinates.
@@ -33,8 +33,8 @@ namespace SnakeModel
         /// <param name="pointY"></param>
         public Point(int pointX, int pointY)
         {
-            x = pointX;
-            y = pointY;
+            X = pointX;
+            Y = pointY;
         }
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace SnakeModel
         {
             get
             {
-                return this.x;
+                return this.X;
             }
         }
 
@@ -55,7 +55,7 @@ namespace SnakeModel
         {
             get
             {
-                return this.y;
+                return this.Y;
             }
         }
 
@@ -77,7 +77,7 @@ namespace SnakeModel
                 return false;
             }
             Point otherPoint = (Point) obj; //It's safe to assume that this is a point now.
-            return (this.x == otherPoint.x && this.y == otherPoint.y);//Points are equal if their locations are the same.
+            return (this.X == otherPoint.X && this.Y == otherPoint.Y);//Points are equal if their locations are the same.
         }
     }
 }

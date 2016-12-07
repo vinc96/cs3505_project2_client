@@ -111,16 +111,16 @@ namespace SnakeModel
             switch (direction)
             {
                 case Direction.UP:
-                    vertices.Add(new Point(head.x, head.y + length));
+                    vertices.Add(new Point(head.X, head.Y + length));
                     break;
                 case Direction.DOWN:
-                    vertices.Add(new Point(head.x, head.y - length));
+                    vertices.Add(new Point(head.X, head.Y - length));
                     break;
                 case Direction.LEFT:
-                    vertices.Add(new Point(head.x + length, head.y));
+                    vertices.Add(new Point(head.X + length, head.Y));
                     break;
                 case Direction.RIGHT:
-                    vertices.Add(new Point(head.x - length, head.y));
+                    vertices.Add(new Point(head.X - length, head.Y));
                     break;
             }
         }
@@ -151,9 +151,9 @@ namespace SnakeModel
                     lastVert = vert;
                     continue; //We need to count between two verticies. This makes 'vert' the point ahead of the tail, and lastVert the tail.
                 }
-                bool isVertical = (vert.x == lastVert.x);
-                bool isIncreasing = isVertical ? (vert.y - lastVert.y > 0) : (vert.x - lastVert.x > 0); //True if the section is pointing in the (+) direction. 
-                int sectionLength = Math.Max(Math.Abs(vert.y - lastVert.y), Math.Abs(vert.x - lastVert.x));
+                bool isVertical = (vert.X == lastVert.X);
+                bool isIncreasing = isVertical ? (vert.Y - lastVert.Y > 0) : (vert.X - lastVert.X > 0); //True if the section is pointing in the (+) direction. 
+                int sectionLength = Math.Max(Math.Abs(vert.Y - lastVert.Y), Math.Abs(vert.X - lastVert.X));
                 for (int i = 0; i < sectionLength; i++)
                 {
                     if (isVertical)
@@ -161,12 +161,12 @@ namespace SnakeModel
                         if (isIncreasing)
                         {
                             //Vertical, pointing down
-                            yield return new Point(lastVert.x, lastVert.y + i);
+                            yield return new Point(lastVert.X, lastVert.Y + i);
                         }
                         else
                         {
                             //Vertical, pointing up
-                            yield return new Point(lastVert.x, lastVert.y - i);
+                            yield return new Point(lastVert.X, lastVert.Y - i);
                         }
                     }
                     else
@@ -174,12 +174,12 @@ namespace SnakeModel
                         if (isIncreasing)
                         {
                             //Horizontal, pointing right
-                            yield return new Point(lastVert.x + i, lastVert.y);
+                            yield return new Point(lastVert.X + i, lastVert.Y);
                         }
                         else
                         {
                             //Horizontal, pointing left
-                            yield return new Point(lastVert.x - i, lastVert.y);
+                            yield return new Point(lastVert.X - i, lastVert.Y);
                         }
                     }
                 }
@@ -212,29 +212,43 @@ namespace SnakeModel
         /// </summary>
         internal void MoveHead()
         {
+            bool changingDirection = false;
             if ((int)NextDirection % 2 != (int)CurrentDirection % 2)
             {
-                CurrentDirection = NextDirection; //If both directions are odd/even, then they are opposing. 
+                CurrentDirection = NextDirection; //If both directions are odd/even, then they are opposing.
+                changingDirection = true;
             }
 
+            int oldHeadIndex = vertices.Count - 1;
+            Point oldHead = vertices[oldHeadIndex];
 
-            int lastVertIndex = vertices.Count - 1;
-            Point lastVert = vertices[lastVertIndex];
+            Point newHead;
 
             switch (CurrentDirection)
             {
                 case Direction.UP:
-                    vertices[lastVertIndex] = new Point(lastVert.x, lastVert.y - 1);
+                    newHead = new Point(oldHead.X, oldHead.Y - 1);
                     break;
                 case Direction.DOWN:
-                    vertices[lastVertIndex] = new Point(lastVert.x, lastVert.y + 1);
+                    newHead = new Point(oldHead.X, oldHead.Y + 1);
                     break;
                 case Direction.LEFT:
-                    vertices[lastVertIndex] = new Point(lastVert.x - 1, lastVert.y);
+                    newHead = new Point(oldHead.X - 1, oldHead.Y);
                     break;
                 case Direction.RIGHT:
-                    vertices[lastVertIndex] = new Point(lastVert.x + 1, lastVert.y);
+                    newHead = new Point(oldHead.X + 1, oldHead.Y);
                     break;
+                default:
+                    throw new Exception("Invalid Direction");
+            }
+
+            if (changingDirection)
+            {
+                vertices.Add(newHead);
+            }
+            else
+            {
+                vertices[oldHeadIndex] = newHead;
             }
         }
 
@@ -260,7 +274,26 @@ namespace SnakeModel
         /// </summary>
         internal void RetractTail()
         {
-            vertices[0] = getAllPoints().ElementAt(1); //The tail is now the point directly after the tail.
+            Point tail = vertices[0]; 
+            Point vertBeforeTail = vertices[1];
+
+            bool isVertical = tail.X == vertBeforeTail.X;
+            int delta = (isVertical) ? tail.Y - vertBeforeTail.Y : tail.X - vertBeforeTail.X;
+            int normlizedDelta = Math.Abs(delta) / delta;
+
+            if (isVertical)
+            {
+                vertices[0] = new Point(tail.X, tail.Y - normlizedDelta);
+            }
+            else
+            {
+                vertices[0] = new Point(tail.X - normlizedDelta, tail.Y);
+            }
+
+            if(vertices[0].Equals(vertices[1]))
+            {
+                vertices.RemoveAt(0);
+            }
         }
         /// <summary>
         /// "Kills" this snake, setting its verticies to (-1, -1)
