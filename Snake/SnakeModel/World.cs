@@ -1,4 +1,5 @@
-﻿///Written by Josh Christensen (u0978248) and Nathan Veillon (u0984669) 
+﻿using Newtonsoft.Json;
+///Written by Josh Christensen (u0978248) and Nathan Veillon (u0984669) 
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -73,6 +74,7 @@ namespace SnakeModel
         {
             // Snakes And Food Should Be Empty When The World Is Made
             liveSnakes = new Dictionary<int, Snake>();
+            deadSnakes = new HashSet<Snake>();
             food = new Dictionary<int, Food>();
             Size = new Dimensions(width, height);
             random = new Random();
@@ -150,7 +152,18 @@ namespace SnakeModel
                 //TODO: Find a good location, place the snake there, and add it to the liveSnakes list.
                 return snakeID;
             }
-            
+        }
+
+        public bool UpdateSnakeDirection(int snakeId, int direction)
+        {
+            Snake snake = getSnakeByID(snakeId);
+
+            if(snake == null) { return false; }
+            if(direction < 1 || direction > 4) { return false; }
+
+            snake.NextDirection = (Snake.Direction)direction;
+
+            return true;
         }
 
         /// <summary>
@@ -244,7 +257,11 @@ namespace SnakeModel
                     s.RetractTail(); //Retract the tails of any snake that didn't eat.
                 }
             }
-
+            //Populate the deadSnakes set
+            foreach (Snake s in dyingSnakes)
+            {
+                deadSnakes.Add(s);
+            }
 
         }
 
@@ -366,7 +383,21 @@ namespace SnakeModel
         public string ToJson()
         {
             // Fill In Json Serialize Code, remember to clear deadSnakes and eatenFood after you record them.
-            return "{}";
+            string returnedJson = "";
+            foreach (Snake s in liveSnakes.Values)
+            {
+                returnedJson += JsonConvert.SerializeObject(s) + "\n";
+            }
+            foreach (Snake s in deadSnakes)
+            {
+                s.Kill();
+                returnedJson += JsonConvert.SerializeObject(s) + "\n";
+            }
+            foreach (Food f in food.Values)
+            {
+                returnedJson += JsonConvert.SerializeObject(f) + "\n";
+            }
+            return returnedJson;
         }
     }
 }

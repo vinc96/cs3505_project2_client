@@ -24,8 +24,8 @@ namespace SnakeServer
             clients = new List<SocketState>();
         }
 
-        public delegate string getInitializtionDataForNewClient(string playerName);
-        public delegate void handleDataReceived(IList<string> data);
+        public delegate string getInitializtionDataForNewClient(string playerName, SocketState client);
+        public delegate void handleDataReceived(IList<string> data, SocketState client);
         public delegate void handleSocketClosed();
         
         public void startListeningForClients(getInitializtionDataForNewClient clientInitDataFetcher, handleDataReceived dataRecievedHandler)
@@ -61,7 +61,7 @@ namespace SnakeServer
                 Networking.resetGrowableBufferWithMessagesSeperatedByCharacter(client, initialMessages, '\n');
             }
 
-            Networking.Send(client.TheSocket, clientInitDataFetcher(playerName));
+            Networking.Send(client.TheSocket, clientInitDataFetcher(playerName, client));
             startDataListenerLoop(client, dataRecievedHandler);
 
             lock (clients)
@@ -93,7 +93,7 @@ namespace SnakeServer
 
             IList<string> data = Networking.getMessageStringsFromBufferSeperatedByCharacter(client, '\n');
 
-            dataReceivedHandler(data);
+            dataReceivedHandler(data, client);
 
             startDataListenerLoop(client, dataReceivedHandler);
         }

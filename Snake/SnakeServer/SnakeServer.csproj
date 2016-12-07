@@ -44,11 +44,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GameServer.cs" />
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
     <Compile Include="ServerSettings.cs" />
     <Compile Include="ServerSnakeNetworkController.cs" />
     <Compile Include="Program.cs" />
@@ -66,12 +61,6 @@
       <Project>{588f4608-86f7-4212-a675-81e833adbc51}</Project>
       <Name>SnakeModel</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

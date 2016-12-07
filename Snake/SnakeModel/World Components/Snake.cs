@@ -32,25 +32,13 @@ namespace SnakeModel
         /// </summary>
         [JsonProperty]
         private List<Point> vertices;
+
         /// <summary>
         /// The direction this snake is traveling. 
         /// </summary>
-        public Direction direction {
-            get
-            {
-                return _direction;
-            }
+        public Direction CurrentDirection { get; private set; }
+        public Direction NextDirection { get; set; }
 
-            set
-            {
-                if ((int)value%2 != (int)_direction%2)
-                {
-                    _direction = value; //If both directions are odd/even, then they are opposing. 
-                }
-                    
-            }
-        }
-        private Direction _direction;
         /// <summary>
         /// The length of this snake. Corresponds to the the player's score.
         /// </summary>
@@ -221,7 +209,12 @@ namespace SnakeModel
         /// </summary>
         internal void MoveHead()
         {
-            switch (direction)
+            if ((int)NextDirection % 2 != (int)CurrentDirection % 2)
+            {
+                CurrentDirection = NextDirection; //If both directions are odd/even, then they are opposing. 
+            }
+
+            switch (CurrentDirection)
             {
                 case Direction.UP:
                     vertices[vertices.Count] = new Point(vertices[vertices.Count].x, vertices[vertices.Count].y - 1);
@@ -261,6 +254,14 @@ namespace SnakeModel
         internal void RetractTail()
         {
             vertices[0] = getAllPoints().ElementAt(1); //The tail is now the point directly after the tail.
+        }
+        /// <summary>
+        /// "Kills" this snake, setting its verticies to (-1, -1)
+        /// </summary>
+        public void Kill()
+        {
+            vertices.Clear();
+            vertices.Add(new Point(-1, -1));
         }
     }
 }

@@ -24,7 +24,7 @@ namespace SnakeServer
     /// <MSPerTick> Milliseconds per Server Tick</MSPerTick> (default= equal to MSPerFrame)
     ///         GAMEMODE SETTINGS
     /// </summary>
-    class ServerSettings
+    class GameServerSettings
     {
         /// <summary>
         /// The period at which we run game GameUpdates. 
@@ -38,7 +38,7 @@ namespace SnakeServer
         /// throws a relevant IOException if there's a problem finding/reading the file.
         /// </summary>
         /// <param name="filePath"></param>
-        public ServerSettings(string filePath)
+        public GameServerSettings(string filePath)
         {
             XmlDocument settingsDocument = new XmlDocument();
             settingsDocument.Load(filePath);
@@ -59,7 +59,7 @@ namespace SnakeServer
             }
 
             int value = defaultValue;
-            int.TryParse(xmlNode.Value, out value);
+            int.TryParse(xmlNode.InnerText, out value);
 
             return value;
         }

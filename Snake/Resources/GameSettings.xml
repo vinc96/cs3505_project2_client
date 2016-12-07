@@ -1,7 +1,7 @@
 <SnakeSettings>
 	<WorldSettings>
 		<BoardWidth>75</BoardWidth>
-		<BoardHeight>75</BoardHeight>
+		<BoardHeight>150</BoardHeight>
 		<FoodDensity>100</FoodDensity>
 		<SnakeRecycleRate>.50</SnakeRecycleRate>
 	</WorldSettings>
