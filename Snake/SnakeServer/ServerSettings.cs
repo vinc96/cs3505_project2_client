@@ -1,6 +1,7 @@
 ﻿using SnakeModel;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,30 +27,42 @@ namespace SnakeServer
     class ServerSettings
     {
         /// <summary>
+        /// The period at which we run game GameUpdates. 
+        /// </summary>
+        public int MSPerFrame { get; private set; }
+
+        public WorldSettings SnakeWorldSettings { get; private set; }
+
+        /// <summary>
         /// Creates a new WorldSettings object read from the specified filepath, 
         /// throws a relevant IOException if there's a problem finding/reading the file.
         /// </summary>
         /// <param name="filePath"></param>
         public ServerSettings(string filePath)
         {
-            XmlDocument settings = new XmlDocument();
-            settings.Load(filePath);
+            XmlDocument settingsDocument = new XmlDocument();
+            settingsDocument.Load(filePath);
 
+            XmlNode settings = settingsDocument["SnakeSettings"];
+            
             //Grab our settings
+            MSPerFrame = getXmlNodeValueAsInt(settings["MSPerFrame"], 33);
 
-            //Build the world settings:
-            SnakeWorldSettings = new WorldSettings(settings);
-
-
+            SnakeWorldSettings = new WorldSettings(settings["WorldSettings"]);
         }
 
-        /// <summary>
-        /// The period at which we run game GameUpdates. 
-        /// </summary>
-        public int MSPerFrame { get; private set; }
+        private int getXmlNodeValueAsInt(XmlNode xmlNode, int defaultValue = 0)
+        {
+            if (xmlNode == null)
+            {
+                return defaultValue;
+            }
 
-           
-        public WorldSettings SnakeWorldSettings { get; private set; } 
+            int value = defaultValue;
+            int.TryParse(xmlNode.Value, out value);
+
+            return value;
+        }
     }
 }
 

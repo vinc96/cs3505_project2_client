@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,9 +12,21 @@ namespace SnakeModel
 
     public class WorldSettings
     {
-        public WorldSettings(XmlDocument settings)
+        public WorldSettings(XmlNode worldSettings)
         {
-            
+            if(worldSettings == null)
+            {
+                worldSettings = new XmlDocument();
+            }
+
+            int boardWidth = getXmlNodeValue(worldSettings["BoardWidth"], 150);
+            int boardHeight = getXmlNodeValue(worldSettings["BoardHeight"], 150);
+
+            BoardDimensions = new Dimensions(boardWidth, boardHeight);
+
+            FoodDensity = getXmlNodeValue(worldSettings["FoodDensity"], 10);
+            SnakeRecycleRate = getXmlNodeValue<double>(worldSettings["SnakeRecycleRate"], 0.5);
+
         }
         public Dimensions BoardDimensions { get; private set; }
 
@@ -33,5 +46,26 @@ namespace SnakeModel
         /// </summary>
         public Action OnGameUpdate { get; internal set; }
 
+        private T getXmlNodeValue<T>(XmlNode xmlNode, T defaultValue)
+        {
+            if (xmlNode == null)
+            {
+                return defaultValue;
+            }
+
+            T value = defaultValue;
+
+            TypeConverter tConverter = TypeDescriptor.GetConverter(typeof(T));
+            try
+            {
+                value = (T)tConverter.ConvertFromString(xmlNode.InnerText);
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine("\nParsing Error\n"+e.ToString());
+            }
+
+            return value;
+        }
     }
 }

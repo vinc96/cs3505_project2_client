@@ -1,8 +1,10 @@
-﻿using System;
+﻿using SnakeServer.Properties;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SnakeServer.Properties;
 
 namespace SnakeServer
 {
@@ -12,6 +14,8 @@ namespace SnakeServer
         {
             Console.WriteLine("Starting server...");
             //Well, whadayathink! start the server!
+            
+            GameServer server = new GameServer(@"..\..\..\Resources\GameSettings.xml");
 
             ServerSnakeNetworkController networkingController = new ServerSnakeNetworkController();
 
