@@ -71,7 +71,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="TestGameSettings1.xml" />
+    <Content Include="TestGameSettingsTronModeOn.xml" />
+    <Content Include="TestGameSettingsWorldTooSmall.xml" />
+    <Content Include="TestGameSettings.xml" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
