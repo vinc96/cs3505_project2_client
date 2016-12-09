@@ -105,7 +105,8 @@ namespace SnakeModel
             this.name = name;
             vertices.Add(head);//Add the head
 
-            NextDirection = direction;
+            CurrentDirection = direction;
+            NextDirection = direction; //These must ALWAYS be in a valid state, otherwise an exception is thrown.
 
             //Add the tail
             switch (direction)
@@ -253,21 +254,89 @@ namespace SnakeModel
         }
 
         /// <summary>
-        /// Returns true if this snake's head is coliding with the other snake, false otherwise.
+        /// Returns true if the specified point colldies with this snake false otherwise.
         /// </summary>
-        /// <param name="otherSnake"></param>
+        /// <param name="otherPoint"></param>
         /// <returns></returns>
-        internal bool Collides(Snake otherSnake)
+        internal bool Collides(Point otherPoint)
         {
-            foreach (Point p in otherSnake.getAllPoints())
+            //Iterate through each sequential pair of verticies to determine if any of them collide with us.
+            Point previousVert = null;
+            foreach (Point vert in vertices)
             {
-                if (p.Equals(getHead()))
+                if (ReferenceEquals(previousVert, null))
                 {
-                    return true;
+                    previousVert = vert; //Only executed on the first passthrough of the loop.
+                    continue;
+                }
+                bool isVertical = vert.X == previousVert.X;
+                if (isVertical)
+                {
+                    //We collide if we're on the same x coordinate, at a y pos between this vert and the previous vert.
+                    bool collides = (otherPoint.X == vert.X) && ((otherPoint.Y <= vert.Y && otherPoint.Y >= previousVert.Y) || (otherPoint.Y >= vert.Y && otherPoint.Y <= previousVert.Y));
+                    if (collides)
+                    {
+                        return true;
+                    }
+                }
+                else
+                {
+                    //We collide if we're on the same y coordinate, at a x pos between this vert and the previous vert.
+                    bool collides = (otherPoint.Y == vert.Y) && ((otherPoint.X <= vert.X && otherPoint.X >= previousVert.X) || (otherPoint.X >= vert.X && otherPoint.X <= previousVert.X));
+                    if (collides)
+                    {
+                        return true;
+                    }
                 }
             }
-            return false;
+
+            return false; //If we haven't collided after looking through every pair of verticies, we're clear
+
         }
+        /// <summary>
+        /// Returns whether or not this snake is colliding with itself. Needs to be handled separately because our current Collides method isn't designed to
+        /// detect if a snake's head is inside of it's body discretely from when the snake's head isn't inside anything.
+        /// </summary>
+        /// <returns></returns>
+        internal bool IsCollidingWithSelf()
+        {
+            //Iterate through each sequential pair of verticies to determine if any of them collide with us.
+            Point previousVert = null;
+            foreach (Point vert in vertices)
+            {
+                if (ReferenceEquals(previousVert, null))
+                {
+                    previousVert = vert; //Only executed on the first passthrough of the loop.
+                    continue;
+                }
+                bool isVertical = vert.X == previousVert.X;
+                if (isVertical)
+                {
+                    //We collide if we're on the same x coordinate, at a y pos between this vert and the previous vert. Won't return true if we're colliding with the leading vert.
+                    //Modified to ignore collisions with leading vert, assuming they'll be caught when  the leading vert becomes previousVert. Head never does, so we won't collide with head.
+                    bool collides = (getHead().X == vert.X) && ((getHead().Y < vert.Y && getHead().Y >= previousVert.Y) || (getHead().Y > vert.Y && getHead().Y <= previousVert.Y));
+                    if (collides)
+                    {
+                        return true;
+                    }
+                }
+                else
+                {
+                    //We collide if we're on the same y coordinate, at a x pos between this vert and the previous vert. Won't return true if we're colliding with the leading vert.
+                    //Modified to ignore collisions with leading vert, assuming they'll be caught when  the leading vert becomes previousVert. Head never does, so we won't collide with head.
+                    bool collides = (getHead().Y == vert.Y) && ((getHead().X < vert.X && getHead().X >= previousVert.X) || (getHead().X > vert.X && getHead().X <= previousVert.X));
+                    if (collides)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false; //If we haven't collided after looking through every pair of verticies, we're clear
+
+        }
+
+
 
         /// <summary>
         /// Retracts the tail of the snake 1 cell.

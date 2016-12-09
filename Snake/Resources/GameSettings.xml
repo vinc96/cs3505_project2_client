@@ -5,5 +5,5 @@
 		<FoodDensity>100</FoodDensity>
 		<SnakeRecycleRate>.50</SnakeRecycleRate>
 	</WorldSettings>
-	<MSPerFrame>50</MSPerFrame>
+	<MSPerFrame>1000</MSPerFrame>
 </SnakeSettings>

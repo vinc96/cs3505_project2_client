@@ -287,25 +287,32 @@ namespace SnakeModel
         {
             foreach (Snake snake in liveSnakes.Values)
             {
-                //Check to see if we're colliding with any snakes
+                //Check to see if any other snake is colliding with us.
                 foreach (Snake otherSnake in liveSnakes.Values)
                 {
-                    if (snake.Equals(otherSnake)) //We can't collide with ourselves
+                    //Colliding with ourselves is handled elswhere
+                    if (otherSnake.Equals(snake))
                     {
                         continue;
                     }
-                    else if (otherSnake.getHead().Equals(snake.getHead()))
+                    //If two snake's heads collide, kill both.
+                    if (otherSnake.getHead().Equals(snake.getHead()))
                     {
                         dyingSnakes.Add(otherSnake); //If the snakes collide, kill both and continue
                         dyingSnakes.Add(snake);
                         continue;
                     }
-                    else if (snake.Collides(otherSnake))
+                    else if (snake.Collides(otherSnake.getHead()))
                     {
-                        dyingSnakes.Add(snake); //If this snake is colliding with the other snake, this snake dies. Then continue.
+                        dyingSnakes.Add(otherSnake); //If another snake is colliding with this snake, then that snake dies.
                         continue;
                     }
 
+                }
+                //Check to see if we're colliding with ourselves
+                if (snake.IsCollidingWithSelf())
+                {
+                    dyingSnakes.Add(snake); //If we collide with ourselves, we die.
                 }
                 //Check to see if we're colliding with any food
                 foreach (Food f in food.Values)
