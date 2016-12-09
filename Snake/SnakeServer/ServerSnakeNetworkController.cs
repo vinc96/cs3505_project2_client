@@ -54,7 +54,13 @@ namespace SnakeServer
         {
             Networking.listenForData(client, (ss) => { getInitialClientData(ss, clientInitDataFetcher, dataRecievedHandler); });
         }
-
+        /// <summary>
+        /// The handler for the first data the client sends. Adds the client to our list of clients, 
+        /// and calls clientInitDataFetcher with the player's name (so the player can be added to the server)
+        /// </summary>
+        /// <param name="client"></param>
+        /// <param name="clientInitDataFetcher"></param>
+        /// <param name="dataRecievedHandler"></param>
         private void getInitialClientData(SocketState client, getInitializtionDataForNewClient clientInitDataFetcher, handleDataReceived dataRecievedHandler)
         {
             IList<string> initialMessages = Networking.getMessageStringsFromBufferSeperatedByCharacter(client, '\n');
@@ -80,12 +86,20 @@ namespace SnakeServer
                 clients.Add(client);
             }
         }
-
+        /// <summary>
+        /// The method that's called to start a DataListenerLoop for the specified client for the first time. 
+        /// </summary>
+        /// <param name="client"></param>
+        /// <param name="dataReceivedHandler"></param>
         private void startDataListenerLoop(SocketState client, handleDataReceived dataReceivedHandler)
         {
             Networking.listenForData(client, (ss) => { receiveDataAndStartListeningForMoreData(ss, dataReceivedHandler); });
         }
-
+        /// <summary>
+        /// The periodic method called when we've got data, and need to proccess it.
+        /// </summary>
+        /// <param name="client"></param>
+        /// <param name="dataReceivedHandler"></param>
         public void receiveDataAndStartListeningForMoreData(SocketState client, handleDataReceived dataReceivedHandler)
         {
             if (client.ErrorOccured)
