@@ -103,7 +103,7 @@ namespace SnakeModel
             //Add name and ID.
             this.ID = ID;
             this.name = name;
-            vertices.Add(head);//Add the head
+            
 
             CurrentDirection = direction;
             NextDirection = direction; //These must ALWAYS be in a valid state, otherwise an exception is thrown.
@@ -124,6 +124,8 @@ namespace SnakeModel
                     vertices.Add(new Point(head.X - length, head.Y));
                     break;
             }
+
+            vertices.Add(head);//Add the head
         }
 
         /// <summary>
@@ -132,7 +134,6 @@ namespace SnakeModel
         /// <returns></returns>
         public IEnumerable<Point> getVerticies()
         {
-            //Protects the internals of this class, but just awful complexity (esp. considering how often it's used.) High priority to fix.
             return vertices;
         }
 
