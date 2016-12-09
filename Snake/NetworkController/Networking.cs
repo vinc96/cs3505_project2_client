@@ -357,7 +357,15 @@ namespace NetworkController
         private static void DisconnectedCallback(IAsyncResult ar)
         {
             SocketState ss = (SocketState)ar.AsyncState;
-            ss.TheSocket.EndDisconnect(ar);
+
+            try
+            {
+                ss.TheSocket.EndDisconnect(ar);
+            }catch(Exception e)
+            {
+                ss.ErrorOccured = true;
+                ss.ErrorMesssage = e.Message;
+            }
             
             ss.TheCallback(ss);
         }
