@@ -1,0 +1,11 @@
+<SnakeSettings>
+	<WorldSettings>
+		<BoardWidth>150</BoardWidth>
+		<BoardHeight>150</BoardHeight>
+		<FoodDensity>100</FoodDensity>
+		<SnakeRecycleRate>.50</SnakeRecycleRate>
+    <SnakeStartingLength>15</SnakeStartingLength>
+    <TronMode>0</TronMode>
+	</WorldSettings>
+	<MSPerFrame>33</MSPerFrame>
+</SnakeSettings>

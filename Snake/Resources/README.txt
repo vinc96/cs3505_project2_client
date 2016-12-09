@@ -1,4 +1,6 @@
-﻿DESIGN***********************************************************
+﻿CLIENT****************************************************************************************
+
+DESIGN***********************************************************
 Given that the network protocol assumes a fairly "dumb" client, containing near 
 no game logic whatsoever, our client has a very minimal Model. Essentially, all 
 we do is: Recieve data, cache it in the world, draw it, and then wait for more data.
@@ -22,3 +24,18 @@ incrementally improve the overall game. We have:
 		viewing the game from their perspective.
 	Resizable window: We address the pixels per cell count for both the X and Y directions independently,
 		making our game view resizable.
+
+
+SERVER**********************************************************************************************
+
+DESIGN***********************************************************
+Our server uses the same style of datastructures we discussed using in class (where snakes are functionally lists of verticies,
+collision is done by checking points against verticies, etc.), but with an emphasis on good structure and OOP design. We chose
+our classes and their scopes very carefully, with an emphasis on designing a well organized server that's easily modifiable and
+extendible. For example, our game behavior is defined by a parameterless delegate that can be replaced or substituted easily, so 
+creating custom game behaviors is as simple as writing a method that defines that behavior. Our settings data is well organized, 
+as it's actually a class of its own that's constructed from the XML file, with the class consisting of several private writable, 
+public readable properties to represent the various settings state of the server.
+EXTRA FEATURES *******************************************************************
+	Our gamemode that we implemented is TRON mode. In this mode, food does not spawn, rather your snake's tail
+gets pinned to your starting position, and the head moves forward. 

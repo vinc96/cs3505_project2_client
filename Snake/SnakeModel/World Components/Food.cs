@@ -24,5 +24,41 @@ namespace SnakeModel
         /// </summary>
         [JsonProperty]
         public Point loc { get; private set; }
+
+        private string jsonString;
+
+        /// <summary>
+        /// Creates a food object with a null location and an unset ID. 
+        /// Useless, except for its use with the JSON classes.
+        /// </summary>
+        public Food()
+        {
+            //Do nothing. 
+        }
+
+        /// <summary>
+        /// Creates a new food with the specified ID located at the specified location.
+        /// </summary>
+        /// <param name="ID"></param>
+        /// <param name="loc"></param>
+        public Food(int ID, Point loc) : this()
+        {
+            this.ID = ID;
+            this.loc = loc;
+            jsonString = @"{'ID':" + ID + ",'loc':" + loc.ToJson() + "}";
+        }
+        /// <summary>
+        /// "Eats" this food. Effectively sets it location to (-1,-1)
+        /// </summary>
+        public void eat()
+        {
+            loc = new Point(-1, -1);
+            jsonString = @"{'ID':" + ID + ",'loc':" + loc.ToJson() + "}";
+        }
+
+        public string ToJson()
+        {
+            return jsonString;
+        }
     }
 }

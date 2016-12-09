@@ -84,8 +84,8 @@ namespace SnakeClient
             int connectedTimeout = 2500;
             Socket s = Networking.ConnectToNetworkNode(
                 hostname,
-                Networking.DEFAULT_PORT,
                 (ss) => { handleConnectedToServer(ss, playerName, handshakeCompletedHandler); },
+                Networking.DEFAULT_PORT,
                 connectedTimeout
                 );
         }
@@ -100,14 +100,14 @@ namespace SnakeClient
         {
             clientSocketState = aSocketState;
 
-            if (aSocketState.errorOccured)
+            if (aSocketState.ErrorOccured)
             {
-                handshakeCompletedHandler(new InitData(aSocketState.errorMesssage));
+                handshakeCompletedHandler(new InitData(aSocketState.ErrorMesssage));
                 closeConnection();
                 return;
             }
 
-            Networking.Send(aSocketState.theSocket, playerName + '\n');
+            Networking.Send(aSocketState.TheSocket, playerName + '\n');
             Networking.listenForData(aSocketState, (ss) => { worldSetupDataRecieved(ss, handshakeCompletedHandler); });
         }
         /// <summary>
@@ -122,9 +122,9 @@ namespace SnakeClient
                 return;
             }
 
-            if (aSocketState.errorOccured)
+            if (aSocketState.ErrorOccured)
             {
-                handshakeCompletedHandler(new InitData(aSocketState.errorMesssage));
+                handshakeCompletedHandler(new InitData(aSocketState.ErrorMesssage));
                 closeConnection();
                 return;
             }
@@ -166,9 +166,9 @@ namespace SnakeClient
         /// <param name="dataReceivedHandler"></param>
         public void receiveDataAndStartListeningForMoreData(SocketState aSocketState, handleDataReceived dataReceivedHandler)
         {
-            if (aSocketState.errorOccured)
+            if (aSocketState.ErrorOccured)
             {
-                string[] errorStringArray = { "ERROR", aSocketState.errorMesssage };
+                string[] errorStringArray = { "ERROR", aSocketState.ErrorMesssage };
                 dataReceivedHandler(errorStringArray);
                 closeConnection();
                 return;
@@ -196,7 +196,7 @@ namespace SnakeClient
                 return;
             }
 
-            Networking.Send(clientSocketState.theSocket, "("+direction+")\n");
+            Networking.Send(clientSocketState.TheSocket, "("+direction+")\n");
         }
         /// <summary>
         /// Check to see if the connection is currently alive (e.g. connected to a server).
@@ -204,7 +204,7 @@ namespace SnakeClient
         /// <returns></returns>
         public bool isTheConnectionAlive()
         {
-            return clientSocketState != null && clientSocketState.theSocket != null && clientSocketState.safeToSendRequest;
+            return clientSocketState != null && clientSocketState.TheSocket != null && clientSocketState.SafeToSendRequest;
         }       
         /// <summary>
         /// Close the connection for this server, with no callback.
@@ -228,9 +228,9 @@ namespace SnakeClient
         /// <param name="handleDisconnect"></param>
         private void socketDisconected(SocketState ss, handleSocketClosed handleDisconnect)
         {
-            if (ss.theSocket != null)
+            if (ss.TheSocket != null)
             {
-                ss.theSocket.Close();
+                ss.TheSocket.Close();
             }
             handleDisconnect();
         }
