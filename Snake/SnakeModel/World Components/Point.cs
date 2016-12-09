@@ -19,12 +19,12 @@ namespace SnakeModel
         /// The x coordinate of this point.
         /// </summary>
         [JsonProperty]
-        public int x { get; private set; }
+        public int X { get; private set; }
         /// <summary>
         /// The y coordinate of this point.
         /// </summary>
         [JsonProperty]
-        public int y { get; private set; }
+        public int Y { get; private set; }
 
         /// <summary>
         /// Creates a new point with the specified coordinates.
@@ -33,8 +33,8 @@ namespace SnakeModel
         /// <param name="pointY"></param>
         public Point(int pointX, int pointY)
         {
-            x = pointX;
-            y = pointY;
+            X = pointX;
+            Y = pointY;
         }
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace SnakeModel
         {
             get
             {
-                return this.x;
+                return this.X;
             }
         }
 
@@ -55,8 +55,37 @@ namespace SnakeModel
         {
             get
             {
-                return this.y;
+                return this.Y;
             }
+        }
+
+        /// <summary>
+        /// Our special implemementation of the Equals method. Returns true if the two points have the same coordinates.
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public override bool Equals(object obj)
+        {
+            //If the object is null, then we aren't equal.
+            if (ReferenceEquals(obj, null))
+            {
+                return false;
+            }
+            //If the object isn't a point, then we aren't equal
+            if (!obj.GetType().Equals(typeof(Point)))
+            {
+                return false;
+            }
+            Point otherPoint = (Point) obj; //It's safe to assume that this is a point now.
+            return (this.X == otherPoint.X && this.Y == otherPoint.Y);//Points are equal if their locations are the same.
+        }
+        /// <summary>
+        /// Prints out a stringified version of the coordinates. Used for testing.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return "(" + X + "," + Y+ ")";
         }
     }
 }

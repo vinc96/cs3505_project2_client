@@ -11,35 +11,14 @@ namespace NetworkController
     /// <summary>
     /// A class to contain the state of a networking socket, including the socket itself, buffers, and callbacks.
     /// </summary>
-    public class SocketState
+    public class SocketState : NetworkingState<Socket, SocketState.EventProcessor>
     {
-        public Socket theSocket;
-        public delegate void EventProccessor(SocketState aSocketState);
-        public EventProccessor processorCallback;
+        public Socket TheSocket { get { return TheNetworkingObject; } set { TheNetworkingObject = value; } }
+        public delegate void EventProcessor(SocketState aSocketState);
+        
+        public byte[] MessageBuffer = new byte[1024];
+        public StringBuilder StringGrowableBuffer = new StringBuilder();
 
-        public bool safeToSendRequest = false;
-
-        public bool _errorOccured = false;
-
-        public bool errorOccured {
-            get { return _errorOccured; }
-            set
-            {
-                safeToSendRequest = safeToSendRequest && !value;
-                _errorOccured = value;
-            }
-        }
-
-        public string errorMesssage;
-
-        public byte[] messageBuffer = new byte[1024];
-        public StringBuilder stringGrowableBuffer = new StringBuilder();
-
-        public SocketState(Socket s, EventProccessor eventProc)
-        {
-            theSocket = s;
-            processorCallback = eventProc;
-        }
-
+        public SocketState(Socket s, SocketState.EventProcessor eventProc) : base(s, eventProc) { }
     }
 }
