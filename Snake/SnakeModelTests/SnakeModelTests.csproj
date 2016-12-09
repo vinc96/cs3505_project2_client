@@ -56,6 +56,7 @@
     <Compile Include="FoodTests.cs" />
     <Compile Include="PointTests.cs" />
     <Compile Include="SnakeTests.cs" />
+    <Compile Include="WorldSettingsTests.cs" />
     <Compile Include="WorldTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -64,6 +65,13 @@
       <Project>{588f4608-86f7-4212-a675-81e833adbc51}</Project>
       <Name>SnakeModel</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SnakeServer\SnakeServer.csproj">
+      <Project>{4deed849-734b-4e3b-aacc-3a37ef280692}</Project>
+      <Name>SnakeServer</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="TestGameSettings1.xml" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

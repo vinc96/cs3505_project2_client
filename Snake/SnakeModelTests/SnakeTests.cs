@@ -295,7 +295,7 @@ namespace SnakeModelTests
         /// Tests to ensure that our snake collides when it's made vertically
         /// </summary>
         [TestMethod]
-        public void TestVerticalCollision()
+        public void TestVerticalCollisionCollides()
         {
             Snake s = new Snake(10, "Mr.Snake", new Point(10, 10), Snake.Direction.UP, 10);
             Assert.IsTrue(s.Collides(new Point(10, 15)));
@@ -305,17 +305,37 @@ namespace SnakeModelTests
         /// Tests to ensure that our snake collides when it's made horizontally
         /// </summary>
         [TestMethod]
-        public void TestHorizontalCollision()
+        public void TestHorizontalCollisionCollides()
         {
             Snake s = new Snake(10, "Mr.Snake", new Point(10, 10), Snake.Direction.LEFT, 10);
             Assert.IsTrue(s.Collides(new Point(15, 10)));
         }
-        
+
+        /// <summary>
+        /// Tests to ensure that our snake collides when it's made vertically
+        /// </summary>
+        [TestMethod]
+        public void TestVerticalCollisionDoesntCollide()
+        {
+            Snake s = new Snake(10, "Mr.Snake", new Point(10, 10), Snake.Direction.UP, 10);
+            Assert.IsFalse(s.Collides(new Point(15, 15)));
+        }
+
+        /// <summary>
+        /// Tests to ensure that our snake collides when it's made horizontally
+        /// </summary>
+        [TestMethod]
+        public void TestHorizontalCollisionDoesntCollide()
+        {
+            Snake s = new Snake(10, "Mr.Snake", new Point(10, 10), Snake.Direction.LEFT, 10);
+            Assert.IsFalse(s.Collides(new Point(15, 15)));
+        }
+
         /// <summary>
         /// Tests to ensure that we can collide with ourselves, but only when we're actually colliding with ourselves.
         /// </summary>
         [TestMethod]
-        public void TestSelfCollision()
+        public void TestSelfCollisionVertical()
         {
             Snake s = new Snake(10, "Mr.Snake", new Point(10, 10), Snake.Direction.LEFT, 10);
             Assert.IsFalse(s.IsCollidingWithSelf());
@@ -330,6 +350,33 @@ namespace SnakeModelTests
             s.MoveHead();
             Assert.IsFalse(s.IsCollidingWithSelf());
             s.NextDirection = Snake.Direction.DOWN;
+            Assert.IsFalse(s.IsCollidingWithSelf());
+            s.MoveHead();
+            Assert.IsFalse(s.IsCollidingWithSelf());
+            s.MoveHead();
+            Assert.IsTrue(s.IsCollidingWithSelf());
+
+        }
+
+        /// <summary>
+        /// Tests to ensure that we can collide with ourselves, but only when we're actually colliding with ourselves.
+        /// </summary>
+        [TestMethod]
+        public void TestSelfCollisionHorizontal()
+        {
+            Snake s = new Snake(10, "Mr.Snake", new Point(10, 10), Snake.Direction.UP, 10);
+            Assert.IsFalse(s.IsCollidingWithSelf());
+            s.NextDirection = Snake.Direction.LEFT;
+            Assert.IsFalse(s.IsCollidingWithSelf());
+            s.MoveHead();
+            Assert.IsFalse(s.IsCollidingWithSelf());
+            s.MoveHead();
+            Assert.IsFalse(s.IsCollidingWithSelf());
+            s.NextDirection = Snake.Direction.DOWN;
+            Assert.IsFalse(s.IsCollidingWithSelf());
+            s.MoveHead();
+            Assert.IsFalse(s.IsCollidingWithSelf());
+            s.NextDirection = Snake.Direction.RIGHT;
             Assert.IsFalse(s.IsCollidingWithSelf());
             s.MoveHead();
             Assert.IsFalse(s.IsCollidingWithSelf());
