@@ -38,4 +38,4 @@ as it's actually a class of its own that's constructed from the XML file, with t
 public readable properties to represent the various settings state of the server.
 EXTRA FEATURES *******************************************************************
 	Our gamemode that we implemented is TRON mode. In this mode, food does not spawn, rather your snake's tail
-gets pinned to your starting position, and the head moves forward. 
+gets pinned to your starting position, and the head moves forward. 0 for off, one for on.
