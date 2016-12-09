@@ -39,7 +39,7 @@ namespace SnakeModel
         /// </summary>
         /// <param name="ID"></param>
         /// <param name="loc"></param>
-        public Food(int ID, Point loc)
+        public Food(int ID, Point loc) : this()
         {
             this.ID = ID;
             this.loc = loc;

@@ -81,15 +81,22 @@ namespace SnakeModel
             random = new Random();
         }
         /// <summary>
-        /// Creates a world that's suitable for simulating game behavior.
+        /// Creates a world that's suitable for simulating game behavior. Throws an ArgumentException if you try to create a world that has a 
+        /// dimension smaller than 2*minSnakeLength + 2
         /// </summary>
         /// <param name=""></param>
         public World(WorldSettings worldSettings) : this(worldSettings.BoardDimensions.X, worldSettings.BoardDimensions.Y)
         {
             this.worldSettings = worldSettings;
-            if (false) //This will eventually be "If some worldSetting is enabled, then we use our alternate OnGameUpdate method"
+            //We can't have world dimensions that are smaller than 2xMin Snake Length + 2
+            if (worldSettings.BoardDimensions.X < 2*(worldSettings.SnakeStartingLength)+2 || worldSettings.BoardDimensions.Y < 2 * (worldSettings.SnakeStartingLength) + 2)
             {
-                //Use our alternate OnGameUpdate method.
+                throw new ArgumentException("The smallest world dimension must be greater than 2*(defaultSnakeLength)+2");
+
+            }
+            if (worldSettings.TronModeOn) //This will eventually be "If some worldSetting is enabled, then we use our alternate OnGameUpdate method"
+            {
+                this.worldSettings.OnGameUpdate = TronModeGameRulesOnGameUpdate;
             }
             else
             {
@@ -150,15 +157,47 @@ namespace SnakeModel
             lock (this)
             {
                 int snakeID = GetNextSnakeID();
-                Point headPoint = getRandomPointInWorld(10);
-
-                liveSnakes[snakeID] = new Snake(snakeID, name, headPoint, (Snake.Direction)1, 15);
-
+                bool locationApproved = false;
+                while (!locationApproved)
+                {
+                    Point headPoint = getRandomPointInWorld(worldSettings.SnakeStartingLength);
+                    Snake.Direction direction = (Snake.Direction) (random.Next(4) + 1);
+                    Snake potentialSnake = new Snake(snakeID, name, headPoint, direction, worldSettings.SnakeStartingLength);
+                    locationApproved = true;
+                    foreach (Point p in potentialSnake.getAllPoints())
+                    {
+                        foreach (Snake s in liveSnakes.Values)
+                        {
+                            if (s.Collides(p))
+                            {
+                                locationApproved = false;//We're treading on them.
+                                break;
+                            }
+                        }
+                        foreach (Food f in food.Values)
+                        {
+                            if (f.loc.Equals(p))
+                            {
+                                locationApproved = false;//We're stepping on food. Try again
+                                break;
+                            }
+                        }
+                    }
+                    if (locationApproved)
+                    {
+                        //We've found a spot. 
+                        liveSnakes.Add(snakeID, potentialSnake);
+                    }
+                }
                 //TODO: Find a good location, place the snake there, and add it to the liveSnakes list.
                 return snakeID;
             }
         }
-
+        /// <summary>
+        /// Returns some random point contained within the world, contained within a border specified by safetyBoundary
+        /// </summary>
+        /// <param name="safteyBoundry"></param>
+        /// <returns></returns>
         private Point getRandomPointInWorld(int safteyBoundry)
         {
             int x = random.Next(safteyBoundry, Size.X - safteyBoundry);
@@ -166,7 +205,13 @@ namespace SnakeModel
 
             return new Point(x, y);
         }
-
+        /// <summary>
+        /// Sets the direction of the snake specified by that ID to the specified direction. 
+        /// Returns true if the snake's NextDirection was changed, false otherwise.
+        /// </summary>
+        /// <param name="snakeId"></param>
+        /// <param name="direction"></param>
+        /// <returns></returns>
         public bool UpdateSnakeDirection(int snakeId, int direction)
         {
             Snake snake = getSnakeByID(snakeId);
@@ -279,6 +324,30 @@ namespace SnakeModel
             }
 
         }
+        /// <summary>
+        /// The game rules for tron mode. Basically identical to normal game rules, except food doesn't spawn, and tails are fixed at spawn.
+        /// </summary>
+        private void TronModeGameRulesOnGameUpdate()
+        {
+            //The sets that contain the snakes that die and grow in this frame.
+            HashSet<Snake> dyingSnakes = new HashSet<Snake>();
+            HashSet<Snake> digestingSnakes = new HashSet<Snake>();
+            foreach (Snake s in liveSnakes.Values)
+            {
+                s.MoveHead();//Move the snake's head head one unit in the direction the snake is heading.
+            }
+            CheckCollisions(dyingSnakes, digestingSnakes);
+            //Handle death
+            foreach (Snake s in dyingSnakes)
+            {
+                liveSnakes.Remove(s.ID);
+            }
+            //Populate the deadSnakes set
+            foreach (Snake s in dyingSnakes)
+            {
+                deadSnakes.Add(s);
+            }
+        }
 
 
 
@@ -313,8 +382,8 @@ namespace SnakeModel
 
                 }
                 //Check to see if we're colliding with the world
-                if (snake.getHead().X < 0 || snake.getHead().X > worldSettings.BoardDimensions.X - 1 || 
-                    snake.getHead().Y < 0 || snake.getHead().Y > worldSettings.BoardDimensions.Y - 1)
+                if (snake.getHead().X < 1 || snake.getHead().X > worldSettings.BoardDimensions.X - 2 || 
+                    snake.getHead().Y < 1 || snake.getHead().Y > worldSettings.BoardDimensions.Y - 2)
                 {
                     dyingSnakes.Add(snake);
                     continue;
@@ -361,28 +430,35 @@ namespace SnakeModel
                 int numberOfFoodToBeSpawned = liveSnakes.Count * worldSettings.FoodDensity - food.Count;
                 for (int i = 0; i < numberOfFoodToBeSpawned; i++)
                 {
-                    while (true)
+                    bool locationApproved = false;
+                    while (!locationApproved)
                     {
-                        Point foodLocation = getRandomPointInWorld(0);
+                        
+                        Point foodLocation = getRandomPointInWorld(1);
+                        locationApproved = true;
                         //Check to make sure we aren't spawning on top of another snake or food
                         foreach (Snake s in liveSnakes.Values)
                         {
                             if (s.Collides(foodLocation))
                             {
-                                continue; //If we're spawning in a snake, try again.
+                                locationApproved = false; //If we're spawning in a snake, try again.
+                                break;
                             }
                         }
                         foreach (Food f in food.Values)
                         {
                             if (f.loc.Equals(foodLocation))
                             {
-                                continue; //Can't doublestack food.
+                                locationApproved = false; //Can't doublestack food.
+                                break;
                             }
                         }
                         //If we haven't collided with those, we're good
-                        int foodID = GetNextFoodID();
-                        food.Add(foodID, new Food(foodID, foodLocation));
-                        break;
+                        if (locationApproved)
+                        {
+                            int foodID = GetNextFoodID();
+                            food.Add(foodID, new Food(foodID, foodLocation));
+                        }
                     }
 
                     
@@ -395,7 +471,7 @@ namespace SnakeModel
         /// </summary>
         private void HandleDeath(ISet<Snake> dyingSnakes)
         {
-            
+
             foreach (Snake dyingSnake in dyingSnakes)
             {
                 //Place the food randomly where the snake is.

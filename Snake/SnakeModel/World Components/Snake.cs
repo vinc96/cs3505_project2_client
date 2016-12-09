@@ -274,7 +274,8 @@ namespace SnakeModel
                 if (isVertical)
                 {
                     //We collide if we're on the same x coordinate, at a y pos between this vert and the previous vert.
-                    bool collides = (otherPoint.X == vert.X) && ((otherPoint.Y <= vert.Y && otherPoint.Y >= previousVert.Y) || (otherPoint.Y >= vert.Y && otherPoint.Y <= previousVert.Y));
+                    bool collides = (otherPoint.X == vert.X) && 
+                        ((otherPoint.Y <= vert.Y && otherPoint.Y >= previousVert.Y) || (otherPoint.Y >= vert.Y && otherPoint.Y <= previousVert.Y));
                     if (collides)
                     {
                         return true;
@@ -283,7 +284,8 @@ namespace SnakeModel
                 else
                 {
                     //We collide if we're on the same y coordinate, at a x pos between this vert and the previous vert.
-                    bool collides = (otherPoint.Y == vert.Y) && ((otherPoint.X <= vert.X && otherPoint.X >= previousVert.X) || (otherPoint.X >= vert.X && otherPoint.X <= previousVert.X));
+                    bool collides = (otherPoint.Y == vert.Y) && 
+                        ((otherPoint.X <= vert.X && otherPoint.X >= previousVert.X) || (otherPoint.X >= vert.X && otherPoint.X <= previousVert.X));
                     if (collides)
                     {
                         return true;
@@ -315,7 +317,8 @@ namespace SnakeModel
                 {
                     //We collide if we're on the same x coordinate, at a y pos between this vert and the previous vert. Won't return true if we're colliding with the leading vert.
                     //Modified to ignore collisions with leading vert, assuming they'll be caught when  the leading vert becomes previousVert. Head never does, so we won't collide with head.
-                    bool collides = (getHead().X == vert.X) && ((getHead().Y < vert.Y && getHead().Y >= previousVert.Y) || (getHead().Y > vert.Y && getHead().Y <= previousVert.Y));
+                    bool collides = (getHead().X == vert.X) && 
+                        ((getHead().Y < vert.Y && getHead().Y >= previousVert.Y) || (getHead().Y > vert.Y && getHead().Y <= previousVert.Y));
                     if (collides)
                     {
                         return true;
@@ -325,7 +328,8 @@ namespace SnakeModel
                 {
                     //We collide if we're on the same y coordinate, at a x pos between this vert and the previous vert. Won't return true if we're colliding with the leading vert.
                     //Modified to ignore collisions with leading vert, assuming they'll be caught when  the leading vert becomes previousVert. Head never does, so we won't collide with head.
-                    bool collides = (getHead().Y == vert.Y) && ((getHead().X < vert.X && getHead().X >= previousVert.X) || (getHead().X > vert.X && getHead().X <= previousVert.X));
+                    bool collides = (getHead().Y == vert.Y) && 
+                        ((getHead().X < vert.X && getHead().X >= previousVert.X) || (getHead().X > vert.X && getHead().X <= previousVert.X));
                     if (collides)
                     {
                         return true;

@@ -109,6 +109,17 @@ namespace SnakeModelTests
             Assert.IsTrue(p1.Equals(p2));
             Assert.IsTrue(p2.Equals(p1));
         }
+        /// <summary>
+        /// Tests the point ToString code to ensure that it's outputting properly formatted strings
+        /// </summary>
+        [TestMethod]
+        public void PointToStringTest()
+        {
+            Point p1 = new Point(1134114, 1345666);
+            Point p2 = new Point(100, 134);
+            Assert.AreEqual("(1134114,1345666)", p1.ToString());
+            Assert.AreEqual("(100,134)", p2.ToString());
+        }
 
     }
 }

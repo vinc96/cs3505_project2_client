@@ -18,7 +18,9 @@ namespace SnakeServer
     {
         TcpListener theTcpListener;
         IList<SocketState> clients;
-
+        /// <summary>
+        /// Creates a new network controller for the server.
+        /// </summary>
         public ServerSnakeNetworkController()
         {
             clients = new List<SocketState>();
@@ -27,7 +29,11 @@ namespace SnakeServer
         public delegate string getInitializtionDataForNewClient(string playerName, SocketState client);
         public delegate void handleDataReceived(IList<string> data, SocketState client);
         public delegate void handleSocketClosed();
-        
+        /// <summary>
+        /// Starts a loop to listen for new clients connecting with the specified delegate handlers.
+        /// </summary>
+        /// <param name="clientInitDataFetcher"></param>
+        /// <param name="dataRecievedHandler"></param>
         public void startListeningForClients(getInitializtionDataForNewClient clientInitDataFetcher, handleDataReceived dataRecievedHandler)
         {
             if(theTcpListener != null)
@@ -38,7 +44,12 @@ namespace SnakeServer
             //Starts An Event Loop;
             theTcpListener = Networking.startListeningForTcpConnections((ss) => { connectedToAClient(ss, clientInitDataFetcher, dataRecievedHandler); });
         }
-
+        /// <summary>
+        /// The method that's called when we've connected to a client. 
+        /// </summary>
+        /// <param name="client"></param>
+        /// <param name="clientInitDataFetcher"></param>
+        /// <param name="dataRecievedHandler"></param>
         private void connectedToAClient(SocketState client, getInitializtionDataForNewClient clientInitDataFetcher, handleDataReceived dataRecievedHandler)
         {
             Networking.listenForData(client, (ss) => { getInitialClientData(ss, clientInitDataFetcher, dataRecievedHandler); });
@@ -97,7 +108,10 @@ namespace SnakeServer
 
             startDataListenerLoop(client, dataReceivedHandler);
         }
-
+        /// <summary>
+        /// Sends the passed Json to clients.
+        /// </summary>
+        /// <param name="worldJson"></param>
         public void sendWorldDataToClients(string worldJson)
         {
             lock (clients)

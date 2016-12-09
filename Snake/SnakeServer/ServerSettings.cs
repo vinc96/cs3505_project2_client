@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 
+///Written by Josh Christensen (u0978248) and Nathan Veillon (u0984669) 
 namespace SnakeServer
 {   /// <summary>
     /// A ServerSettings object. Contains the settings for this game world,
@@ -24,7 +25,7 @@ namespace SnakeServer
     /// <MSPerTick> Milliseconds per Server Tick</MSPerTick> (default= equal to MSPerFrame)
     ///         GAMEMODE SETTINGS
     /// </summary>
-    class GameServerSettings
+    public class GameServerSettings
     {
         /// <summary>
         /// The period at which we run game GameUpdates. 
@@ -50,7 +51,13 @@ namespace SnakeServer
 
             SnakeWorldSettings = new WorldSettings(settings["WorldSettings"]);
         }
-
+        /// <summary>
+        /// A helper method to read settings from an XML node. Returns the value of the node parsed 
+        /// as an int if it exists, passes the defined default value if it doesn't. 
+        /// </summary>
+        /// <param name="xmlNode"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
         private int getXmlNodeValueAsInt(XmlNode xmlNode, int defaultValue = 0)
         {
             if (xmlNode == null)
