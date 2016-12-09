@@ -76,6 +76,7 @@ namespace SnakeModel
             liveSnakes = new Dictionary<int, Snake>();
             deadSnakes = new HashSet<Snake>();
             food = new Dictionary<int, Food>();
+            eatenFood = new HashSet<Food>();
             Size = new Dimensions(width, height);
             random = new Random();
         }
@@ -269,6 +270,8 @@ namespace SnakeModel
                     s.RetractTail(); //Retract the tails of any snake that didn't eat.
                 }
             }
+
+            refreshFood(); //Populate more food if needed.
             //Populate the deadSnakes set
             foreach (Snake s in dyingSnakes)
             {
@@ -309,21 +312,80 @@ namespace SnakeModel
                     }
 
                 }
+                //Check to see if we're colliding with the world
+                if (snake.getHead().X < 0 || snake.getHead().X > worldSettings.BoardDimensions.X - 1 || 
+                    snake.getHead().Y < 0 || snake.getHead().Y > worldSettings.BoardDimensions.Y - 1)
+                {
+                    dyingSnakes.Add(snake);
+                    continue;
+                }
                 //Check to see if we're colliding with ourselves
                 if (snake.IsCollidingWithSelf())
                 {
                     dyingSnakes.Add(snake); //If we collide with ourselves, we die.
                 }
                 //Check to see if we're colliding with any food
+                List<Food> foodToRemove = new List<Food>(); //Workaround, we can't edit while iterating
                 foreach (Food f in food.Values)
                 {
                     if (snake.getHead().Equals(f.loc))
                     {
                         //Make the snake digest, put the food in the eaten set, and remove it from the active food set.
                         digestingSnakes.Add(snake);
-                        eatenFood.Add(f);
-                        food.Remove(f.ID);
+                        foodToRemove.Add(f);
                     }
+                }
+                foreach (Food f in foodToRemove)
+                {
+                    removeFood(f);
+                }
+            }
+        }
+        /// <summary>
+        /// Removes the specified food from our internal food dictionary, spawns more food if needed.
+        /// </summary>
+        /// <param name="f"></param>
+        private void removeFood(Food f)
+        {
+            food.Remove(f.ID);
+            eatenFood.Add(f);
+            f.eat();
+        }
+        /// <summary>
+        /// Ensures that there's enough food in the world for the number of snakes. If there's not, spawns more.
+        /// </summary>
+        private void refreshFood()
+        {
+            if (food.Count < liveSnakes.Count * worldSettings.FoodDensity)
+            {
+                int numberOfFoodToBeSpawned = liveSnakes.Count * worldSettings.FoodDensity - food.Count;
+                for (int i = 0; i < numberOfFoodToBeSpawned; i++)
+                {
+                    while (true)
+                    {
+                        Point foodLocation = getRandomPointInWorld(0);
+                        //Check to make sure we aren't spawning on top of another snake or food
+                        foreach (Snake s in liveSnakes.Values)
+                        {
+                            if (s.Collides(foodLocation))
+                            {
+                                continue; //If we're spawning in a snake, try again.
+                            }
+                        }
+                        foreach (Food f in food.Values)
+                        {
+                            if (f.loc.Equals(foodLocation))
+                            {
+                                continue; //Can't doublestack food.
+                            }
+                        }
+                        //If we haven't collided with those, we're good
+                        int foodID = GetNextFoodID();
+                        food.Add(foodID, new Food(foodID, foodLocation));
+                        break;
+                    }
+
+                    
                 }
             }
         }
@@ -416,6 +478,8 @@ namespace SnakeModel
             {
                 returnedJson += JsonConvert.SerializeObject(f) + "\n";
             }
+            foreach (Food f in eatenFood)
+                returnedJson += JsonConvert.SerializeObject(f) + "\n";
             return returnedJson;
         }
     }

@@ -44,5 +44,12 @@ namespace SnakeModel
             this.ID = ID;
             this.loc = loc;
         }
+        /// <summary>
+        /// "Eats" this food. Effectively sets it location to (-1,-1)
+        /// </summary>
+        public void eat()
+        {
+            loc = new Point(-1, -1);
+        }
     }
 }

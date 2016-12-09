@@ -334,8 +334,6 @@ namespace SnakeModelTests
             s.MoveHead();
             Assert.IsFalse(s.IsCollidingWithSelf());
             s.MoveHead();
-            Assert.IsFalse(s.IsCollidingWithSelf());
-            s.MoveHead();
             Assert.IsTrue(s.IsCollidingWithSelf());
 
         }

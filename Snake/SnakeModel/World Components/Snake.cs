@@ -331,6 +331,8 @@ namespace SnakeModel
                         return true;
                     }
                 }
+
+                previousVert = vert;//Set our vert to now be the previous one.
             }
 
             return false; //If we haven't collided after looking through every pair of verticies, we're clear
