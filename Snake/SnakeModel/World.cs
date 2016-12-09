@@ -337,9 +337,11 @@ namespace SnakeModel
                 s.MoveHead();//Move the snake's head head one unit in the direction the snake is heading.
             }
             CheckCollisions(dyingSnakes, digestingSnakes);
+
             //Handle death
             foreach (Snake s in dyingSnakes)
             {
+                s.Kill();
                 liveSnakes.Remove(s.ID);
             }
             //Populate the deadSnakes set
@@ -510,6 +512,7 @@ namespace SnakeModel
                     }
                 }
 
+                dyingSnake.Kill();
                 //Remove the snake from the liveSnakes set.
                 liveSnakes.Remove(dyingSnake.ID);
             }
@@ -547,15 +550,18 @@ namespace SnakeModel
             }
             foreach (Snake s in deadSnakes)
             {
-                s.Kill();
                 returnedJson += JsonConvert.SerializeObject(s) + "\n";
             }
             foreach (Food f in food.Values)
             {
-                returnedJson += JsonConvert.SerializeObject(f) + "\n";
+                returnedJson += f.ToJson() + "\n";
             }
             foreach (Food f in eatenFood)
-                returnedJson += JsonConvert.SerializeObject(f) + "\n";
+                returnedJson += f.ToJson() + "\n";
+
+            deadSnakes.Clear();
+            eatenFood.Clear();
+
             return returnedJson;
         }
     }
