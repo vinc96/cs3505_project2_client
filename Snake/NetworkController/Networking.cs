@@ -321,7 +321,15 @@ namespace NetworkController
         private static void SendCallback(IAsyncResult ar)
         {
             SocketState ss = (SocketState)ar.AsyncState;
-            ss.TheSocket.EndSend(ar);
+            try
+            { 
+                ss.TheSocket.EndSend(ar);
+            }
+            catch (Exception e)
+            {
+                ss.ErrorOccured = true;
+                ss.ErrorMesssage = e.Message;
+            }
         }
         /// <summary>
         /// Disconnects the specified socket contained in the passed SocketState, using the processorCallback stored in the SocketState.
