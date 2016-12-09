@@ -79,5 +79,13 @@ namespace SnakeModel
             Point otherPoint = (Point) obj; //It's safe to assume that this is a point now.
             return (this.X == otherPoint.X && this.Y == otherPoint.Y);//Points are equal if their locations are the same.
         }
+        /// <summary>
+        /// Prints out a stringified version of the coordinates. Used for testing.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return "(" + X + "," + Y+ ")";
+        }
     }
 }

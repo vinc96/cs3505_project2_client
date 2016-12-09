@@ -212,7 +212,7 @@ namespace SnakeModel
         /// <summary>
         /// Moves the head of the snake one cell in the direction the snake is traveling.
         /// </summary>
-        internal void MoveHead()
+        public void MoveHead()
         {
             bool changingDirection = false;
             if ((int)NextDirection % 2 != (int)CurrentDirection % 2)
@@ -259,7 +259,7 @@ namespace SnakeModel
         /// </summary>
         /// <param name="otherPoint"></param>
         /// <returns></returns>
-        internal bool Collides(Point otherPoint)
+        public bool Collides(Point otherPoint)
         {
             //Iterate through each sequential pair of verticies to determine if any of them collide with us.
             Point previousVert = null;
@@ -299,7 +299,7 @@ namespace SnakeModel
         /// detect if a snake's head is inside of it's body discretely from when the snake's head isn't inside anything.
         /// </summary>
         /// <returns></returns>
-        internal bool IsCollidingWithSelf()
+        public bool IsCollidingWithSelf()
         {
             //Iterate through each sequential pair of verticies to determine if any of them collide with us.
             Point previousVert = null;
@@ -342,7 +342,7 @@ namespace SnakeModel
         /// <summary>
         /// Retracts the tail of the snake 1 cell.
         /// </summary>
-        internal void RetractTail()
+        public void RetractTail()
         {
             Point tail = vertices[0]; 
             Point vertBeforeTail = vertices[1];
