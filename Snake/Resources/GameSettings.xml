@@ -1,6 +1,6 @@
 <SnakeSettings>
 	<WorldSettings>
-		<BoardWidth>75</BoardWidth>
+		<BoardWidth>150</BoardWidth>
 		<BoardHeight>150</BoardHeight>
 		<FoodDensity>10</FoodDensity>
 		<SnakeRecycleRate>.50</SnakeRecycleRate>

@@ -87,5 +87,11 @@ namespace SnakeModel
         {
             return "(" + X + "," + Y+ ")";
         }
+
+        public string ToJson()
+        {
+
+            return "{'x':" + X + ", 'y':" + Y + "}";
+        }
     }
 }

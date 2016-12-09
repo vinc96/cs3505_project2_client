@@ -109,7 +109,10 @@ namespace SnakeServer
             string directionString = messages.Last().Trim("()".ToCharArray());
 
             int direction = int.Parse(directionString);
-            gameWorld.UpdateSnakeDirection(clients[client], direction);
+            lock (gameWorld)
+            {
+                gameWorld.UpdateSnakeDirection(clients[client], direction);
+            }
         }
         /// <summary>
         /// Ensures that if a client sends bad data, then they get disconnection. Returns false if the passed messages are invalid.
