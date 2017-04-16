@@ -34,6 +34,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Project1\Libraries\Formula.dll</HintPath>
     </Reference>
+    <Reference Include="SpreadsheetPanel">
+      <HintPath>..\Project1\Libraries\SpreadsheetPanel.dll</HintPath>
+    </Reference>
     <Reference Include="SpreadsheetUtilities, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Project1\Libraries\SpreadsheetUtilities.dll</HintPath>
