@@ -14,7 +14,6 @@ using System.Windows.Forms;
 namespace SS
 {
 
-
     /// <summary>
     /// The type of delegate used to register for SelectionChanged events
     /// </summary>

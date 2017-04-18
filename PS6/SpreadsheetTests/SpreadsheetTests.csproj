@@ -36,13 +36,13 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Formula">
-      <HintPath>..\Project1\Libraries\Formula.dll</HintPath>
+      <HintPath>..\Resource\Libraries\Formula.dll</HintPath>
     </Reference>
     <Reference Include="SpreadsheetPanel">
-      <HintPath>..\Project1\Libraries\SpreadsheetPanel.dll</HintPath>
+      <HintPath>..\Resource\Libraries\SpreadsheetPanel.dll</HintPath>
     </Reference>
     <Reference Include="SpreadsheetUtilities">
-      <HintPath>..\Project1\Libraries\SpreadsheetUtilities.dll</HintPath>
+      <HintPath>..\Resource\Libraries\SpreadsheetUtilities.dll</HintPath>
     </Reference>
     <Reference Include="System" />
   </ItemGroup>
