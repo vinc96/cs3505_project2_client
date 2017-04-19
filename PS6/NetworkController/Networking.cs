@@ -16,7 +16,7 @@ namespace NetworkController
     /// </summary>
     static public class Networking
     {
-        public const int DEFAULT_PORT = 11000;
+        public const int DEFAULT_PORT = 2112;
 
         public static TcpListener startListeningForTcpConnections(TcpListenerState.EventProcessor foundConnection, int port = DEFAULT_PORT)
         {
