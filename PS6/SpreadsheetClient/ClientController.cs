@@ -47,6 +47,7 @@ namespace SpreadsheetClient
 
             public StartupData(string errorMessage)
             {
+                // vinc: set cells to null when there are errors
                 Cells = null;
 
                 ErrorOccured = true;
@@ -144,7 +145,7 @@ namespace SpreadsheetClient
             //Int32.TryParse(setupData[1], out worldWidth);
             //Int32.TryParse(setupData[2], out worldHeight);
             // vinc: parse startup message to dictionary
-            string[] setupData_array = setupData[0].Split('\t');
+            string[] setupData_array = setupData[0].Trim().Split('\t');
             Dictionary<string, string> cells = new Dictionary<string, string>();
             if (!setupData_array[0].Equals("Startup") || setupData_array.Length%2!=1) // vinc: ensure there are odd number of string in setupData
             {
@@ -160,7 +161,7 @@ namespace SpreadsheetClient
             initialized = true;
         }
         /// <summary>
-        /// Start the loop to constantly listen for snake and food transmissions from the server.
+        /// Start the loop to constantly listen for command transmissions from the server.
         /// </summary>
         /// <param name="dataReceivedHandler"></param>
         public void startDataListenerLoop(handleDataReceived dataReceivedHandler)
@@ -196,16 +197,21 @@ namespace SpreadsheetClient
         }
 
         /// <summary>
-        /// Sends the specified direction input to the server.
+        ///// Sends the specified direction input to the server.
+        /// vinc: Sends the specified spreadsheet message to the server
+        /// vinc: despite the type of message, each message content should be splited by '\t'
         /// </summary>
-        public void sendDirection(int direction)
+        //public void sendMessage(int direction)
+        public void sendMessage(string messageType, string messageContent)
         {
             if (!initialized)
             {
                 return;
             }
 
-            Networking.Send(clientSocketState.TheSocket, "(" + direction + ")\n");
+            //Networking.Send(clientSocketState.TheSocket, "(" + direction + ")\n");
+            // vinc: send the message to server (notice that we don't have code check the validity of the message)
+            Networking.Send(clientSocketState.TheSocket, messageType + "\t" + messageContent + ")\n");
         }
         /// <summary>
         /// Check to see if the connection is currently alive (e.g. connected to a server).
