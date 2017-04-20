@@ -1,4 +1,5 @@
-﻿///Written by Josh Christensen u0978248
+﻿using SpreadsheetClient;
+///Written by Josh Christensen u0978248
 using SpreadsheetUtilities;
 using SS;
 using System;
@@ -50,6 +51,18 @@ namespace WindowsFormsApplication1
         private int lastRow;
 
         /// <summary>
+        /// A list of all Users who access the spreadsheet.
+        /// The users are mapped to unique colors so that the cells they edit can be highlighted
+        /// </summary>
+        private Dictionary<string, Color> Users;
+
+        /// <summary>
+        /// <author>AtShar</author>
+        /// Network controller to send and receive requests to and from the server
+        /// </summary>
+        private ClientController clientController;
+
+        /// <summary>
         /// The location where the sheet we're working on was last saved. Null if it hasn't been saved yet.
         /// </summary>
         private string lastSaveLocation;
@@ -81,6 +94,10 @@ namespace WindowsFormsApplication1
 
         public SpreadsheetGUI()
         {
+            //AtShar: initalize fields
+            clientController = new ClientController();
+            Users = new Dictionary<string, Color>();
+
             InitializeComponent();
 
             //Set up lastCol and lastRow: the "last" items selected in this case are the starting values.
@@ -98,6 +115,8 @@ namespace WindowsFormsApplication1
             modelSheet = new Spreadsheet(isValid, normalizer, VERSION);
 
             grabNewDisplayedData(); //Populate the UI for the current cell.
+            
+
         }
 
         /// <summary>
@@ -582,5 +601,158 @@ namespace WindowsFormsApplication1
             base.OnKeyDown(e);
 
         }
+
+        /// <summary>
+        /// A callback to handle a successful server connection.
+        /// Starts Data Listening loop.
+        /// <author>AtShar<author/>
+        /// </summary>
+        /// <param name="initData"></param>
+        private void handleHandshakeSuccess(ClientController.StartupData setupData)
+        {
+            if (setupData.ErrorOccured)
+            {
+                Invoke(new MethodInvoker(() => { handleSocketError(setupData.ErrorMessage); }));
+                return;
+            }
+
+            Invoke(new MethodInvoker(() => {
+                this.spreadsheetPanel1.Focus();
+            }));
+
+            //AtShar: Populate the spreadsheet after it has been instantiated
+            modelSheet = new Spreadsheet();
+            foreach(string cell in setupData.Cells.Keys)
+            {
+                modelSheet.SetContentsOfCell(cell,setupData.Cells[cell]);
+            }
+
+            clientController.startDataListenerLoop(recievedData);
+        }
+
+        /// <summary>
+        /// <author>AtShar</author>
+        /// Handle recieving data from the socket. Update the apropriate parts of the model.
+        /// Only change the parts of the spreadsheet required OR Retrieve the information requested.
+        /// </summary>
+        /// <param name="data"></param>
+        private void recievedData(IList<string> data)
+        {
+            if (data.FirstOrDefault() == "ERROR")
+            {
+                Invoke(new MethodInvoker(() => { handleSocketError(data[1]); }));
+                return;
+            }
+
+            foreach (string message in data)
+            {
+                //AtShar+vinc: get contents of the message (Type + cell&value pairs)
+                string[] messageComponents = message.Trim().Split('\t');
+                lock (modelSheet)
+                {
+
+                    switch (messageComponents[0])
+                    {
+                        case "Startup":
+                            {
+                                //AtShar: Clear spreadsheet
+                                modelSheet = new Spreadsheet();
+
+                                //vinc: Need to clear panel
+                                spreadsheetPanel1.Clear();
+
+                                Invalidate();
+
+                                if (messageComponents.Length % 2 != 1)
+                                {
+                                    //AtShar: The number of components in the startup should be odd
+                                    //MessageType+Pairs of cell+value
+                                    MessageBox.Show("Invalid startup message received from server.");
+                                }
+                                for (int i = 1; i < messageComponents.Length; i+=2)
+                                {
+                                    modelSheet.SetContentsOfCell(messageComponents[i],messageComponents[i+1]);
+                                }
+                                break;
+                            }
+                        case "Change":
+                            {
+                                if (messageComponents.Length != 3)
+                                {
+                                    //AtShar: The number of components in the startup should be three
+                                    //MessageType+One pair of cell+value
+                                    MessageBox.Show("Incomplete change request.");
+                                }
+                                modelSheet.SetContentsOfCell(messageComponents[1],messageComponents[2]);
+                                break;
+                            }
+                        case "IsTyping":
+                            {
+                                if (messageComponents.Length != 3)
+                                {
+                                    //AtShar: The number of components in the startup should be three
+                                    //MessageType+One pair of cell+value
+                                    MessageBox.Show("Incomplete Typing-Status request.");
+                                }
+
+                                if (Users.ContainsKey(messageComponents[1]))
+                                {
+                                    //change the panel background color
+                                }
+                                else
+                                {
+                                    //AtShar: Assign random color to each new user
+                                    Users.Add(messageComponents[1],Color.);
+                                }
+
+                                break;
+                            }
+                        case "DoneTyping":
+                            {
+
+                                break;
+                            }
+                        default:
+                            {
+                                //AtShar:Recommendation: Remove message box and do nothing for invalid requests.
+                                MessageBox.Show("The server is sending messages that are not understood.");
+                                break;
+                            }
+                    }
+                }
+            }
+            Invoke(new MethodInvoker(updateView));
+        }
+
+
+        /// <summary>
+        /// Displays error message on an unsuccesful initial connect attempt
+        /// <author>AtShar<author/>
+        /// </summary>
+        /// <param name="message"></param>
+        private void handleSocketError(string message)
+        {
+            MessageBox.Show(message);
+            //Need to implement commented buttons
+            //DO NOT DELETE!!!!!!!!!!!!!!!!
+            //inpHostname.Enabled = true;
+            //inpPlayerName.Enabled = true;
+            //Need to clear spreadsheet
+            //btnConnectToServer.Enabled = true;
+        }
+
+
+        //private class User
+        //{
+        //    Color assignedColor;
+        //    string clientID;
+        //    public User(string uniqueID)
+        //    {
+        //        clientID = uniqueID;
+        //    }
+        //}
+
     }
+
+
 }

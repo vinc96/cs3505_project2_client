@@ -34,9 +34,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Resource\Libraries\Formula.dll</HintPath>
     </Reference>
-    <Reference Include="SpreadsheetPanel">
-      <HintPath>..\Project1\Libraries\SpreadsheetPanel.dll</HintPath>
-    </Reference>
     <Reference Include="SpreadsheetUtilities, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Resource\Libraries\SpreadsheetUtilities.dll</HintPath>
@@ -54,6 +51,12 @@
     <Compile Include="AbstractSpreadsheet.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Spreadsheet.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SpreadsheetPanel\SpreadsheetPanel.csproj">
+      <Project>{f31299dc-288f-4e46-a3af-6bf461b21c79}</Project>
+      <Name>SpreadsheetPanel</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

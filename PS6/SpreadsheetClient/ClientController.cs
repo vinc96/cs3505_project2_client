@@ -37,29 +37,13 @@ namespace SpreadsheetClient
             public string ErrorMessage { get; private set; }
 
             public Dictionary<String, String> Cells { get; private set; }
-
-            /// <summary>
-            /// 
-            /// </summary>
-            public AbstractSpreadsheet theSpreadsheetModel { get; private set; }
+            
 
             public StartupData(Dictionary<String, String> startupData)
             {
                 // vinc: store the whole startup data.
-                //AtShar:Use the startupData Dictionary to create a dictionary that will be used for our spreadsheet
                 Cells = new Dictionary<string, string>();
-
-                //AtShar:Recommendation: Why not use startupData to populate a spreadsheet?
-
-                //That way we do not need additional list of cells and values of cells and can serialize 
-                //directly from the model used.
-               
-                //AtShar: Spreadsheet model initialized once on startup to a new spreadsheet and data set for cells
-                theSpreadsheetModel = new Spreadsheet();
-                foreach(string cellname in startupData.Keys)
-                {
-                    theSpreadsheetModel.SetContentsOfCell(cellname,startupData[cellname]);
-                }
+                
                 ErrorOccured = false;
                 ErrorMessage = null;
             }
@@ -68,9 +52,6 @@ namespace SpreadsheetClient
             {
                 // vinc: set cells to null when there are errors
                 Cells = null;
-
-                //AtShar: Constructors in structs must assign all fields so set to null by default
-                theSpreadsheetModel = null;
 
                 ErrorOccured = true;
                 ErrorMessage = errorMessage;
