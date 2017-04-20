@@ -48,6 +48,10 @@
       <Project>{7b2644b7-1617-4706-bc13-d531afb27e56}</Project>
       <Name>NetworkController</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Spreadsheet\Spreadsheet.csproj">
+      <Project>{6960A32D-D637-4AE1-83C2-E78066FF343F}</Project>
+      <Name>Spreadsheet</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
