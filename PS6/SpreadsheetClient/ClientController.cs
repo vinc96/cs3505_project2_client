@@ -29,37 +29,35 @@ namespace SpreadsheetClient
         /// <summary>
         /// The data we recieved from the server on the handshake.
         /// </summary>
-        public struct InitData
+        public struct StartupData
         {
-            public InitData(int playerId, int WorldWidth, int WorldHeight)
+            public bool ErrorOccured { get; private set; }
+            public string ErrorMessage { get; private set; }
+
+            public Dictionary<String, String> Cells { get; private set; }
+
+            public StartupData(Dictionary<String, String> startupData)
             {
-                PlayerId = playerId;
-                WorldSize = new World.Dimensions(WorldWidth, WorldHeight);
+                // vinc: store the whole startup data.
+                Cells = new Dictionary<string, string>();
 
                 ErrorOccured = false;
                 ErrorMessage = null;
             }
 
-            public InitData(string errorMessage)
+            public StartupData(string errorMessage)
             {
+                Cells = null;
+
                 ErrorOccured = true;
                 ErrorMessage = errorMessage;
-                PlayerId = -1;
-                WorldSize = new World.Dimensions(-1, -1);
             }
-
-
-            public bool ErrorOccured { get; private set; }
-            public string ErrorMessage { get; private set; }
-
-            public int PlayerId { get; private set; }
-            public World.Dimensions WorldSize { get; private set; }
         }
         /// <summary>
-        /// A delegate used to handle the initial setup data.
+        /// A delegate used to handle the startup data.
         /// </summary>
-        /// <param name="initData"></param>
-        public delegate void handleInitData(InitData initData);
+        /// <param name="startupData"></param>
+        public delegate void handleStartupData(StartupData startupData);
         /// <summary>
         /// A delegate used to handle the data we recieve on the socket (in list form)
         /// </summary>
@@ -71,19 +69,19 @@ namespace SpreadsheetClient
         public delegate void handleSocketClosed();
 
         /// <summary>
-        /// Connect this controler to the specified server, using the passed hostname, playername, and handler to call when the handshake is complete.
+        /// Connect this controller to the specified server, using the passed hostname, spreadsheet name, and handler to call when the handshake is complete.
         /// </summary>
         /// <param name="hostname"></param>
-        /// <param name="playerName"></param>
+        /// <param name="spreadsheetName"></param>
         /// <param name="handshakeCompletedHandler"></param>
-        public void connectToServer(string hostname, string playerName, handleInitData handshakeCompletedHandler)
+        public void connectToServer(string hostname, string spreadsheetName, handleStartupData handshakeCompletedHandler)
         {
             if (isTheConnectionAlive()) { return; }
 
             int connectedTimeout = 2500;
             Socket s = Networking.ConnectToNetworkNode(
                 hostname,
-                (ss) => { handleConnectedToServer(ss, playerName, handshakeCompletedHandler); },
+                (ss) => { handleConnectedToServer(ss, spreadsheetName, handshakeCompletedHandler); },
                 Networking.DEFAULT_PORT,
                 connectedTimeout
                 );
@@ -93,28 +91,29 @@ namespace SpreadsheetClient
         /// The method to use when we've connected to the Server.
         /// </summary>
         /// <param name="aSocketState"></param>
-        /// <param name="playerName"></param>
+        /// <param name="spreadsheetName"></param>
         /// <param name="handshakeCompletedHandler"></param>
-        private void handleConnectedToServer(SocketState aSocketState, string playerName, handleInitData handshakeCompletedHandler)
+        private void handleConnectedToServer(SocketState aSocketState, string spreadsheetName, handleStartupData handshakeCompletedHandler)
         {
             clientSocketState = aSocketState;
 
             if (aSocketState.ErrorOccured)
             {
-                handshakeCompletedHandler(new InitData(aSocketState.ErrorMesssage));
+                handshakeCompletedHandler(new StartupData(aSocketState.ErrorMesssage));
                 closeConnection();
                 return;
             }
 
-            Networking.Send(aSocketState.TheSocket, playerName + '\n');
-            Networking.listenForData(aSocketState, (ss) => { worldSetupDataRecieved(ss, handshakeCompletedHandler); });
+            //Networking.Send(aSocketState.TheSocket, spreadsheetName + '\n');
+            Networking.Send(aSocketState.TheSocket, "Connect\t" + spreadsheetName + "\t\n");
+            Networking.listenForData(aSocketState, (ss) => { startupDataRecieved(ss, handshakeCompletedHandler); });
         }
         /// <summary>
-        /// Takes the data from the very first server transmission (world size and player ID), and sets up the world using it.
+        /// Takes the data from the very first server transmission (spreadsheet data), and sets up the spreadsheet using it.
         /// </summary>
         /// <param name="aSocketState"></param>
         /// <param name="handshakeCompletedHandler"></param>
-        private void worldSetupDataRecieved(SocketState aSocketState, handleInitData handshakeCompletedHandler)
+        private void startupDataRecieved(SocketState aSocketState, handleStartupData handshakeCompletedHandler)
         {
             if (!isTheConnectionAlive())
             {
@@ -123,30 +122,41 @@ namespace SpreadsheetClient
 
             if (aSocketState.ErrorOccured)
             {
-                handshakeCompletedHandler(new InitData(aSocketState.ErrorMesssage));
+                handshakeCompletedHandler(new StartupData(aSocketState.ErrorMesssage));
                 closeConnection();
                 return;
             }
 
             IList<String> setupData = Networking.getMessageStringsFromBufferSeperatedByCharacter(aSocketState, '\n');
 
-            //Expects 3 Lines Of Startup Data, If It Isn't Recieved Continue Listening And Resets Buffer
-            if (setupData.Count() < 3)
+            //Expects 1 Lines Of Startup Data, If It Isn't Recieved Continue Listening And Resets Buffer
+            if (setupData.Count() < 1)
             {
                 Networking.resetGrowableBufferWithMessagesSeperatedByCharacter(aSocketState, setupData, '\n');
-                Networking.listenForData(aSocketState, (ss) => { worldSetupDataRecieved(ss, handshakeCompletedHandler); });
+                Networking.listenForData(aSocketState, (ss) => { startupDataRecieved(ss, handshakeCompletedHandler); });
                 return;
             }
 
-            int playerId;
-            int worldWidth;
-            int worldHeight;
+            //int playerId;
+            //int worldWidth;
+            //int worldHeight;
+            //Int32.TryParse(setupData[0], out playerId);
+            //Int32.TryParse(setupData[1], out worldWidth);
+            //Int32.TryParse(setupData[2], out worldHeight);
+            // vinc: parse startup message to dictionary
+            string[] setupData_array = setupData[0].Split('\t');
+            Dictionary<string, string> cells = new Dictionary<string, string>();
+            if (!setupData_array[0].Equals("Startup") || setupData_array.Length%2!=1) // vinc: ensure there are odd number of string in setupData
+            {
+                Console.WriteLine("invalid message: " + setupData[0]);
+                throw new ArgumentException();
+            }
+            for(int i=1; i<setupData_array.Length; i+=2)
+            {
+                cells[setupData_array[i]] = setupData_array[i + 1];
+            }
 
-            Int32.TryParse(setupData[0], out playerId);
-            Int32.TryParse(setupData[1], out worldWidth);
-            Int32.TryParse(setupData[2], out worldHeight);
-
-            handshakeCompletedHandler(new InitData(playerId, worldWidth, worldHeight));
+            handshakeCompletedHandler(new StartupData(cells));
             initialized = true;
         }
         /// <summary>
@@ -159,7 +169,7 @@ namespace SpreadsheetClient
         }
         /// <summary>
         /// A callback that takes whatever data the socket has spit out, parse it out into a list of objects, 
-        /// and then passes it out to the specifed handler.
+        /// and then passes it out to the specified handler.
         /// </summary>
         /// <param name="aSocketState"></param>
         /// <param name="dataReceivedHandler"></param>
