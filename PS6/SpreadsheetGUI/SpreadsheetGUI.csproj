@@ -86,6 +86,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SpreadsheetClient\SpreadsheetClient.csproj">
+      <Project>{b7148f08-c1f8-4b9e-b04b-0ba646f7dc41}</Project>
+      <Name>SpreadsheetClient</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SpreadsheetPanel\SpreadsheetPanel.csproj">
       <Project>{f31299dc-288f-4e46-a3af-6bf461b21c79}</Project>
       <Name>SpreadsheetPanel</Name>
