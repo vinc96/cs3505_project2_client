@@ -702,7 +702,7 @@ namespace WindowsFormsApplication1
                                 else
                                 {
                                     //AtShar: Assign random color to each new user
-                                    Users.Add(messageComponents[1],Color.);
+                                    Users.Add(messageComponents[1],RandomColorObject(messageComponents[1]));
                                 }
 
                                 break;
@@ -722,6 +722,24 @@ namespace WindowsFormsApplication1
                 }
             }
             Invoke(new MethodInvoker(updateView));
+        }
+
+
+        /// <summary>
+        /// <author>AtShar</author>
+        /// Updates the view. Called on a per-tick basis, whenever there's new data.
+        /// Updating the state of the spreadsheet.
+        /// </summary>
+        private void updateView()
+        {
+            //Update game display
+            spreadsheetPanel1.Update();
+        }
+
+        private Color RandomColorObject(string ID)
+        {
+            int hashCode = (ID.ToString() + "SaltyMcSaltPants").GetHashCode();
+            return Color.FromArgb(255, (hashCode & 0x00FF0000) >> 16, (hashCode & 0x0000FF00) >> 8, hashCode & 0x000000FF);
         }
 
 
