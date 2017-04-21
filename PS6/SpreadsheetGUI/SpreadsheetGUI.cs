@@ -695,21 +695,26 @@ namespace WindowsFormsApplication1
                                     MessageBox.Show("Incomplete Typing-Status request.");
                                 }
 
-                                if (Users.ContainsKey(messageComponents[1]))
-                                {
-                                    //change the panel background color
-                                }
-                                else
-                                {
-                                    //AtShar: Assign random color to each new user
-                                    Users.Add(messageComponents[1],RandomColorObject(messageComponents[1]));
-                                }
+                                Users[messageComponents[1]] = RandomColorObject(messageComponents[1]);
+                                // change the panel frame color
+
+                                //if (Users.ContainsKey(messageComponents[1]))
+                                //{
+                                //    //change the panel background color
+                                //}
+                                //else
+                                //{
+                                //    //AtShar: Assign random color to each new user
+                                //    Users.Add(messageComponents[1],RandomColorObject(messageComponents[1]));
+                                //}
 
                                 break;
                             }
                         case "DoneTyping":
                             {
+                                // change the panel frame color, if there is 0 user editing it
 
+                                Users.Remove(messageComponents[1]);
                                 break;
                             }
                         default:
