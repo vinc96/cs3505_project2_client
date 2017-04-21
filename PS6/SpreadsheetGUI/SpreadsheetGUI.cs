@@ -655,13 +655,9 @@ namespace WindowsFormsApplication1
                     {
                         case "Startup":
                             {
+                                ///// update model
                                 //AtShar: Clear spreadsheet
                                 modelSheet = new Spreadsheet();
-
-                                //vinc: Need to clear panel
-                                spreadsheetPanel1.Clear();
-
-                                Invalidate();
 
                                 if (messageComponents.Length % 2 != 1)
                                 {
@@ -673,17 +669,52 @@ namespace WindowsFormsApplication1
                                 {
                                     modelSheet.SetContentsOfCell(messageComponents[i],messageComponents[i+1]);
                                 }
+
+                                ///// update view
+                                //vinc: Replace the spreadsheet panel, so that we don't have any lingering data values
+                                spreadsheetPanel1.Clear();
+                                //Update all the values on load.
+                                updateCells(modelSheet.GetNamesOfAllNonemptyCells());
+                                //Pull the data from our current location
+                                grabNewDisplayedData();
+                                //Invalidate();
+
                                 break;
                             }
                         case "Change":
                             {
+                                ///// update model
                                 if (messageComponents.Length != 3)
                                 {
                                     //AtShar: The number of components in the startup should be three
                                     //MessageType+One pair of cell+value
                                     MessageBox.Show("Incomplete change request.");
                                 }
-                                modelSheet.SetContentsOfCell(messageComponents[1],messageComponents[2]);
+                                // vinc: if content doesn't changed, skip update
+                                if(!modelSheet.GetCellContents(messageComponents[1]).ToString().Equals(messageComponents[2]))
+                                {
+                                    continue;
+                                }
+                                ISet<String> cellsToUpdate = modelSheet.SetContentsOfCell(messageComponents[1],messageComponents[2]);
+
+                                ///// update view
+                                // vinc
+                                try
+                                {
+                                    updateCells(cellsToUpdate); //Update the cells that need re-evaluation.
+
+                                    //Run the updateWindowTitle method, so we'll indicate that the spreadsheet changed.
+                                    updateWindowTitle();
+                                }
+                                catch (FormulaFormatException)//If we catch an invalid formula error, inform the user.
+                                {
+                                    MessageBox.Show("Error: Invalid Formula!");
+                                }
+                                catch (CircularException)//If we catch a circular exception error, inform the user.
+                                {
+                                    MessageBox.Show("Error: You've entered a formula that has a circular dependency!");
+                                }
+
                                 break;
                             }
                         case "IsTyping":
@@ -726,20 +757,21 @@ namespace WindowsFormsApplication1
                     }
                 }
             }
-            Invoke(new MethodInvoker(updateView));
+
+            //Invoke(new MethodInvoker(updateView));
         }
 
 
-        /// <summary>
-        /// <author>AtShar</author>
-        /// Updates the view. Called on a per-tick basis, whenever there's new data.
-        /// Updating the state of the spreadsheet.
-        /// </summary>
-        private void updateView()
-        {
-            //Update game display
-            spreadsheetPanel1.Update();
-        }
+        ///// <summary>
+        ///// <author>AtShar</author>
+        ///// Updates the view. Called on a per-tick basis, whenever there's new data.
+        ///// Updating the state of the spreadsheet.
+        ///// </summary>
+        //private void updateView()
+        //{
+        //    //Update game display
+        //    spreadsheetPanel1.Update();
+        //}
 
         private Color RandomColorObject(string ID)
         {
@@ -762,6 +794,24 @@ namespace WindowsFormsApplication1
             //inpPlayerName.Enabled = true;
             //Need to clear spreadsheet
             //btnConnectToServer.Enabled = true;
+        }
+
+        private void btnConnectToServer_Click(object sender, EventArgs e)
+        {
+            string hostname = inpHostname.Text;
+            string SSName = inpSSName.Text;
+
+            if (hostname == "")
+            {
+                MessageBox.Show("The Server Hostname Cannot Be Blank");
+                return;
+            }
+
+            if (SSName == "")
+            {
+                MessageBox.Show("The Player Name Cannot Be Blank");
+                return;
+            }
         }
 
 
