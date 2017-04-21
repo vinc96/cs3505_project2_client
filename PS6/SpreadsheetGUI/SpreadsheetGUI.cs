@@ -796,6 +796,11 @@ namespace WindowsFormsApplication1
             //btnConnectToServer.Enabled = true;
         }
 
+        /// <summary>
+        /// Connect to server
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void btnConnectToServer_Click(object sender, EventArgs e)
         {
             string hostname = inpHostname.Text;
@@ -809,9 +814,15 @@ namespace WindowsFormsApplication1
 
             if (SSName == "")
             {
-                MessageBox.Show("The Player Name Cannot Be Blank");
+                MessageBox.Show("The Spreadsheet Name Cannot Be Blank");
                 return;
             }
+
+
+            this.btnConnectToServer.Enabled = false;
+            this.inpHostname.Enabled = false;
+            this.inpSSName.Enabled = false;
+            clientController.connectToServer(hostname, SSName, handleHandshakeSuccess);
         }
 
 
