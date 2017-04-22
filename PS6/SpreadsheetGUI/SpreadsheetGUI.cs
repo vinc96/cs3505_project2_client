@@ -25,7 +25,7 @@ namespace WindowsFormsApplication1
         /// The version we use when saving or loading spreadsheets.
         /// </summary>
         private const String VERSION = "ps6";
-        
+
         /// <summary>
         /// The OpenFileDialog we'll be using to open any files we'll need.
         /// </summary>
@@ -115,7 +115,7 @@ namespace WindowsFormsApplication1
             modelSheet = new Spreadsheet(isValid, normalizer, VERSION);
 
             grabNewDisplayedData(); //Populate the UI for the current cell.
-            
+
 
         }
 
@@ -240,8 +240,8 @@ namespace WindowsFormsApplication1
             //If we're saving a file, perform actions required to do that.
             if (sender.GetType().Equals(typeof(SaveFileDialog)))
             {
-                modelSheet.Save(((SaveFileDialog) sender).FileName);
-                lastSaveLocation = ((SaveFileDialog) sender).FileName;
+                modelSheet.Save(((SaveFileDialog)sender).FileName);
+                lastSaveLocation = ((SaveFileDialog)sender).FileName;
                 updateWindowTitle();//Update the window title, so that we can remove a "*" if needed.
             }
             else
@@ -298,7 +298,7 @@ namespace WindowsFormsApplication1
             //Give the contents box user focus. 
             cellContentsBox.Focus();
             cellContentsBox.SelectAll();
-            
+
             //Update lastCol and lastRow to our current position.
             lastCol = col;
             lastRow = row;
@@ -340,18 +340,18 @@ namespace WindowsFormsApplication1
 
                     //Run the updateWindowTitle method, so we'll indicate that the spreadsheet changed.
                     updateWindowTitle();
-                    
+
                 }
                 catch (FormulaFormatException)//If we catch an invalid formula error, inform the user.
                 {
-                    MessageBox.Show("Error: Invalid Formula!"); 
+                    MessageBox.Show("Error: Invalid Formula!");
                 }
                 catch (CircularException)//If we catch a circular exception error, inform the user.
                 {
                     MessageBox.Show("Error: You've entered a formula that has a circular dependency!");
                 }
             }
-            
+
         }
 
         /// <summary>
@@ -393,7 +393,7 @@ namespace WindowsFormsApplication1
             char c = cellName[0];
             col += (LETTERBANK.IndexOf(c));
             cellName = cellName.Substring(1);
-            
+
             //Take the remaining string, which ought to just be a number.
             int.TryParse(cellName, out row);
             //We should never have a zero parsed result. If we get a zero, we either failed to parse (meaning we had an invalid cell name), 
@@ -608,24 +608,27 @@ namespace WindowsFormsApplication1
         /// <author>AtShar<author/>
         /// </summary>
         /// <param name="initData"></param>
-        private void handleHandshakeSuccess(ClientController.StartupData setupData)
+        private void handleHandshakeSuccess(ClientController.StartupData startupData)
         {
-            if (setupData.ErrorOccured)
+            if (startupData.ErrorOccured)
             {
-                Invoke(new MethodInvoker(() => { handleSocketError(setupData.ErrorMessage); }));
+                Invoke(new MethodInvoker(() => { handleSocketError(startupData.ErrorMessage); }));
                 return;
             }
 
-            Invoke(new MethodInvoker(() => {
+            Invoke(new MethodInvoker(() =>
+            {
                 this.spreadsheetPanel1.Focus();
             }));
 
-            //AtShar: Populate the spreadsheet after it has been instantiated
-            modelSheet = new Spreadsheet();
-            foreach(string cell in setupData.Cells.Keys)
-            {
-                modelSheet.SetContentsOfCell(cell,setupData.Cells[cell]);
-            }
+            processStartupMessage(startupData.Cells);
+
+            ////AtShar: Populate the spreadsheet after it has been instantiated
+            //modelSheet = new Spreadsheet();
+            //foreach (string cell in setupData.Cells.Keys)
+            //{
+            //    modelSheet.SetContentsOfCell(cell, setupData.Cells[cell]);
+            //}
 
             clientController.startDataListenerLoop(recievedData);
         }
@@ -650,35 +653,12 @@ namespace WindowsFormsApplication1
                 string[] messageComponents = message.Trim().Split('\t');
                 lock (modelSheet)
                 {
-
                     switch (messageComponents[0])
                     {
                         case "Startup":
                             {
-                                ///// update model
-                                //AtShar: Clear spreadsheet
-                                modelSheet = new Spreadsheet();
-
-                                if (messageComponents.Length % 2 != 1)
-                                {
-                                    //AtShar: The number of components in the startup should be odd
-                                    //MessageType+Pairs of cell+value
-                                    MessageBox.Show("Invalid startup message received from server.");
-                                }
-                                for (int i = 1; i < messageComponents.Length; i+=2)
-                                {
-                                    modelSheet.SetContentsOfCell(messageComponents[i],messageComponents[i+1]);
-                                }
-
-                                ///// update view
-                                //vinc: Replace the spreadsheet panel, so that we don't have any lingering data values
-                                spreadsheetPanel1.Clear();
-                                //Update all the values on load.
-                                updateCells(modelSheet.GetNamesOfAllNonemptyCells());
-                                //Pull the data from our current location
-                                grabNewDisplayedData();
-                                //Invalidate();
-
+                                // vinc
+                                processStartupMessage(messageComponents);
                                 break;
                             }
                         case "Change":
@@ -691,11 +671,11 @@ namespace WindowsFormsApplication1
                                     MessageBox.Show("Incomplete change request.");
                                 }
                                 // vinc: if content doesn't changed, skip update
-                                if(modelSheet.GetCellContents(messageComponents[1]).ToString().Equals(messageComponents[2]))
+                                if (modelSheet.GetCellContents(messageComponents[1]).ToString().Equals(messageComponents[2]))
                                 {
                                     continue;
                                 }
-                                ISet<String> cellsToUpdate = modelSheet.SetContentsOfCell(messageComponents[1],messageComponents[2]);
+                                ISet<String> cellsToUpdate = modelSheet.SetContentsOfCell(messageComponents[1], messageComponents[2]);
 
                                 ///// update view
                                 // vinc
@@ -761,6 +741,36 @@ namespace WindowsFormsApplication1
             //Invoke(new MethodInvoker(updateView));
         }
 
+        /// <summary>
+        /// process startup message
+        /// </summary>
+        /// <param name="messageComponents"></param>
+        private void processStartupMessage(string[] messageComponents)
+        {
+            ///// update model
+            //AtShar: Clear spreadsheet
+            modelSheet = new Spreadsheet();
+
+            if (messageComponents.Length % 2 != 0)
+            {
+                //AtShar: The number of components in the startup should be even
+                //MessageType+spreadsheetID+Pairs of cell+value
+                MessageBox.Show("Invalid startup message received from server.");
+            }
+            for (int i = 2; i < messageComponents.Length; i += 2)
+            {
+                modelSheet.SetContentsOfCell(messageComponents[i], messageComponents[i + 1]);
+            }
+
+            ///// update view
+            //vinc: Replace the spreadsheet panel, so that we don't have any lingering data values
+            spreadsheetPanel1.Clear();
+            //Update all the values on load.
+            updateCells(modelSheet.GetNamesOfAllNonemptyCells());
+            //Pull the data from our current location
+            Invoke(new MethodInvoker(() => { grabNewDisplayedData(); }));
+            //Invalidate(); 
+        }
 
         ///// <summary>
         ///// <author>AtShar</author>

@@ -36,14 +36,15 @@ namespace SpreadsheetClient
             public bool ErrorOccured { get; private set; }
             public string ErrorMessage { get; private set; }
 
-            public Dictionary<String, String> Cells { get; private set; }
-            
+            //public Dictionary<String, String> Cells { get; private set; }
+            public string[] Cells { get; private set; }
 
-            public StartupData(Dictionary<String, String> startupData)
+
+            public StartupData(string[] Cells)
             {
                 // vinc: store the whole startup data.
-                Cells = new Dictionary<string, string>();
-                
+                this.Cells = Cells;
+
                 ErrorOccured = false;
                 ErrorMessage = null;
             }
@@ -131,12 +132,12 @@ namespace SpreadsheetClient
                 return;
             }
 
-            IList<String> setupData = Networking.getMessageStringsFromBufferSeperatedByCharacter(aSocketState, '\n');
+            IList<String> startupData = Networking.getMessageStringsFromBufferSeperatedByCharacter(aSocketState, '\n');
 
             //Expects 1 Lines Of Startup Data, If It Isn't Recieved Continue Listening And Resets Buffer
-            if (setupData.Count() < 1)
+            if (startupData.Count() < 1)
             {
-                Networking.resetGrowableBufferWithMessagesSeperatedByCharacter(aSocketState, setupData, '\n');
+                Networking.resetGrowableBufferWithMessagesSeperatedByCharacter(aSocketState, startupData, '\n');
                 Networking.listenForData(aSocketState, (ss) => { startupDataRecieved(ss, handshakeCompletedHandler); });
                 return;
             }
@@ -148,21 +149,16 @@ namespace SpreadsheetClient
             //Int32.TryParse(setupData[1], out worldWidth);
             //Int32.TryParse(setupData[2], out worldHeight);
             // vinc: parse startup message to dictionary
-            string[] setupData_array = setupData[0].Trim().Split('\t');
-            Dictionary<string, string> cells = new Dictionary<string, string>();
+            string[] startupData_array = startupData[0].Trim().Split('\t');
 
 
-            //vinc: ensure there are odd number of string in setupData
-            if (!setupData_array[0].Equals("Startup") || setupData_array.Length % 2 != 0)
+            //vinc: ensure there are even number of string in startupData
+            if (!startupData_array[0].Equals("Startup") || startupData_array.Length % 2 != 0)
             {
                 throw new ArgumentException();
             }
-            for (int i = 2; i < setupData_array.Length; i += 2)
-            {
-                cells[setupData_array[i]] = setupData_array[i + 1];
-            }
 
-            handshakeCompletedHandler(new StartupData(cells));
+            handshakeCompletedHandler(new StartupData(startupData_array));
             initialized = true;
         }
         /// <summary>
@@ -196,7 +192,7 @@ namespace SpreadsheetClient
 
             IList<string> data = Networking.getMessageStringsFromBufferSeperatedByCharacter(aSocketState, '\n');
 
-            
+
 
             dataReceivedHandler(data);
 
