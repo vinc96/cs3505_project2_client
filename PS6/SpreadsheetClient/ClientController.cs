@@ -152,13 +152,12 @@ namespace SpreadsheetClient
             Dictionary<string, string> cells = new Dictionary<string, string>();
 
 
-            // vinc: ensure there are odd number of string in setupData
-            if (!setupData_array[0].Equals("Startup") || setupData_array.Length%2!=1) 
+            //vinc: ensure there are odd number of string in setupData
+            if (!setupData_array[0].Equals("Startup") || setupData_array.Length % 2 != 0)
             {
-                Console.WriteLine("invalid message: " + setupData[0]);
                 throw new ArgumentException();
             }
-            for(int i=1; i<setupData_array.Length; i+=2)
+            for (int i = 2; i < setupData_array.Length; i += 2)
             {
                 cells[setupData_array[i]] = setupData_array[i + 1];
             }

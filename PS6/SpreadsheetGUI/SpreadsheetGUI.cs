@@ -691,7 +691,7 @@ namespace WindowsFormsApplication1
                                     MessageBox.Show("Incomplete change request.");
                                 }
                                 // vinc: if content doesn't changed, skip update
-                                if(!modelSheet.GetCellContents(messageComponents[1]).ToString().Equals(messageComponents[2]))
+                                if(modelSheet.GetCellContents(messageComponents[1]).ToString().Equals(messageComponents[2]))
                                 {
                                     continue;
                                 }
@@ -704,7 +704,7 @@ namespace WindowsFormsApplication1
                                     updateCells(cellsToUpdate); //Update the cells that need re-evaluation.
 
                                     //Run the updateWindowTitle method, so we'll indicate that the spreadsheet changed.
-                                    updateWindowTitle();
+                                    Invoke(new MethodInvoker(updateWindowTitle));
                                 }
                                 catch (FormulaFormatException)//If we catch an invalid formula error, inform the user.
                                 {
