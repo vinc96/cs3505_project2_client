@@ -53,7 +53,7 @@
             this.messageToSendBox.Name = "messageToSendBox";
             this.messageToSendBox.Size = new System.Drawing.Size(884, 25);
             this.messageToSendBox.TabIndex = 1;
-            this.messageToSendBox.Text = "#Startup\tvinc\tA1\t4\tA2\t=A1*A1a\tB4\t=A1*A1\t";
+            this.messageToSendBox.Text = "#Startup\tvinc\tA1\t4\tA2\t=A1*A1\tB4\t=A1*A1\t";
             // 
             // label1
             // 

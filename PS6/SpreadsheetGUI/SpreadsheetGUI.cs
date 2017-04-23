@@ -65,6 +65,8 @@ namespace WindowsFormsApplication1
         /// vinc: record the client id sent from server
         /// </summary>
         private string ClientID;
+        // vinc: indicate whether or not user is typing in input textbox
+        private bool isTyping;
 
         /// <summary>
         /// The location where the sheet we're working on was last saved. Null if it hasn't been saved yet.
@@ -98,10 +100,11 @@ namespace WindowsFormsApplication1
 
         public SpreadsheetGUI()
         {
-            //AtShar: initalize fields
+            //AtShar&vinc: initalize fields
             clientController = new ClientController();
             Users = new Dictionary<string, Color>();
             ClientID = null;
+            isTyping = false;
 
             InitializeComponent();
 
@@ -120,6 +123,10 @@ namespace WindowsFormsApplication1
             modelSheet = new Spreadsheet(isValid, normalizer, VERSION);
 
             grabNewDisplayedData(); //Populate the UI for the current cell.
+
+            // vinc: disable SS input untill connection to server success
+            cellContentsBox.Enabled = false;
+            enterButton.Enabled = false;
         }
 
         /// <summary>
@@ -249,10 +256,11 @@ namespace WindowsFormsApplication1
         /// <param name="e"></param>
         private void cellContentsBox_TextChanged(object sender, EventArgs e)
         {
-            int col, row;
-            spreadsheetPanel1.GetSelection(out col, out row);
-            string cellNameString = coordsToCellName(col, row);
-            clientController.sendMessage("IsTyping", ClientID + "\t" + cellNameString);
+            if (!isTyping)
+            {
+                clientController.sendMessage("IsTyping", ClientID + "\t" + cellNameBox.Text);
+                isTyping = true;
+            }
         }
         /// <summary>
         /// This is the listener that we use to save files. Should be reigstered with our saveDialog.FileOK listener. If
@@ -286,6 +294,13 @@ namespace WindowsFormsApplication1
             saveOldInputs(); //Put whatever was in the input box into the form, and update relevant cells.
 
             grabNewDisplayedData(); //Grab the data from the new selection, and put it where it needs to go in the view. 
+
+            // vinc: send DoneTyping message
+            if (isTyping)
+            {
+                clientController.sendMessage("DoneTyping", ClientID + "\t" + cellNameBox.Text);
+                isTyping = false;
+            }
         }
 
         /// <summary>
@@ -614,13 +629,9 @@ namespace WindowsFormsApplication1
 
             processStartupMessage(startupData.Cells);
 
-            ////AtShar: Populate the spreadsheet after it has been instantiated
-            //modelSheet = new Spreadsheet();
-            //foreach (string cell in setupData.Cells.Keys)
-            //{
-            //    modelSheet.SetContentsOfCell(cell, setupData.Cells[cell]);
-            //}
-
+            // vinc: disable SS input untill connection to server success
+            Invoke(new MethodInvoker(() => { cellContentsBox.Enabled = true; enterButton.Enabled = true; }));
+            
             clientController.startDataListenerLoop(recievedData);
         }
 
