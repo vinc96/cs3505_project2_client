@@ -312,46 +312,11 @@ namespace WindowsFormsApplication1
             //Take the current contents of the cellContents box, and if it's different, add it to the spreadsheet.
             string cellNameString = coordsToCellName(lastCol, lastRow);
             //Determine if the cell contets have changed. Special case for formulas, because of the preappended "=".
-            bool cellChanged;
-            if (modelSheet.GetCellContents(cellNameString).GetType().Equals(typeof(Formula)))
-            {
-                //Special case for making empty cells
-                if (cellContentsBox.Text.Length == 0)
-                {
-                    cellChanged = true;
-                }
-                else
-                {
-                    //Compare the contents of the spreadsheet, with the contents of the cellContentsBox, minus the "=".
-                    cellChanged = !modelSheet.GetCellContents(cellNameString).ToString().Equals(cellContentsBox.Text.Substring(1));
-                }
-            }
-            else
-            {
-                cellChanged = !modelSheet.GetCellContents(cellNameString).ToString().Equals(cellContentsBox.Text);
-            }
-            //If we've changed the cell contents, change the model, and update our front end.
+            bool cellChanged = processChangeMessage(cellNameString, cellContentsBox.Text);
             if (cellChanged)
             {
-                try
-                {
-                    ISet<String> cellsToUpdate = modelSheet.SetContentsOfCell(cellNameString, cellContentsBox.Text);
-                    updateCells(cellsToUpdate); //Update the cells that need re-evaluation.
-
-                    //Run the updateWindowTitle method, so we'll indicate that the spreadsheet changed.
-                    updateWindowTitle();
-
-                }
-                catch (FormulaFormatException)//If we catch an invalid formula error, inform the user.
-                {
-                    MessageBox.Show("Error: Invalid Formula!");
-                }
-                catch (CircularException)//If we catch a circular exception error, inform the user.
-                {
-                    MessageBox.Show("Error: You've entered a formula that has a circular dependency!");
-                }
+                // send the change
             }
-
         }
 
         /// <summary>
@@ -663,37 +628,15 @@ namespace WindowsFormsApplication1
                             }
                         case "Change":
                             {
-                                ///// update model
                                 if (messageComponents.Length != 3)
                                 {
                                     //AtShar: The number of components in the startup should be three
                                     //MessageType+One pair of cell+value
                                     MessageBox.Show("Incomplete change request.");
                                 }
-                                // vinc: if content doesn't changed, skip update
-                                if (modelSheet.GetCellContents(messageComponents[1]).ToString().Equals(messageComponents[2]))
-                                {
-                                    continue;
-                                }
-                                ISet<String> cellsToUpdate = modelSheet.SetContentsOfCell(messageComponents[1], messageComponents[2]);
 
-                                ///// update view
                                 // vinc
-                                try
-                                {
-                                    updateCells(cellsToUpdate); //Update the cells that need re-evaluation.
-
-                                    //Run the updateWindowTitle method, so we'll indicate that the spreadsheet changed.
-                                    Invoke(new MethodInvoker(updateWindowTitle));
-                                }
-                                catch (FormulaFormatException)//If we catch an invalid formula error, inform the user.
-                                {
-                                    MessageBox.Show("Error: Invalid Formula!");
-                                }
-                                catch (CircularException)//If we catch a circular exception error, inform the user.
-                                {
-                                    MessageBox.Show("Error: You've entered a formula that has a circular dependency!");
-                                }
+                                processChangeMessage(messageComponents[1], messageComponents[2]);
 
                                 break;
                             }
@@ -742,13 +685,13 @@ namespace WindowsFormsApplication1
         }
 
         /// <summary>
+        /// vinc:
         /// process startup message
         /// </summary>
         /// <param name="messageComponents"></param>
         private void processStartupMessage(string[] messageComponents)
         {
             ///// update model
-            //AtShar: Clear spreadsheet
             modelSheet = new Spreadsheet();
 
             if (messageComponents.Length % 2 != 0)
@@ -759,17 +702,83 @@ namespace WindowsFormsApplication1
             }
             for (int i = 2; i < messageComponents.Length; i += 2)
             {
-                modelSheet.SetContentsOfCell(messageComponents[i], messageComponents[i + 1]);
+                try
+                {
+                    modelSheet.SetContentsOfCell(messageComponents[i], messageComponents[i + 1]);
+                }
+                catch (FormulaFormatException)//If we catch an invalid formula error, inform the user.
+                {
+                    MessageBox.Show("Error: Invalid Formula!");
+                }
+                catch (CircularException)//If we catch a circular exception error, inform the user.
+                {
+                    MessageBox.Show("Error: You've entered a formula that has a circular dependency!");
+                }
             }
 
             ///// update view
-            //vinc: Replace the spreadsheet panel, so that we don't have any lingering data values
+            //Replace the spreadsheet panel, so that we don't have any lingering data values
             spreadsheetPanel1.Clear();
             //Update all the values on load.
             updateCells(modelSheet.GetNamesOfAllNonemptyCells());
             //Pull the data from our current location
             Invoke(new MethodInvoker(() => { grabNewDisplayedData(); }));
             //Invalidate(); 
+        }
+
+        /// <summary>
+        /// vinc:
+        /// take the target cell and the new content,
+        /// update modelSheet and GUI if new content is different from old target cell content
+        /// </summary>
+        /// <param name="targetCell"></param>
+        /// <param name="newContent"></param>
+        /// <returns></returns>
+        private bool processChangeMessage(string targetCell, string newContent)
+        {
+            bool cellChanged;
+            if (modelSheet.GetCellContents(targetCell).GetType().Equals(typeof(Formula)))
+            {
+                //Special case for making empty cells
+                //if (cellContentsBox.Text.Length == 0)
+                if (newContent.Length == 0)
+                {
+                    cellChanged = true;
+                }
+                else
+                {
+                    //Compare the contents of the spreadsheet, with the contents of the cellContentsBox, minus the "=".
+                    //cellChanged = !modelSheet.GetCellContents(targetCell).ToString().Equals(cellContentsBox.Text.Substring(1));
+                    cellChanged = !modelSheet.GetCellContents(targetCell).ToString().Equals(newContent.Substring(1));
+                }
+            }
+            else
+            {
+                //cellChanged = !modelSheet.GetCellContents(targetCell).ToString().Equals(cellContentsBox.Text);
+                cellChanged = !modelSheet.GetCellContents(targetCell).ToString().Equals(newContent);
+            }
+            //If we've changed the cell contents, change the model, and update our front end.
+            if (cellChanged)
+            {
+                try
+                {
+                    //ISet<String> cellsToUpdate = modelSheet.SetContentsOfCell(targetCell, cellContentsBox.Text);
+                    ISet<String> cellsToUpdate = modelSheet.SetContentsOfCell(targetCell, newContent);
+                    updateCells(cellsToUpdate); //Update the cells that need re-evaluation.
+
+                    //Run the updateWindowTitle method, so we'll indicate that the spreadsheet changed.
+                    Invoke(new MethodInvoker(updateWindowTitle));
+                }
+                catch (FormulaFormatException)//If we catch an invalid formula error, inform the user.
+                {
+                    MessageBox.Show("Error: Invalid Formula!");
+                }
+                catch (CircularException)//If we catch a circular exception error, inform the user.
+                {
+                    MessageBox.Show("Error: You've entered a formula that has a circular dependency!");
+                }
+            }
+            return cellChanged;
         }
 
         ///// <summary>

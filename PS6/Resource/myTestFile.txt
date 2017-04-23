@@ -1,0 +1,21 @@
+﻿#Startup	vinc	A1	4	A2	=A1*A1a	B4	=A1*A1	“Startup\t clientID\t cellName1\tcellContents1\t cellName2\tcellContents2\t ... cellContentsX\t\n”
+
+#Change	A1	4	“Change\t cellName\t cellContents\t\n”
+
+#IsTyping	“IsTyping\t clientID\t cellName\t\n”
+
+#DoneTyping	“DoneTyping\t clientID\t cellName\t\n”
+
+
+#Edit	“Edit\t cellName\t cellContents\t\n”
+
+#Undo	“Undo\t\n”
+
+#Connect	“Connect\t spreadsheetName\t\n”
+
+#IsTyping	“IsTyping\t clientID\t cellName\t\n”
+
+#DoneTyp	“DoneTyping\t clientID\t cellName\t\n”
+
+memo:
+1. disable client input textbox before connected to server
