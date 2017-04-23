@@ -61,6 +61,10 @@ namespace WindowsFormsApplication1
         /// Network controller to send and receive requests to and from the server
         /// </summary>
         private ClientController clientController;
+        /// <summary>
+        /// vinc: record the client id sent from server
+        /// </summary>
+        private string ClientID;
 
         /// <summary>
         /// The location where the sheet we're working on was last saved. Null if it hasn't been saved yet.
@@ -97,6 +101,7 @@ namespace WindowsFormsApplication1
             //AtShar: initalize fields
             clientController = new ClientController();
             Users = new Dictionary<string, Color>();
+            ClientID = null;
 
             InitializeComponent();
 
@@ -115,8 +120,6 @@ namespace WindowsFormsApplication1
             modelSheet = new Spreadsheet(isValid, normalizer, VERSION);
 
             grabNewDisplayedData(); //Populate the UI for the current cell.
-
-
         }
 
         /// <summary>
@@ -230,6 +233,28 @@ namespace WindowsFormsApplication1
         }
 
         /// <summary>
+        /// Send Undo message to server
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void undoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            clientController.sendMessage("Undo", null);
+        }
+
+        /// <summary>
+        /// Send IsTyping message to server
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void cellContentsBox_TextChanged(object sender, EventArgs e)
+        {
+            int col, row;
+            spreadsheetPanel1.GetSelection(out col, out row);
+            string cellNameString = coordsToCellName(col, row);
+            clientController.sendMessage("IsTyping", ClientID + "\t" + cellNameString);
+        }
+        /// <summary>
         /// This is the listener that we use to save files. Should be reigstered with our saveDialog.FileOK listener. If
         /// it's not used in this fashion, does nothing.
         /// </summary>
@@ -313,9 +338,10 @@ namespace WindowsFormsApplication1
             string cellNameString = coordsToCellName(lastCol, lastRow);
             //Determine if the cell contets have changed. Special case for formulas, because of the preappended "=".
             bool cellChanged = processChangeMessage(cellNameString, cellContentsBox.Text);
+            //vinc: if cell changed, send it to server
             if (cellChanged)
             {
-                // send the change
+                clientController.sendMessage("Edit", cellNameString + "\t" + cellContentsBox.Text);
             }
         }
 
@@ -715,6 +741,7 @@ namespace WindowsFormsApplication1
                     MessageBox.Show("Error: You've entered a formula that has a circular dependency!");
                 }
             }
+            ClientID = messageComponents[1];
 
             ///// update view
             //Replace the spreadsheet panel, so that we don't have any lingering data values
@@ -843,6 +870,8 @@ namespace WindowsFormsApplication1
             this.inpSSName.Enabled = false;
             clientController.connectToServer(hostname, SSName, handleHandshakeSuccess);
         }
+
+
 
 
         //private class User

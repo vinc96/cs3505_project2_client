@@ -18,4 +18,4 @@
 #DoneTyp	“DoneTyping\t clientID\t cellName\t\n”
 
 memo:
-1. disable client input textbox before connected to server
+1. disable client input textbox before connected to server & enable it when connection success

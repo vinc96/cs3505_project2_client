@@ -212,9 +212,16 @@ namespace SpreadsheetClient
                 return;
             }
 
-            //Networking.Send(clientSocketState.TheSocket, "(" + direction + ")\n");
             // vinc: send the message to server (notice that we don't have code check the validity of the message)
-            Networking.Send(clientSocketState.TheSocket, messageType + "\t" + messageContent + ")\n");
+            string message;
+            if (messageContent == null)
+            {
+                message = messageType + "\t\n";
+            }else
+            {
+                message = messageType + "\t" + messageContent + "\n";
+            }
+            Networking.Send(clientSocketState.TheSocket, message);
         }
         /// <summary>
         /// Check to see if the connection is currently alive (e.g. connected to a server).

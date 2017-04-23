@@ -32,6 +32,7 @@
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.undoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -65,6 +66,7 @@
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.newToolStripMenuItem,
             this.openToolStripMenuItem,
+            this.undoToolStripMenuItem,
             this.saveToolStripMenuItem,
             this.saveAsToolStripMenuItem,
             this.closeToolStripMenuItem});
@@ -85,6 +87,13 @@
             this.openToolStripMenuItem.Size = new System.Drawing.Size(258, 26);
             this.openToolStripMenuItem.Text = "Open... (Ctrl + O)";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
+            // 
+            // undoToolStripMenuItem
+            // 
+            this.undoToolStripMenuItem.Name = "undoToolStripMenuItem";
+            this.undoToolStripMenuItem.Size = new System.Drawing.Size(258, 26);
+            this.undoToolStripMenuItem.Text = "Undo (Ctrl+Z)";
+            this.undoToolStripMenuItem.Click += new System.EventHandler(this.undoToolStripMenuItem_Click);
             // 
             // saveToolStripMenuItem
             // 
@@ -136,6 +145,7 @@
             this.cellContentsBox.ShortcutsEnabled = false;
             this.cellContentsBox.Size = new System.Drawing.Size(868, 25);
             this.cellContentsBox.TabIndex = 3;
+            this.cellContentsBox.TextChanged += new System.EventHandler(this.cellContentsBox_TextChanged);
             // 
             // cellNameBox
             // 
@@ -181,6 +191,7 @@
             this.inpSSName.Name = "inpSSName";
             this.inpSSName.Size = new System.Drawing.Size(100, 25);
             this.inpSSName.TabIndex = 7;
+            this.inpSSName.Text = "asdf";
             // 
             // btnConnectToServer
             // 
@@ -239,6 +250,7 @@
         private System.Windows.Forms.TextBox inpHostname;
         private System.Windows.Forms.TextBox inpSSName;
         private System.Windows.Forms.Button btnConnectToServer;
+        private System.Windows.Forms.ToolStripMenuItem undoToolStripMenuItem;
     }
 }
 
