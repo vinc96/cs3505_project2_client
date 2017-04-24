@@ -79,7 +79,7 @@
             // 
             this.undoToolStripMenuItem.Name = "undoToolStripMenuItem";
             this.undoToolStripMenuItem.Size = new System.Drawing.Size(193, 26);
-            this.undoToolStripMenuItem.Text = "Undo (Ctrl+Z)";
+            this.undoToolStripMenuItem.Text = "Undo (Ctrl+U)";
             this.undoToolStripMenuItem.Click += new System.EventHandler(this.undoToolStripMenuItem_Click);
             // 
             // closeToolStripMenuItem

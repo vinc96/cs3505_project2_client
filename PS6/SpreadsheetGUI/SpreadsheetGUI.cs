@@ -267,10 +267,9 @@ namespace WindowsFormsApplication1
             if (isTyping)
             {
                 string cellNameString = coordsToCellName(lastCol, lastRow);
-                if(!clientController.sendMessage("DoneTyping", ClientID + "\t" + cellNameString))// vinc flag
+                if(cellContentsBox.Enabled && !clientController.sendMessage("DoneTyping", ClientID + "\t" + cellNameString))
                 {
-                    MessageBox.Show(str_lostServerConnection);
-                    disconnectToServerAndReset();
+                    disconnectFromServer(true, str_lostServerConnection);
                 }
                 isTyping = false;
             }
@@ -321,13 +320,14 @@ namespace WindowsFormsApplication1
             //vinc: if cell changed, send it to server
             if (cellChanged)
             {
-                if (!clientController.sendMessage("Edit", cellNameString + "\t" + cellContentsBox.Text)) //vinc flag
+                if (cellContentsBox.Enabled && !clientController.sendMessage("Edit", cellNameString + "\t" + cellContentsBox.Text))
                 {
-                    MessageBox.Show(str_lostServerConnection);
-                    disconnectToServerAndReset();
+                    disconnectFromServer(true, str_lostServerConnection);
                 }
             }
         }
+
+
 
         /// <summary>
         /// Goes through the passed enumerable and runs updateCell on each cell named.
@@ -463,7 +463,7 @@ namespace WindowsFormsApplication1
             }
             else
             {
-                disconnectToServerAndReset();
+                disconnectFromServer(false, null);
             }
         }
 
@@ -559,16 +559,20 @@ namespace WindowsFormsApplication1
         }
 
         /// <summary>
-        /// Send Undo message to server
+        /// when MenuItem "undo" being clicked, send Undo message to server
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void undoToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (!clientController.sendMessage("Undo", null)) // vinc flag
+            sendUndo();
+        }
+        /// <summary>
+        /// send undo message to server
+        /// </summary>
+        private void sendUndo()
+        {
+            if (cellContentsBox.Enabled && !clientController.sendMessage("Undo", null))
             {
-                MessageBox.Show(str_lostServerConnection);
-                disconnectToServerAndReset();
+                disconnectFromServer(true, str_lostServerConnection);
             }
         }
 
@@ -591,6 +595,12 @@ namespace WindowsFormsApplication1
             //If we're getting data from arrow keys, move stuff around
             switch (e.KeyCode)
             {
+                case Keys.U: // Undo shortcut
+                    if (ModifierKeys.HasFlag(Keys.Control))
+                    {
+                        sendUndo();
+                    }
+                    break;
                 case Keys.Down: //Down arrow
                     spreadsheetPanel1.selectDown();
                     e.SuppressKeyPress = true;
@@ -645,10 +655,9 @@ namespace WindowsFormsApplication1
                 default:
                     if (cellContentsBox.Enabled && !isTyping)
                     {
-                        if (!clientController.sendMessage("IsTyping", ClientID + "\t" + cellNameBox.Text)) // vinc flag
+                        if (cellContentsBox.Enabled && !clientController.sendMessage("IsTyping", ClientID + "\t" + cellNameBox.Text)) 
                         {
-                            MessageBox.Show(str_lostServerConnection);
-                            disconnectToServerAndReset();
+                            disconnectFromServer(true, str_lostServerConnection);
                         }
                         isTyping = true;
                     }
@@ -744,6 +753,8 @@ namespace WindowsFormsApplication1
                                     //MessageType+One pair of cell+value
                                     MessageBox.Show("Incomplete Typing-Status request.");
                                 }
+                                if (messageComponents[1].Equals(ClientID))
+                                    break;
 
                                 int row, col;
                                 cellNameToCoords(messageComponents[2], out col, out row);
@@ -764,7 +775,8 @@ namespace WindowsFormsApplication1
                             }
                         case "DoneTyping":
                             {
-                                //Users.Remove(messageComponents[1]);
+                                if (messageComponents[1].Equals(ClientID))
+                                    break;
                                 spreadsheetPanel1.hideHighlightCell(messageComponents[1]);
                                 break;
                             }
@@ -909,17 +921,14 @@ namespace WindowsFormsApplication1
         /// <param name="message"></param>
         private void handleSocketError(string message)
         {
-            MessageBox.Show(message);
-            disconnectToServerAndReset();
-            //Need to implement commented buttons
-            //DO NOT DELETE!!!!!!!!!!!!!!!!
-            //inpHostname.Enabled = true;
-            //inpPlayerName.Enabled = true;
-            //Need to clear spreadsheet
-            //btnConnectToServer.Enabled = true;
+            disconnectFromServer(true, message);
         }
-        private void disconnectToServerAndReset()
+        private void disconnectFromServer(bool showPrompt, string message)
         {
+            if (showPrompt)
+            {
+                MessageBox.Show(message);
+            }
             //Populate the UI for the current cell.
             grabNewDisplayedData();
             cellContentsBox.Enabled = false;
