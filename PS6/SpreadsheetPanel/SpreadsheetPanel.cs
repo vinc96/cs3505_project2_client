@@ -454,7 +454,7 @@ namespace SS
                     (ROW_COUNT - _firstRow) * DATA_ROW_HEIGHT);
 
                 // Pen, brush, and fonts to use
-                Brush brush = new SolidBrush(Color.Black);
+                Brush brush = new SolidBrush(Color.Red);
                 Pen pen = new Pen(brush);
                 Font regularFont = Font;
                 Font boldFont = new Font(regularFont, FontStyle.Bold);

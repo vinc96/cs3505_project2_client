@@ -734,7 +734,6 @@ namespace WindowsFormsApplication1
                                     MessageBox.Show("Incomplete Typing-Status request.");
                                 }
 
-                                Users[messageComponents[1]] = RandomColorObject(messageComponents[1]);
                                 // change the panel frame color
 
                                 //if (Users.ContainsKey(messageComponents[1]))
@@ -751,8 +750,6 @@ namespace WindowsFormsApplication1
                             }
                         case "DoneTyping":
                             {
-                                // change the panel frame color, if there is 0 user editing it
-
                                 Users.Remove(messageComponents[1]);
                                 break;
                             }
@@ -865,6 +862,12 @@ namespace WindowsFormsApplication1
                 }
             }
             return cellChanged;
+        }
+
+        private void highlightCell(string UserID, string cellName)
+        {
+            Users[UserID] = RandomColorObject(cellName);
+
         }
 
         ///// <summary>
