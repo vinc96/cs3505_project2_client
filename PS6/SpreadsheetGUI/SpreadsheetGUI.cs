@@ -1,26 +1,27 @@
-﻿using SpreadsheetClient;
-///Written by Josh Christensen u0978248
+﻿/// Citation: 
+/// Based on Snake.SnakeClient.ClientSnakeNetworkController.cs written by Josh Christensen (u0978248) and Nathan Veillon (u0984669) 
+/// Authors:
+/// Vincent Cheng (u0887427)
+/// Atul Sharma (u1001513)
+
+using SpreadsheetClient;
 using SpreadsheetUtilities;
 using SS;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace WindowsFormsApplication1
 {
     public partial class SpreadsheetGUI : Form
     {
-        /// <summary>
-        /// The base window title for our spreadsheet program. Modifiers are concatenated to this to show the status of the program.
-        /// </summary>
-        private const String WINDOWTITLE = "Super Spreadsheet";
+        ///// <summary>
+        ///// The base window title for our spreadsheet program. Modifiers are concatenated to this to show the status of the program.
+        ///// </summary>
+        //private const String WINDOWTITLE = "RAD Protocol Spreadsheet";
         /// <summary>
         /// The version we use when saving or loading spreadsheets.
         /// </summary>
@@ -85,18 +86,7 @@ namespace WindowsFormsApplication1
             "\t Hit the Enter button\n" +
             "\t Hit the Enter key\n" +
             "\t Select another box with the arrow keys\n" +
-            "\t Select another box with the mouse\n\n" +
-
-            "Saving/Loading:\n\n" +
-            "Saving and loading works the same as in any other windows application. There is Save, Save As, and load functionality.\n\n" +
-            "In order open a new file, either hit Ctrl+N, or select \"New\" from the file menu.\n" +
-            "In order to open a file, either hit Ctrl+O, or select \"Open\" from the file menu.\n" +
-            "In order to save the form, either hit Ctrl+S, or select \"Save\" from the file menu.\n" +
-            "In order to Save As , either hit Ctrl+Shift+S, or select \"Save As\" from the file menu.\n\n" +
-
-            "Other Assorted Sugar:\n\n" +
-            "When a file is loaded, its file location is in the title bar.\n" +
-            "When a file that's open has unsaved changes, an asterisk (*) appears in the title bar.\n";
+            "\t Select another box with the mouse\n\n";
 
         public SpreadsheetGUI()
         {
