@@ -287,11 +287,7 @@ namespace SS
             private int _firstRow = 0;
 
             // The strings contained by the spreadsheet
-            private Dictionary<Address, String> _values
-            {
-                get;
-                set;
-            }
+            private Dictionary<Address, String> _values;
             private Object valuesLocker;
 
             // The containing panel

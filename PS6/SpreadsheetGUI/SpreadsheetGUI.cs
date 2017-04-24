@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -803,6 +804,7 @@ namespace WindowsFormsApplication1
             ///// update model
             //modelSheet = new Spreadsheet();
             modelSheet = new Spreadsheet(isValid, normalizer, VERSION);
+            StringBuilder log = new StringBuilder();
 
             if (messageComponents.Length % 2 != 0)
             {
@@ -818,7 +820,7 @@ namespace WindowsFormsApplication1
                 }
                 catch (FormulaFormatException)//If we catch an invalid formula error, inform the user.
                 {
-                    MessageBox.Show("Error: Invalid Formula at cell " + messageComponents[i]);
+                    log.Append("Error: Invalid Formula at cell " + messageComponents[i] + "\n");
                 }
                 catch (CircularException)//If we catch a circular exception error, inform the user.
                 {
@@ -829,6 +831,7 @@ namespace WindowsFormsApplication1
 
                 }
             }
+            MessageBox.Show(log.ToString());
             ClientID = messageComponents[1];
 
             /// update view
