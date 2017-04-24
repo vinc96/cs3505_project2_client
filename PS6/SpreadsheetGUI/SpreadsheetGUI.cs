@@ -248,7 +248,7 @@ namespace WindowsFormsApplication1
         {
             clientController.sendMessage("Undo", null);
         }
-        
+
         /// <summary>
         /// This is the listener that we use to save files. Should be reigstered with our saveDialog.FileOK listener. If
         /// it's not used in this fashion, does nothing.
@@ -424,21 +424,18 @@ namespace WindowsFormsApplication1
         }
 
         /// <summary>
-        /// If we try to close before the file is saved, warn the user.
+        /// Before close window, properly disconnect server
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void MainWindow_FormClosing(object sender, FormClosingEventArgs e)
         {
-            //potentialDataLoss();
             if (MessageBox.Show("The whole application will be closed down. Confirm?", "Close Application", MessageBoxButtons.YesNo) == DialogResult.No)
             {
-
-                clientController.closeConnection(handleSocketClosed);
-
                 e.Cancel = true;
-                //this.Activate();
+                return;
             }
+            clientController.closeConnection(handleSocketClosed);
         }
 
         ///// <summary>
@@ -640,6 +637,7 @@ namespace WindowsFormsApplication1
                 inpSSName.Enabled = false;
                 btnConnectToServer.Text = "Disconnect";
                 btnConnectToServer.Enabled = true;
+                cellContentsBox.Focus();
             }));
 
             clientController.startDataListenerLoop(recievedData);

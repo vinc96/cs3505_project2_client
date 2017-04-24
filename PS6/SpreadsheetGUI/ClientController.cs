@@ -241,7 +241,7 @@ namespace SpreadsheetClient
         /// <summary>
         /// Close the connection for this server, using the specified handler passed.
         /// </summary>
-        /// <param name="handleDisconnect"></param>
+        /// <param name="handleDisconnect"></para>m
         internal void closeConnection(handleSocketClosed handleDisconnect)
         {
             Networking.Disconnect(clientSocketState, false, (ss) => { socketDisconected(ss, handleDisconnect); });
