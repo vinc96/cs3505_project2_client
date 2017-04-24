@@ -15,9 +15,7 @@
 
 #IsTyping	“IsTyping\t clientID\t cellName\t\n”
 
-#DoneTyp	“DoneTyping\t clientID\t cellName\t\n”
+#DoneTyping	“DoneTyping\t clientID\t cellName\t\n”
 
 memo:
-3. improve UI of those connection input
-
-1. server only support single client
+1. improve UI of those connection input

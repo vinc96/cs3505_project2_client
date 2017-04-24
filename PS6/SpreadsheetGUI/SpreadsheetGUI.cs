@@ -68,10 +68,10 @@ namespace WindowsFormsApplication1
         // vinc: indicate whether or not user is typing in input textbox
         private bool isTyping;
 
-        /// <summary>
-        /// The location where the sheet we're working on was last saved. Null if it hasn't been saved yet.
-        /// </summary>
-        private string lastSaveLocation;
+        ///// <summary>
+        ///// The location where the sheet we're working on was last saved. Null if it hasn't been saved yet.
+        ///// </summary>
+        //private string lastSaveLocation;
         /// <summary>
         /// The message to be displayed when the user clicks on the help button.
         /// </summary>

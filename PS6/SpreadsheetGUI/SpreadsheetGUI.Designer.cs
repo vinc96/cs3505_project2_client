@@ -77,42 +77,36 @@
             // newToolStripMenuItem
             // 
             this.newToolStripMenuItem.Name = "newToolStripMenuItem";
-            this.newToolStripMenuItem.Size = new System.Drawing.Size(258, 26);
+            this.newToolStripMenuItem.Size = new System.Drawing.Size(193, 26);
             this.newToolStripMenuItem.Text = "New... (Ctrl + N)";
             this.newToolStripMenuItem.Click += new System.EventHandler(this.newToolStripMenuItem_Click);
-            //// 
-            //// openToolStripMenuItem
-            //// 
-            //this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            //this.openToolStripMenuItem.Size = new System.Drawing.Size(258, 26);
-            //this.openToolStripMenuItem.Text = "Open... (Ctrl + O)";
-            //this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
+            // 
+            // openToolStripMenuItem
+            // 
+            this.openToolStripMenuItem.Name = "openToolStripMenuItem";
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(193, 26);
             // 
             // undoToolStripMenuItem
             // 
             this.undoToolStripMenuItem.Name = "undoToolStripMenuItem";
-            this.undoToolStripMenuItem.Size = new System.Drawing.Size(258, 26);
+            this.undoToolStripMenuItem.Size = new System.Drawing.Size(193, 26);
             this.undoToolStripMenuItem.Text = "Undo (Ctrl+Z)";
             this.undoToolStripMenuItem.Click += new System.EventHandler(this.undoToolStripMenuItem_Click);
-            //// 
-            //// saveToolStripMenuItem
-            //// 
-            //this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            //this.saveToolStripMenuItem.Size = new System.Drawing.Size(258, 26);
-            //this.saveToolStripMenuItem.Text = "Save... (Ctrl + S)";
-            //this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
-            //// 
-            //// saveAsToolStripMenuItem
-            //// 
-            //this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
-            //this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(258, 26);
-            //this.saveAsToolStripMenuItem.Text = "Save As... (Ctrl + Shift + N)";
-            //this.saveAsToolStripMenuItem.Click += new System.EventHandler(this.saveAsToolStripMenuItem_Click);
+            // 
+            // saveToolStripMenuItem
+            // 
+            this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(193, 26);
+            // 
+            // saveAsToolStripMenuItem
+            // 
+            this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
+            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(193, 26);
             // 
             // closeToolStripMenuItem
             // 
             this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
-            this.closeToolStripMenuItem.Size = new System.Drawing.Size(258, 26);
+            this.closeToolStripMenuItem.Size = new System.Drawing.Size(193, 26);
             this.closeToolStripMenuItem.Text = "Close (LAlt + F4)";
             this.closeToolStripMenuItem.Click += new System.EventHandler(this.closeToolStripMenuItem_Click);
             // 
@@ -126,10 +120,9 @@
             // enterButton
             // 
             this.enterButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.enterButton.Location = new System.Drawing.Point(1136, 29);
-            this.enterButton.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            this.enterButton.Location = new System.Drawing.Point(1136, 32);
             this.enterButton.Name = "enterButton";
-            this.enterButton.Size = new System.Drawing.Size(103, 28);
+            this.enterButton.Size = new System.Drawing.Size(103, 25);
             this.enterButton.TabIndex = 2;
             this.enterButton.Text = "Enter";
             this.enterButton.UseVisualStyleBackColor = true;
@@ -140,7 +133,6 @@
             this.cellContentsBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.cellContentsBox.Location = new System.Drawing.Point(261, 32);
-            this.cellContentsBox.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.cellContentsBox.Name = "cellContentsBox";
             this.cellContentsBox.ShortcutsEnabled = false;
             this.cellContentsBox.Size = new System.Drawing.Size(868, 25);
@@ -149,7 +141,6 @@
             // cellNameBox
             // 
             this.cellNameBox.Location = new System.Drawing.Point(16, 32);
-            this.cellNameBox.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.cellNameBox.Name = "cellNameBox";
             this.cellNameBox.ReadOnly = true;
             this.cellNameBox.Size = new System.Drawing.Size(40, 25);
@@ -158,7 +149,6 @@
             // cellValueBox
             // 
             this.cellValueBox.Location = new System.Drawing.Point(63, 32);
-            this.cellValueBox.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.cellValueBox.Name = "cellValueBox";
             this.cellValueBox.ReadOnly = true;
             this.cellValueBox.Size = new System.Drawing.Size(192, 25);
@@ -170,7 +160,6 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.spreadsheetPanel1.Location = new System.Drawing.Point(16, 59);
-            this.spreadsheetPanel1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.spreadsheetPanel1.Name = "spreadsheetPanel1";
             this.spreadsheetPanel1.Size = new System.Drawing.Size(1223, 568);
             this.spreadsheetPanel1.TabIndex = 0;
@@ -178,25 +167,28 @@
             // 
             // inpHostname
             // 
-            this.inpHostname.Location = new System.Drawing.Point(387, 2);
+            this.inpHostname.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.inpHostname.Location = new System.Drawing.Point(547, 3);
             this.inpHostname.Name = "inpHostname";
-            this.inpHostname.Size = new System.Drawing.Size(100, 25);
+            this.inpHostname.Size = new System.Drawing.Size(216, 25);
             this.inpHostname.TabIndex = 6;
             this.inpHostname.Text = "lab1-3.eng.utah.edu";
             // 
             // inpSSName
             // 
-            this.inpSSName.Location = new System.Drawing.Point(595, 3);
+            this.inpSSName.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.inpSSName.Location = new System.Drawing.Point(769, 3);
             this.inpSSName.Name = "inpSSName";
-            this.inpSSName.Size = new System.Drawing.Size(100, 25);
+            this.inpSSName.Size = new System.Drawing.Size(134, 25);
             this.inpSSName.TabIndex = 7;
             this.inpSSName.Text = "asdf";
             // 
             // btnConnectToServer
             // 
-            this.btnConnectToServer.Location = new System.Drawing.Point(850, 4);
+            this.btnConnectToServer.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnConnectToServer.Location = new System.Drawing.Point(909, 3);
             this.btnConnectToServer.Name = "btnConnectToServer";
-            this.btnConnectToServer.Size = new System.Drawing.Size(115, 23);
+            this.btnConnectToServer.Size = new System.Drawing.Size(103, 25);
             this.btnConnectToServer.TabIndex = 8;
             this.btnConnectToServer.Text = "Connect";
             this.btnConnectToServer.UseVisualStyleBackColor = true;
@@ -219,7 +211,7 @@
             this.KeyPreview = true;
             this.MainMenuStrip = this.menuStrip1;
             this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.MinimumSize = new System.Drawing.Size(661, 570);
+            this.MinimumSize = new System.Drawing.Size(900, 570);
             this.Name = "SpreadsheetGUI";
             this.Text = "Super Spreadsheet";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainWindow_FormClosing);
