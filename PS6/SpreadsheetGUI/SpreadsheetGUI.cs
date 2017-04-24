@@ -432,6 +432,59 @@ namespace WindowsFormsApplication1
         }
 
         /// <summary>
+        /// Connect to server
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btnConnectToServer_Click(object sender, EventArgs e)
+        {
+            if (inpHostname.Enabled && inpHostname.Enabled)
+            {
+                string hostname = inpHostname.Text;
+                string SSName = inpSSName.Text;
+
+                if (hostname == "")
+                {
+                    MessageBox.Show("The Server Hostname Cannot Be Blank");
+                    return;
+                }
+
+                if (SSName == "")
+                {
+                    MessageBox.Show("The Spreadsheet Name Cannot Be Blank");
+                    return;
+                }
+
+                this.inpHostname.Enabled = false;
+                this.inpSSName.Enabled = false;
+                btnConnectToServer.Text = "Connecting";
+                btnConnectToServer.Enabled = false;
+                clientController.connectToServer(hostname, SSName, handleHandshakeSuccess);
+            }
+            else
+            {
+                //Populate the UI for the current cell.
+                grabNewDisplayedData();
+                cellContentsBox.Enabled = false;
+                enterButton.Enabled = false;
+                inpHostname.Enabled = true;
+                inpSSName.Enabled = true;
+                btnConnectToServer.Text = "Connect";
+                clientController.closeConnection(handleSocketClosed);
+            }
+        }
+
+        /// <summary>
+        /// Fires when the main window is shown. Used here in order to ensure that when the window is shown, the editable cell contents box is in focus.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MainWindow_Shown(object sender, EventArgs e)
+        {
+            cellContentsBox.Focus();
+        }
+
+        /// <summary>
         /// Before close window, properly disconnect server
         /// </summary>
         /// <param name="sender"></param>
@@ -459,17 +512,6 @@ namespace WindowsFormsApplication1
         {
             openNewWindow();
         }
-
-        /// <summary>
-        /// Fired when you click on the "close" menu item in the file menu. Closes the window.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void closeToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            this.Close();
-        }
-
         /// <summary>
         /// Opens a new window by creating another version of this one in a new thread.
         /// </summary>
@@ -481,36 +523,38 @@ namespace WindowsFormsApplication1
         }
 
         /// <summary>
-        /// Sets the window title to be up to date, given the current state of the sheet. Grabs the edit state and file
-        /// location and concatenates them together into a valid title.
-        /// </summary>
-        private void updateWindowTitle()
-        {
-            //Add the file location (if it exists)
-            if (ReferenceEquals(lastSaveLocation, null))
-            {
-                this.Text = WINDOWTITLE;
-            }
-            else
-            {
-                this.Text = WINDOWTITLE + ": " + lastSaveLocation;
-            }
-
-            //Add the save state indicator
-            if (modelSheet.Changed)
-            {
-                this.Text += "*";
-            }
-        }
-        /// <summary>
-        /// Fires when the main window is shown. Used here in order to ensure that when the window is shown, the editable cell contents box is in focus.
+        /// Fired when you click on the "close" menu item in the file menu. Closes the window.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void MainWindow_Shown(object sender, EventArgs e)
+        private void closeToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            cellContentsBox.Focus();
+            this.Close();
         }
+
+        ///// <summary>
+        ///// Sets the window title to be up to date, given the current state of the sheet. Grabs the edit state and file
+        ///// location and concatenates them together into a valid title.
+        ///// </summary>
+        //private void updateWindowTitle()
+        //{
+        //    //Add the file location (if it exists)
+        //    if (ReferenceEquals(lastSaveLocation, null))
+        //    {
+        //        this.Text = WINDOWTITLE;
+        //    }
+        //    else
+        //    {
+        //        this.Text = WINDOWTITLE + ": " + lastSaveLocation;
+        //    }
+
+        //    //Add the save state indicator
+        //    if (modelSheet.Changed)
+        //    {
+        //        this.Text += "*";
+        //    }
+        //}
+
         /// <summary>
         /// Fired when the help menu button is clicked. Opens a help window that explains how to use the spreadsheet.
         /// </summary>
@@ -521,19 +565,29 @@ namespace WindowsFormsApplication1
             MessageBox.Show(helpMessage);
         }
 
-        protected override bool IsInputKey(Keys keyData)
+        /// <summary>
+        /// Send Undo message to server
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void undoToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            switch (keyData)
-            {
-                case Keys.Right:
-                case Keys.Left:
-                case Keys.Up:
-                case Keys.Down:
-                case Keys.Shift:
-                    return true;
-            }
-            return base.IsInputKey(keyData);
+            clientController.sendMessage("Undo", null);
         }
+
+        //protected override bool IsInputKey(Keys keyData)
+        //{
+        //    switch (keyData)
+        //    {
+        //        case Keys.Right:
+        //        case Keys.Left:
+        //        case Keys.Up:
+        //        case Keys.Down:
+        //        case Keys.Shift:
+        //            return true;
+        //    }
+        //    return base.IsInputKey(keyData);
+        //}
 
         protected override void OnKeyDown(KeyEventArgs e)
         {
@@ -601,7 +655,6 @@ namespace WindowsFormsApplication1
             }
 
             base.OnKeyDown(e);
-
         }
 
         /// <summary>
@@ -809,8 +862,8 @@ namespace WindowsFormsApplication1
                     ISet<String> cellsToUpdate = modelSheet.SetContentsOfCell(targetCell, newContent);
                     updateCells(cellsToUpdate); //Update the cells that need re-evaluation.
 
-                    //Run the updateWindowTitle method, so we'll indicate that the spreadsheet changed.
-                    Invoke(new MethodInvoker(updateWindowTitle));
+                    ////Run the updateWindowTitle method, so we'll indicate that the spreadsheet changed.
+                    //Invoke(new MethodInvoker(updateWindowTitle));
                 }
                 catch (FormulaFormatException)//If we catch an invalid formula error, inform the user.
                 {
@@ -841,7 +894,6 @@ namespace WindowsFormsApplication1
             return Color.FromArgb(255, (hashCode & 0x00FF0000) >> 16, (hashCode & 0x0000FF00) >> 8, hashCode & 0x000000FF);
         }
 
-
         /// <summary>
         /// Displays error message on an unsuccesful initial connect attempt
         /// <author>AtShar<author/>
@@ -856,59 +908,6 @@ namespace WindowsFormsApplication1
             //inpPlayerName.Enabled = true;
             //Need to clear spreadsheet
             //btnConnectToServer.Enabled = true;
-        }
-
-        /// <summary>
-        /// Connect to server
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void btnConnectToServer_Click(object sender, EventArgs e)
-        {
-            if (inpHostname.Enabled && inpHostname.Enabled)
-            {
-                string hostname = inpHostname.Text;
-                string SSName = inpSSName.Text;
-
-                if (hostname == "")
-                {
-                    MessageBox.Show("The Server Hostname Cannot Be Blank");
-                    return;
-                }
-
-                if (SSName == "")
-                {
-                    MessageBox.Show("The Spreadsheet Name Cannot Be Blank");
-                    return;
-                }
-
-                this.inpHostname.Enabled = false;
-                this.inpSSName.Enabled = false;
-                btnConnectToServer.Text = "Connecting";
-                btnConnectToServer.Enabled = false;
-                clientController.connectToServer(hostname, SSName, handleHandshakeSuccess);
-            }
-            else
-            {
-                //Populate the UI for the current cell.
-                grabNewDisplayedData();
-                cellContentsBox.Enabled = false;
-                enterButton.Enabled = false;
-                inpHostname.Enabled = true;
-                inpSSName.Enabled = true;
-                btnConnectToServer.Text = "Connect";
-                clientController.closeConnection(handleSocketClosed);
-            }
-        }
-
-        /// <summary>
-        /// Send Undo message to server
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void undoToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            clientController.sendMessage("Undo", null);
         }
 
         /// <summary>
