@@ -818,23 +818,27 @@ namespace WindowsFormsApplication1
                 }
                 catch (FormulaFormatException)//If we catch an invalid formula error, inform the user.
                 {
-                    //MessageBox.Show("Error: Invalid Formula!");
+                    MessageBox.Show("Error: Invalid Formula at cell " + messageComponents[i]);
                 }
                 catch (CircularException)//If we catch a circular exception error, inform the user.
                 {
                     //MessageBox.Show("Error: You've entered a formula that has a circular dependency!");
                 }
+                catch (InvalidNameException)
+                {
+
+                }
             }
             ClientID = messageComponents[1];
 
-            ///// update view
+            /// update view
             //Replace the spreadsheet panel, so that we don't have any lingering data values
             spreadsheetPanel1.Clear();
             //Update all the values on load.
             updateCells(modelSheet.GetNamesOfAllNonemptyCells());
             //Pull the data from our current location
             Invoke(new MethodInvoker(() => { grabNewDisplayedData(); }));
-            //Invalidate(); 
+            //Invalidate();
         }
 
         /// <summary>
@@ -882,7 +886,9 @@ namespace WindowsFormsApplication1
                 }
                 catch (FormulaFormatException)//If we catch an invalid formula error, inform the user.
                 {
-                    //MessageBox.Show("Error: Invalid Formula!");
+                    MessageBox.Show("Error: Invalid Formula at cell " + targetCell);
+                    // if formula format exception thrown, cell didn't changed
+                    return false;
                 }
                 catch (CircularException)//If we catch a circular exception error, inform the user.
                 {

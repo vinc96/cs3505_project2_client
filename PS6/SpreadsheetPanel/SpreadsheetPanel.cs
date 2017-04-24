@@ -18,7 +18,7 @@ namespace SS
     /// The type of delegate used to register for SelectionChanged events
     /// </summary>
     /// <param name="sender"></param>
-    
+
     public delegate void SelectionChangedHandler(SpreadsheetPanel sender);
 
 
@@ -31,7 +31,7 @@ namespace SS
     /// 
     /// None of the cells are editable.  They are for display purposes only.
     /// </summary>
-    
+
     public partial class SpreadsheetPanel : UserControl
     {
 
@@ -56,7 +56,7 @@ namespace SS
         /// <summary>
         /// Creates an empty SpreadsheetPanel
         /// </summary>
-        
+
         public SpreadsheetPanel()
         {
 
@@ -108,7 +108,7 @@ namespace SS
         /// <param name="row"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-        
+
         public bool SetValue(int col, int row, string value)
         {
             return drawingPanel.SetValue(col, row, value);
@@ -124,7 +124,7 @@ namespace SS
         /// <param name="row"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-        
+
         public bool GetValue(int col, int row, out string value)
         {
             return drawingPanel.GetValue(col, row, out value);
@@ -138,7 +138,7 @@ namespace SS
         /// <param name="col"></param>
         /// <param name="row"></param>
         /// <returns></returns>
-        
+
         public bool SetSelection(int col, int row)
         {
             return drawingPanel.SetSelection(col, row);
@@ -151,7 +151,7 @@ namespace SS
         /// </summary>
         /// <param name="col"></param>
         /// <param name="row"></param>
-        
+
         public void GetSelection(out int col, out int row)
         {
             drawingPanel.GetSelection(out col, out row);
@@ -227,8 +227,8 @@ namespace SS
                 hScroll.LargeChange = (Width - SCROLLBAR_WIDTH) / DATA_COL_WIDTH;
             }
         }
-        
-        
+
+
         /// <summary>
         /// The event used to send notifications of a selection change
         /// </summary>
@@ -239,7 +239,7 @@ namespace SS
         /// <summary>
         /// Used internally to keep track of cell addresses
         /// </summary>
-        
+
         private class Address
         {
 
@@ -259,7 +259,8 @@ namespace SS
 
             public override bool Equals(object obj)
             {
- 	            if ((obj == null) || !(obj is Address)) {
+                if ((obj == null) || !(obj is Address))
+                {
                     return false;
                 }
                 Address a = (Address)obj;
@@ -273,7 +274,7 @@ namespace SS
         /// The panel where the spreadsheet grid is drawn.  It keeps track of the
         /// current selection as well as what is supposed to be drawn in each cell.
         /// </summary>
-        
+
         private class DrawingPanel : Panel
         {
             // Columns and rows are numbered beginning with 0.  This is the coordinate
@@ -284,9 +285,14 @@ namespace SS
             // Coordinate of cell in upper-left corner of display
             private int _firstColumn = 0;
             private int _firstRow = 0;
-            
+
             // The strings contained by the spreadsheet
-            private Dictionary<Address,String> _values;
+            private Dictionary<Address, String> _values
+            {
+                get;
+                set;
+            }
+            private Object valuesLocker;
 
             // The containing panel
             private SpreadsheetPanel _ssp;
@@ -304,6 +310,7 @@ namespace SS
                 // vinc: init my variables
                 IDToCell = new Dictionary<string, object[]>();
                 IDToColor = new Dictionary<string, Color>();
+                valuesLocker = new object();
             }
 
             /// <summary>
@@ -322,7 +329,8 @@ namespace SS
             /// </summary>
             public void Clear()
             {
-                _values.Clear();
+                lock (valuesLocker)
+                    _values.Clear();
                 // vinc: erase highlighted cell
                 IDToCell.Clear();
                 IDToColor.Clear();
@@ -347,11 +355,13 @@ namespace SS
                 Address a = new Address(col, row);
                 if (c == null || c == "")
                 {
-                    _values.Remove(a);
+                    lock (valuesLocker)
+                        _values.Remove(a);
                 }
                 else
                 {
-                    _values[a] = c;
+                    lock (valuesLocker)
+                        _values[a] = c;
                 }
                 Invalidate();
                 return true;
@@ -372,10 +382,11 @@ namespace SS
                     c = null;
                     return false;
                 }
-                if (!_values.TryGetValue(new Address(col, row), out c))
-                {
-                    c = "";
-                }
+                lock (valuesLocker)
+                    if (!_values.TryGetValue(new Address(col, row), out c))
+                    {
+                        c = "";
+                    }
                 return true;
             }
 
@@ -401,7 +412,7 @@ namespace SS
                 //Scroll left if the box is outside our view, in that direction.
                 while (_selectedCol < _firstColumn)
                 {
-                    _ssp.hScroll.Value -= 1; 
+                    _ssp.hScroll.Value -= 1;
                 }
                 //Scroll right if the box is outside our view, in that direction.
                 while ((colsDisplayed + _firstColumn) < _selectedCol)
@@ -432,7 +443,7 @@ namespace SS
             //Sets the new first column based upon whatever condition the scrollbars of the panel are in. Registered with the ValueChanged scroll event.
             public void HScrollValueChanged(object sender, EventArgs args)
             {
-                HScrollBar bar = (HScrollBar) sender;
+                HScrollBar bar = (HScrollBar)sender;
                 _firstColumn = bar.Value;
                 Invalidate();
             }
@@ -440,7 +451,7 @@ namespace SS
             //Sets the new first row based upon whatever condition the scrollbars of the panel are in. Registered with the ValueChanged scroll event.
             public void VScrollValueChanged(object sender, EventArgs args)
             {
-                VScrollBar bar = (VScrollBar) sender;
+                VScrollBar bar = (VScrollBar)sender;
                 _firstRow = bar.Value;
                 Invalidate();
             }
@@ -529,29 +540,30 @@ namespace SS
                 }
 
                 // Draw the text
-                foreach (KeyValuePair<Address, String> address in _values)
-                {
-                    String text = address.Value;
-                    int x = address.Key.Col - _firstColumn;
-                    int y = address.Key.Row - _firstRow;
-                    float height = e.Graphics.MeasureString(text, regularFont).Height;
-                    float width = e.Graphics.MeasureString(text, regularFont).Width;
-                    if (x >= 0 && y >= 0)
+                lock (valuesLocker)
+                    foreach (KeyValuePair<Address, String> address in _values)
                     {
-                        Region cellClip = new Region(new Rectangle(LABEL_COL_WIDTH + x * DATA_COL_WIDTH + PADDING,
-                                                                   LABEL_ROW_HEIGHT + y * DATA_ROW_HEIGHT,
-                                                                   DATA_COL_WIDTH - 2*PADDING,
-                                                                   DATA_ROW_HEIGHT));
-                        cellClip.Intersect(clip);
-                        e.Graphics.Clip = cellClip;
-                        e.Graphics.DrawString(
-                            text,
-                            regularFont,
-                            brush,
-                            LABEL_COL_WIDTH + x * DATA_COL_WIDTH + PADDING,
-                            LABEL_ROW_HEIGHT + y * DATA_ROW_HEIGHT + (DATA_ROW_HEIGHT - height) / 2);
+                        String text = address.Value;
+                        int x = address.Key.Col - _firstColumn;
+                        int y = address.Key.Row - _firstRow;
+                        float height = e.Graphics.MeasureString(text, regularFont).Height;
+                        float width = e.Graphics.MeasureString(text, regularFont).Width;
+                        if (x >= 0 && y >= 0)
+                        {
+                            Region cellClip = new Region(new Rectangle(LABEL_COL_WIDTH + x * DATA_COL_WIDTH + PADDING,
+                                                                       LABEL_ROW_HEIGHT + y * DATA_ROW_HEIGHT,
+                                                                       DATA_COL_WIDTH - 2 * PADDING,
+                                                                       DATA_ROW_HEIGHT));
+                            cellClip.Intersect(clip);
+                            e.Graphics.Clip = cellClip;
+                            e.Graphics.DrawString(
+                                text,
+                                regularFont,
+                                brush,
+                                LABEL_COL_WIDTH + x * DATA_COL_WIDTH + PADDING,
+                                LABEL_ROW_HEIGHT + y * DATA_ROW_HEIGHT + (DATA_ROW_HEIGHT - height) / 2);
+                        }
                     }
-                }
             }
 
             /// <summary>
@@ -569,8 +581,8 @@ namespace SS
                       label,
                       f,
                       new SolidBrush(Color.Black),
-                      LABEL_COL_WIDTH + x*DATA_COL_WIDTH + (DATA_COL_WIDTH - width)/2,
-                      (LABEL_ROW_HEIGHT - height)/2);
+                      LABEL_COL_WIDTH + x * DATA_COL_WIDTH + (DATA_COL_WIDTH - width) / 2,
+                      (LABEL_ROW_HEIGHT - height) / 2);
             }
 
 
@@ -589,8 +601,8 @@ namespace SS
                     label,
                     f,
                     new SolidBrush(Color.Black),
-                    LABEL_COL_WIDTH - width- PADDING,
-                    LABEL_ROW_HEIGHT + y * DATA_ROW_HEIGHT + (DATA_ROW_HEIGHT-height)/2);
+                    LABEL_COL_WIDTH - width - PADDING,
+                    LABEL_ROW_HEIGHT + y * DATA_ROW_HEIGHT + (DATA_ROW_HEIGHT - height) / 2);
             }
 
 
@@ -603,8 +615,8 @@ namespace SS
             protected override void OnMouseClick(MouseEventArgs e)
             {
                 base.OnClick(e);
-                int x = (e.X-LABEL_COL_WIDTH) / DATA_COL_WIDTH;
-                int y = (e.Y-LABEL_ROW_HEIGHT) / DATA_ROW_HEIGHT;
+                int x = (e.X - LABEL_COL_WIDTH) / DATA_COL_WIDTH;
+                int y = (e.Y - LABEL_ROW_HEIGHT) / DATA_ROW_HEIGHT;
                 if (e.X > LABEL_COL_WIDTH && e.Y > LABEL_ROW_HEIGHT && (x + _firstColumn < COL_COUNT) && (y + _firstRow < ROW_COUNT))
                 {
                     _selectedCol = x + _firstColumn;
@@ -624,7 +636,7 @@ namespace SS
             /// </summary>
             public void addHighlightCell(string ID, int row, int col)
             {
-                IDToCell[ID] = new object[] {row, col};
+                IDToCell[ID] = new object[] { row, col };
                 if (!IDToColor.ContainsKey(ID))
                 {
                     IDToColor[ID] = RandomColorObject(ID);

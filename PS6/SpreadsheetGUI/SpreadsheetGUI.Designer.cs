@@ -149,7 +149,7 @@
             this.inpSSName.Name = "inpSSName";
             this.inpSSName.Size = new System.Drawing.Size(134, 25);
             this.inpSSName.TabIndex = 7;
-            this.inpSSName.Text = "fdfd";
+            this.inpSSName.Text = "asdf";
             // 
             // btnConnectToServer
             // 

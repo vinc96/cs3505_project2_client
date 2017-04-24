@@ -663,7 +663,6 @@ namespace SS
             if (!IsValidVarName(varname))
             {
                 throw new InvalidNameException(); //The variable must pass our valid variable name test.
-
             }
 
             //If we haven't broken the rules, its valid.
@@ -732,7 +731,7 @@ namespace SS
                 //If the cell is a formula.
                 if (nonEmptyCells[name].Contents.GetType() == typeof(Formula))
                 {
-                    Formula toBeRemoved = (Formula) nonEmptyCells[name].Contents;
+                    Formula toBeRemoved = (Formula) nonEmptyCells[name].Contents;   
                     //Remove the dependencies for every varName in this cell.
                     foreach (string varName in toBeRemoved.GetVariables())
                     {
