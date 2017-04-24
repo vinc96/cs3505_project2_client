@@ -51,11 +51,11 @@ namespace WindowsFormsApplication1
         /// </summary>
         private int lastRow;
 
-        /// <summary>
-        /// A list of all Users who access the spreadsheet.
-        /// The users are mapped to unique colors so that the cells they edit can be highlighted
-        /// </summary>
-        private Dictionary<string, Color> Users;
+        ///// <summary>
+        ///// A list of all Users who access the spreadsheet.
+        ///// The users are mapped to unique colors so that the cells they edit can be highlighted
+        ///// </summary>
+        //private Dictionary<string, Color> Users;
 
         /// <summary>
         /// <author>AtShar</author>
@@ -92,7 +92,7 @@ namespace WindowsFormsApplication1
         {
             //AtShar&vinc: initalize fields
             clientController = new ClientController();
-            Users = new Dictionary<string, Color>();
+            //Users = new Dictionary<string, Color>();
             ClientID = null;
             isTyping = false;
 
@@ -734,6 +734,9 @@ namespace WindowsFormsApplication1
                                     MessageBox.Show("Incomplete Typing-Status request.");
                                 }
 
+                                int row, col;
+                                cellNameToCoords(messageComponents[2], out col, out row);
+                                spreadsheetPanel1.addHighlightCell(messageComponents[1], row, col);
                                 // change the panel frame color
 
                                 //if (Users.ContainsKey(messageComponents[1]))
@@ -750,7 +753,8 @@ namespace WindowsFormsApplication1
                             }
                         case "DoneTyping":
                             {
-                                Users.Remove(messageComponents[1]);
+                                //Users.Remove(messageComponents[1]);
+                                spreadsheetPanel1.hideHighlightCell(messageComponents[1]);
                                 break;
                             }
                         default:
@@ -864,11 +868,16 @@ namespace WindowsFormsApplication1
             return cellChanged;
         }
 
-        private void highlightCell(string UserID, string cellName)
-        {
-            Users[UserID] = RandomColorObject(cellName);
-
-        }
+        ///// <summary>
+        ///// highlight specified cell with specified color
+        ///// </summary>
+        ///// <param name="UserID"></param>
+        ///// <param name="cellName"></param>
+        //private void highlightCell(string UserID, string cellName)
+        //{
+        //    //Users[UserID] = RandomColorObject(cellName);
+            
+        //}
 
         ///// <summary>
         ///// <author>AtShar</author>
@@ -880,12 +889,6 @@ namespace WindowsFormsApplication1
         //    //Update game display
         //    spreadsheetPanel1.Update();
         //}
-
-        private Color RandomColorObject(string ID)
-        {
-            int hashCode = (ID.ToString() + "SaltyMcSaltPants").GetHashCode();
-            return Color.FromArgb(255, (hashCode & 0x00FF0000) >> 16, (hashCode & 0x0000FF00) >> 8, hashCode & 0x000000FF);
-        }
 
         /// <summary>
         /// Displays error message on an unsuccesful initial connect attempt
@@ -912,7 +915,7 @@ namespace WindowsFormsApplication1
             //clientController = new ClientController();
             modelSheet = new Spreadsheet();
             //modelSheet = new Spreadsheet(isValid, normalizer, VERSION);
-            Users = new Dictionary<string, Color>();
+            //Users = new Dictionary<string, Color>();
             isTyping = false;
             ClientID = null;
 

@@ -1,4 +1,4 @@
-﻿#Startup	vinc	A1	4	A2	=A1*A1a	B4	=A1*A1	“Startup\t clientID\t cellName1\tcellContents1\t cellName2\tcellContents2\t ... cellContentsX\t\n”
+﻿#Startup	vinc	A1	4	A2	=A1*A1 `a	B4	=A1*A1	“Startup\t clientID\t cellName1\tcellContents1\t cellName2\tcellContents2\t ... cellContentsX\t\n”
 
 #Change	A1	4	“Change\t cellName\t cellContents\t\n”
 
@@ -13,9 +13,9 @@
 
 #Connect	“Connect\t spreadsheetName\t\n”
 
-#IsTyping	“IsTyping\t clientID\t cellName\t\n”
+#IsTyping	vinc	A5	“IsTyping\t clientID\t cellName\t\n”
 
-#DoneTyping	“DoneTyping\t clientID\t cellName\t\n”
+#DoneTyping	vinc	A5	“DoneTyping\t clientID\t cellName\t\n”
 
 memo:
 1. improve UI of those connection input

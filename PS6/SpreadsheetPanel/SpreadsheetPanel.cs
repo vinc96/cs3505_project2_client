@@ -9,7 +9,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-
+using System.Collections;
 
 namespace SS
 {
@@ -300,6 +300,10 @@ namespace SS
                 DoubleBuffered = true;
                 _values = new Dictionary<Address, String>();
                 _ssp = ss;
+
+                // vinc: init my variables
+                IDToCell = new Dictionary<string, object[]>();
+                IDToColor = new Dictionary<string, Color>();
             }
 
             /// <summary>
@@ -454,7 +458,7 @@ namespace SS
                     (ROW_COUNT - _firstRow) * DATA_ROW_HEIGHT);
 
                 // Pen, brush, and fonts to use
-                Brush brush = new SolidBrush(Color.Red);
+                Brush brush = new SolidBrush(Color.Black);
                 Pen pen = new Pen(brush);
                 Font regularFont = Font;
                 Font boldFont = new Font(regularFont, FontStyle.Bold);
@@ -505,7 +509,21 @@ namespace SS
                                       DATA_COL_WIDTH - 2,
                                       DATA_ROW_HEIGHT - 2));
                 }
-                
+
+                foreach (var cell in IDToCell)
+                {
+                    Pen highlightPen = new Pen(new SolidBrush(IDToColor[cell.Key]));
+                    if (((int)cell.Value[1] - _firstColumn >= 0) && ((int)cell.Value[0] - _firstRow >= 0))
+                    {
+                        e.Graphics.DrawRectangle(
+                            highlightPen,
+                            new Rectangle(LABEL_COL_WIDTH + ((int)cell.Value[1] - _firstColumn) * DATA_COL_WIDTH + 1,
+                                          LABEL_ROW_HEIGHT + ((int)cell.Value[0] - _firstRow) * DATA_ROW_HEIGHT + 1,
+                                          DATA_COL_WIDTH - 2,
+                                          DATA_ROW_HEIGHT - 2));
+                    }
+                }
+
                 // Draw the text
                 foreach (KeyValuePair<Address, String> address in _values)
                 {
@@ -530,10 +548,7 @@ namespace SS
                             LABEL_ROW_HEIGHT + y * DATA_ROW_HEIGHT + (DATA_ROW_HEIGHT - height) / 2);
                     }
                 }
-
-
             }
-
 
             /// <summary>
             /// Draws a column label.  The columns are indexed beginning with zero.
@@ -598,7 +613,68 @@ namespace SS
                 Invalidate();
             }
 
+            Dictionary<string, Object[]> IDToCell;
+            Dictionary<string, Color> IDToColor;
+            /// <summary>
+            /// add cell that need to be highlighted
+            /// </summary>
+            public void addHighlightCell(string ID, int row, int col)
+            {
+                IDToCell[ID] = new object[] {row, col};
+                if (!IDToColor.ContainsKey(ID))
+                {
+                    IDToColor[ID] = RandomColorObject(ID);
+                }
+                Invalidate();
+            }
+
+            /// <summary>
+            /// hide a highlighted cell
+            /// </summary>
+            public void hideHighlightCell(string ID)
+            {
+                IDToCell.Remove(ID);
+                Invalidate();
+            }
+
+            ///// <summary>
+            ///// remove a highlighted cell permanently
+            ///// </summary>
+            ///// <param name="ID"></param>
+            ///// <param name="row"></param>
+            ///// <param name="col"></param>
+            ///// <param name="color"></param>
+            //private void removeHighlightCell(string ID, int row, int col, Color color)
+            //{
+            //    IDToColor.Remove(ID);
+            //}
+
+            /// <summary>
+            /// generate random color
+            /// </summary>
+            /// <param name="ID"></param>
+            /// <returns></returns>
+            private Color RandomColorObject(string ID)
+            {
+                int hashCode = (ID.ToString() + "SaltyMcSaltPants").GetHashCode();
+                return Color.FromArgb(255, (hashCode & 0x00FF0000) >> 16, (hashCode & 0x0000FF00) >> 8, hashCode & 0x000000FF);
+            }
         }
 
+        /// <summary>
+        /// add cell that need to be highlighted
+        /// </summary>
+        public void addHighlightCell(string ID, int row, int col)
+        {
+            drawingPanel.addHighlightCell(ID, row, col);
+        }
+
+        /// <summary>
+        /// hide a highlighted cell
+        /// </summary>
+        public void hideHighlightCell(string ID)
+        {
+            drawingPanel.hideHighlightCell(ID);
+        }
     }
 }
