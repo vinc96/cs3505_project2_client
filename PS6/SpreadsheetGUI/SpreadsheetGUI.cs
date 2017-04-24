@@ -88,6 +88,8 @@ namespace WindowsFormsApplication1
             "\t Select another box with the arrow keys\n" +
             "\t Select another box with the mouse\n\n";
 
+        private string str_lostServerConnection = "lost server connection";
+
         public SpreadsheetGUI()
         {
             //AtShar&vinc: initalize fields
@@ -110,8 +112,8 @@ namespace WindowsFormsApplication1
             //saveDialog.FileOk += SaveFileListener;
 
             //Set up our empty modelSheet.
-            //modelSheet = new Spreadsheet(isValid, normalizer, VERSION);
-            modelSheet = new Spreadsheet();
+            modelSheet = new Spreadsheet(isValid, normalizer, VERSION);
+            //modelSheet = new Spreadsheet();
 
             grabNewDisplayedData(); //Populate the UI for the current cell.
 
@@ -265,7 +267,11 @@ namespace WindowsFormsApplication1
             if (isTyping)
             {
                 string cellNameString = coordsToCellName(lastCol, lastRow);
-                clientController.sendMessage("DoneTyping", ClientID + "\t" + cellNameString);
+                if(!clientController.sendMessage("DoneTyping", ClientID + "\t" + cellNameString))// vinc flag
+                {
+                    MessageBox.Show(str_lostServerConnection);
+                    disconnectToServerAndReset();
+                }
                 isTyping = false;
             }
 
@@ -315,7 +321,11 @@ namespace WindowsFormsApplication1
             //vinc: if cell changed, send it to server
             if (cellChanged)
             {
-                clientController.sendMessage("Edit", cellNameString + "\t" + cellContentsBox.Text);
+                if (!clientController.sendMessage("Edit", cellNameString + "\t" + cellContentsBox.Text)) //vinc flag
+                {
+                    MessageBox.Show(str_lostServerConnection);
+                    disconnectToServerAndReset();
+                }
             }
         }
 
@@ -453,14 +463,7 @@ namespace WindowsFormsApplication1
             }
             else
             {
-                //Populate the UI for the current cell.
-                grabNewDisplayedData();
-                cellContentsBox.Enabled = false;
-                enterButton.Enabled = false;
-                inpHostname.Enabled = true;
-                inpSSName.Enabled = true;
-                btnConnectToServer.Text = "Connect";
-                clientController.closeConnection(handleSocketClosed);
+                disconnectToServerAndReset();
             }
         }
 
@@ -562,7 +565,11 @@ namespace WindowsFormsApplication1
         /// <param name="e"></param>
         private void undoToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            clientController.sendMessage("Undo", null);
+            if (!clientController.sendMessage("Undo", null)) // vinc flag
+            {
+                MessageBox.Show(str_lostServerConnection);
+                disconnectToServerAndReset();
+            }
         }
 
         //protected override bool IsInputKey(Keys keyData)
@@ -638,7 +645,11 @@ namespace WindowsFormsApplication1
                 default:
                     if (cellContentsBox.Enabled && !isTyping)
                     {
-                        clientController.sendMessage("IsTyping", ClientID + "\t" + cellNameBox.Text);
+                        if (!clientController.sendMessage("IsTyping", ClientID + "\t" + cellNameBox.Text)) // vinc flag
+                        {
+                            MessageBox.Show(str_lostServerConnection);
+                            disconnectToServerAndReset();
+                        }
                         isTyping = true;
                     }
                     break;
@@ -778,7 +789,8 @@ namespace WindowsFormsApplication1
         private void processStartupMessage(string[] messageComponents)
         {
             ///// update model
-            modelSheet = new Spreadsheet();
+            //modelSheet = new Spreadsheet();
+            modelSheet = new Spreadsheet(isValid, normalizer, VERSION);
 
             if (messageComponents.Length % 2 != 0)
             {
@@ -794,11 +806,11 @@ namespace WindowsFormsApplication1
                 }
                 catch (FormulaFormatException)//If we catch an invalid formula error, inform the user.
                 {
-                    MessageBox.Show("Error: Invalid Formula!");
+                    //MessageBox.Show("Error: Invalid Formula!");
                 }
                 catch (CircularException)//If we catch a circular exception error, inform the user.
                 {
-                    MessageBox.Show("Error: You've entered a formula that has a circular dependency!");
+                    //MessageBox.Show("Error: You've entered a formula that has a circular dependency!");
                 }
             }
             ClientID = messageComponents[1];
@@ -858,11 +870,11 @@ namespace WindowsFormsApplication1
                 }
                 catch (FormulaFormatException)//If we catch an invalid formula error, inform the user.
                 {
-                    MessageBox.Show("Error: Invalid Formula!");
+                    //MessageBox.Show("Error: Invalid Formula!");
                 }
                 catch (CircularException)//If we catch a circular exception error, inform the user.
                 {
-                    MessageBox.Show("Error: You've entered a formula that has a circular dependency!");
+                    //MessageBox.Show("Error: You've entered a formula that has a circular dependency!");
                 }
             }
             return cellChanged;
@@ -898,12 +910,25 @@ namespace WindowsFormsApplication1
         private void handleSocketError(string message)
         {
             MessageBox.Show(message);
+            disconnectToServerAndReset();
             //Need to implement commented buttons
             //DO NOT DELETE!!!!!!!!!!!!!!!!
             //inpHostname.Enabled = true;
             //inpPlayerName.Enabled = true;
             //Need to clear spreadsheet
             //btnConnectToServer.Enabled = true;
+        }
+        private void disconnectToServerAndReset()
+        {
+            //Populate the UI for the current cell.
+            grabNewDisplayedData();
+            cellContentsBox.Enabled = false;
+            enterButton.Enabled = false;
+            inpHostname.Enabled = true;
+            inpSSName.Enabled = true;
+            btnConnectToServer.Enabled = true;
+            btnConnectToServer.Text = "Connect";
+            clientController.closeConnection(handleSocketClosed);
         }
 
         /// <summary>
@@ -913,8 +938,8 @@ namespace WindowsFormsApplication1
         {
             ///// erase model
             //clientController = new ClientController();
-            modelSheet = new Spreadsheet();
-            //modelSheet = new Spreadsheet(isValid, normalizer, VERSION);
+            //modelSheet = new Spreadsheet();
+            modelSheet = new Spreadsheet(isValid, normalizer, VERSION);
             //Users = new Dictionary<string, Color>();
             isTyping = false;
             ClientID = null;

@@ -38,10 +38,10 @@
             this.cellContentsBox = new System.Windows.Forms.TextBox();
             this.cellNameBox = new System.Windows.Forms.TextBox();
             this.cellValueBox = new System.Windows.Forms.TextBox();
-            this.spreadsheetPanel1 = new SS.SpreadsheetPanel();
             this.inpHostname = new System.Windows.Forms.TextBox();
             this.inpSSName = new System.Windows.Forms.TextBox();
             this.btnConnectToServer = new System.Windows.Forms.Button();
+            this.spreadsheetPanel1 = new SS.SpreadsheetPanel();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -133,17 +133,6 @@
             this.cellValueBox.Size = new System.Drawing.Size(192, 25);
             this.cellValueBox.TabIndex = 5;
             // 
-            // spreadsheetPanel1
-            // 
-            this.spreadsheetPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.spreadsheetPanel1.Location = new System.Drawing.Point(16, 59);
-            this.spreadsheetPanel1.Name = "spreadsheetPanel1";
-            this.spreadsheetPanel1.Size = new System.Drawing.Size(1223, 568);
-            this.spreadsheetPanel1.TabIndex = 0;
-            this.spreadsheetPanel1.SelectionChanged += new SS.SelectionChangedHandler(this.spreadsheetPanel1_SelectionChanged);
-            // 
             // inpHostname
             // 
             this.inpHostname.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
@@ -160,7 +149,7 @@
             this.inpSSName.Name = "inpSSName";
             this.inpSSName.Size = new System.Drawing.Size(134, 25);
             this.inpSSName.TabIndex = 7;
-            this.inpSSName.Text = "asdf";
+            this.inpSSName.Text = "fdfd";
             // 
             // btnConnectToServer
             // 
@@ -172,6 +161,17 @@
             this.btnConnectToServer.Text = "Connect";
             this.btnConnectToServer.UseVisualStyleBackColor = true;
             this.btnConnectToServer.Click += new System.EventHandler(this.btnConnectToServer_Click);
+            // 
+            // spreadsheetPanel1
+            // 
+            this.spreadsheetPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.spreadsheetPanel1.Location = new System.Drawing.Point(16, 63);
+            this.spreadsheetPanel1.Name = "spreadsheetPanel1";
+            this.spreadsheetPanel1.Size = new System.Drawing.Size(1223, 568);
+            this.spreadsheetPanel1.TabIndex = 0;
+            this.spreadsheetPanel1.SelectionChanged += new SS.SelectionChangedHandler(this.spreadsheetPanel1_SelectionChanged);
             // 
             // SpreadsheetGUI
             // 

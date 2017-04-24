@@ -323,6 +323,10 @@ namespace SS
             public void Clear()
             {
                 _values.Clear();
+                // vinc: erase highlighted cell
+                IDToCell.Clear();
+                IDToColor.Clear();
+
                 Invalidate();
             }
 

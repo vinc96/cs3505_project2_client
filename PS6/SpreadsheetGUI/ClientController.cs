@@ -202,11 +202,11 @@ namespace SpreadsheetClient
         /// vinc: despite the type of message, each message content should be splited by '\t'
         /// </summary>
         //public void sendMessage(int direction)
-        public void sendMessage(string messageType, string messageContent)
+        public bool sendMessage(string messageType, string messageContent)
         {
-            if (!initialized)
+            if (!initialized || !isTheConnectionAlive())
             {
-                return;
+                return false;
             }
 
             // vinc: send the message to server (notice that we don't have code check the validity of the message)
@@ -219,6 +219,7 @@ namespace SpreadsheetClient
                 message = messageType + "\t" + messageContent + "\n";
             }
             Networking.Send(clientSocketState.TheSocket, message);
+            return true;
         }
 
         /// <summary>
