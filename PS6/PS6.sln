@@ -18,8 +18,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Resources", "Resource\Resou
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkController", "NetworkController\NetworkController.csproj", "{7B2644B7-1617-4706-BC13-D531AFB27E56}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpreadsheetClient", "SpreadsheetClient\SpreadsheetClient.csproj", "{B7148F08-C1F8-4B9E-B04B-0BA646F7DC41}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChatServer", "..\ChatServer\ChatServer.csproj", "{0745FAA1-3A2A-4A73-9762-F387365C6B31}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChatClient", "..\ChatClient\ChatClient.csproj", "{51ED710B-3839-4B68-9ACC-066902B7C347}"
@@ -77,14 +75,6 @@ Global
 		{7B2644B7-1617-4706-BC13-D531AFB27E56}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7B2644B7-1617-4706-BC13-D531AFB27E56}.Release|x86.ActiveCfg = Release|Any CPU
 		{7B2644B7-1617-4706-BC13-D531AFB27E56}.Release|x86.Build.0 = Release|Any CPU
-		{B7148F08-C1F8-4B9E-B04B-0BA646F7DC41}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B7148F08-C1F8-4B9E-B04B-0BA646F7DC41}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B7148F08-C1F8-4B9E-B04B-0BA646F7DC41}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{B7148F08-C1F8-4B9E-B04B-0BA646F7DC41}.Debug|x86.Build.0 = Debug|Any CPU
-		{B7148F08-C1F8-4B9E-B04B-0BA646F7DC41}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B7148F08-C1F8-4B9E-B04B-0BA646F7DC41}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B7148F08-C1F8-4B9E-B04B-0BA646F7DC41}.Release|x86.ActiveCfg = Release|Any CPU
-		{B7148F08-C1F8-4B9E-B04B-0BA646F7DC41}.Release|x86.Build.0 = Release|Any CPU
 		{0745FAA1-3A2A-4A73-9762-F387365C6B31}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0745FAA1-3A2A-4A73-9762-F387365C6B31}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0745FAA1-3A2A-4A73-9762-F387365C6B31}.Debug|x86.ActiveCfg = Debug|Any CPU

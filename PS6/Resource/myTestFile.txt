@@ -18,4 +18,7 @@
 #DoneTyp	“DoneTyping\t clientID\t cellName\t\n”
 
 memo:
-1. disable client input textbox before connected to server & enable it when connection success
+1. after connect, change connect button to disconnect button, and make this feature work
+2. hide file menus and save warning
+3. improve UI of those connection input
+4. make client close socket properly

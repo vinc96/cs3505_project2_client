@@ -145,7 +145,6 @@
             this.cellContentsBox.ShortcutsEnabled = false;
             this.cellContentsBox.Size = new System.Drawing.Size(868, 25);
             this.cellContentsBox.TabIndex = 3;
-            this.cellContentsBox.TextChanged += new System.EventHandler(this.cellContentsBox_TextChanged);
             // 
             // cellNameBox
             // 
@@ -195,9 +194,9 @@
             // 
             // btnConnectToServer
             // 
-            this.btnConnectToServer.Location = new System.Drawing.Point(855, 4);
+            this.btnConnectToServer.Location = new System.Drawing.Point(850, 4);
             this.btnConnectToServer.Name = "btnConnectToServer";
-            this.btnConnectToServer.Size = new System.Drawing.Size(75, 23);
+            this.btnConnectToServer.Size = new System.Drawing.Size(115, 23);
             this.btnConnectToServer.TabIndex = 8;
             this.btnConnectToServer.Text = "Connect";
             this.btnConnectToServer.UseVisualStyleBackColor = true;

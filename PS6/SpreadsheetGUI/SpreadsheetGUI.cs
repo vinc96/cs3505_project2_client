@@ -108,16 +108,16 @@ namespace WindowsFormsApplication1
 
             InitializeComponent();
 
-            //Set up lastCol and lastRow: the "last" items selected in this case are the starting values.
-            spreadsheetPanel1.GetSelection(out lastCol, out lastRow);
-            //Set up the open dialog, and add our file open listener.
-            openDialog = new OpenFileDialog();
-            openDialog.Filter = "Spreadsheet Files (.sprd)| *.sprd|All Files|*";
-            openDialog.FileOk += OpenFileListener;
-            //Set up the save dialog, and add our file save listener.
-            saveDialog = new SaveFileDialog();
-            saveDialog.Filter = "Spreadsheet Files (.sprd)| *.sprd|All Files|*";
-            saveDialog.FileOk += SaveFileListener;
+            ////Set up lastCol and lastRow: the "last" items selected in this case are the starting values.
+            //spreadsheetPanel1.GetSelection(out lastCol, out lastRow);
+            ////Set up the open dialog, and add our file open listener.
+            //openDialog = new OpenFileDialog();
+            //openDialog.Filter = "Spreadsheet Files (.sprd)| *.sprd|All Files|*";
+            //openDialog.FileOk += OpenFileListener;
+            ////Set up the save dialog, and add our file save listener.
+            //saveDialog = new SaveFileDialog();
+            //saveDialog.Filter = "Spreadsheet Files (.sprd)| *.sprd|All Files|*";
+            //saveDialog.FileOk += SaveFileListener;
 
             //Set up our empty modelSheet.
             modelSheet = new Spreadsheet(isValid, normalizer, VERSION);
@@ -181,7 +181,7 @@ namespace WindowsFormsApplication1
             //If we're opening a file, perform actions required to do that.
             if (sender.GetType().Equals(typeof(OpenFileDialog)))
             {
-                potentialDataLoss();
+                //potentialDataLoss();
                 string fileLocation = ((OpenFileDialog)sender).FileName;
                 //If the fileLocation is null, open an empty sheet. Else, open the sheet at fileLocation.
                 modelSheet = new Spreadsheet(fileLocation, isValid, normalizer, VERSION);
@@ -248,20 +248,7 @@ namespace WindowsFormsApplication1
         {
             clientController.sendMessage("Undo", null);
         }
-
-        /// <summary>
-        /// Send IsTyping message to server
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void cellContentsBox_TextChanged(object sender, EventArgs e)
-        {
-            if (!isTyping)
-            {
-                clientController.sendMessage("IsTyping", ClientID + "\t" + cellNameBox.Text);
-                isTyping = true;
-            }
-        }
+        
         /// <summary>
         /// This is the listener that we use to save files. Should be reigstered with our saveDialog.FileOK listener. If
         /// it's not used in this fashion, does nothing.
@@ -293,14 +280,15 @@ namespace WindowsFormsApplication1
 
             saveOldInputs(); //Put whatever was in the input box into the form, and update relevant cells.
 
-            grabNewDisplayedData(); //Grab the data from the new selection, and put it where it needs to go in the view. 
-
             // vinc: send DoneTyping message
             if (isTyping)
             {
-                clientController.sendMessage("DoneTyping", ClientID + "\t" + cellNameBox.Text);
+                string cellNameString = coordsToCellName(lastCol, lastRow);
+                clientController.sendMessage("DoneTyping", ClientID + "\t" + cellNameString);
                 isTyping = false;
             }
+
+            grabNewDisplayedData(); //Grab the data from the new selection, and put it where it needs to go in the view. 
         }
 
         /// <summary>
@@ -442,24 +430,32 @@ namespace WindowsFormsApplication1
         /// <param name="e"></param>
         private void MainWindow_FormClosing(object sender, FormClosingEventArgs e)
         {
-            potentialDataLoss();
-        }
-
-        /// <summary>
-        /// A method designed to be called when there is the potential for data loss in our form, so that we can interupt the process, and
-        /// ensure the user has a chance to save. 
-        /// </summary>
-        private void potentialDataLoss()
-        {
-            if (modelSheet.Changed)
+            //potentialDataLoss();
+            if (MessageBox.Show("The whole application will be closed down. Confirm?", "Close Application", MessageBoxButtons.YesNo) == DialogResult.No)
             {
-                DialogResult result = MessageBox.Show("You have unsaved changes. Do you want to save?", "Save file?", MessageBoxButtons.YesNo);
-                if (result.Equals(DialogResult.Yes))
-                {
-                    saveDialog.ShowDialog();
-                }
+
+                clientController.closeConnection(handleSocketClosed);
+
+                e.Cancel = true;
+                //this.Activate();
             }
         }
+
+        ///// <summary>
+        ///// A method designed to be called when there is the potential for data loss in our form, so that we can interupt the process, and
+        ///// ensure the user has a chance to save. 
+        ///// </summary>
+        //private void potentialDataLoss()
+        //{
+        //    if (modelSheet.Changed)
+        //    {
+        //        DialogResult result = MessageBox.Show("You have unsaved changes. Do you want to save?", "Save file?", MessageBoxButtons.YesNo);
+        //        if (result.Equals(DialogResult.Yes))
+        //        {
+        //            saveDialog.ShowDialog();
+        //        }
+        //    }
+        //}
 
         /// <summary>
         /// Fired when you click on the "close" menu item in the file menu. Closes the window.
@@ -601,7 +597,13 @@ namespace WindowsFormsApplication1
                         this.Close();
                     }
                     break;
-
+                default:
+                    if (cellContentsBox.Enabled && !isTyping)
+                    {
+                        clientController.sendMessage("IsTyping", ClientID + "\t" + cellNameBox.Text);
+                        isTyping = true;
+                    }
+                    break;
             }
 
             base.OnKeyDown(e);
@@ -630,8 +632,16 @@ namespace WindowsFormsApplication1
             processStartupMessage(startupData.Cells);
 
             // vinc: disable SS input untill connection to server success
-            Invoke(new MethodInvoker(() => { cellContentsBox.Enabled = true; enterButton.Enabled = true; }));
-            
+            Invoke(new MethodInvoker(() =>
+            {
+                cellContentsBox.Enabled = true;
+                enterButton.Enabled = true;
+                inpHostname.Enabled = false;
+                inpSSName.Enabled = false;
+                btnConnectToServer.Text = "Disconnect";
+                btnConnectToServer.Enabled = true;
+            }));
+
             clientController.startDataListenerLoop(recievedData);
         }
 
@@ -860,29 +870,61 @@ namespace WindowsFormsApplication1
         /// <param name="e"></param>
         private void btnConnectToServer_Click(object sender, EventArgs e)
         {
-            string hostname = inpHostname.Text;
-            string SSName = inpSSName.Text;
-
-            if (hostname == "")
+            if (inpHostname.Enabled && inpHostname.Enabled)
             {
-                MessageBox.Show("The Server Hostname Cannot Be Blank");
-                return;
-            }
+                string hostname = inpHostname.Text;
+                string SSName = inpSSName.Text;
 
-            if (SSName == "")
+                if (hostname == "")
+                {
+                    MessageBox.Show("The Server Hostname Cannot Be Blank");
+                    return;
+                }
+
+                if (SSName == "")
+                {
+                    MessageBox.Show("The Spreadsheet Name Cannot Be Blank");
+                    return;
+                }
+
+                this.inpHostname.Enabled = false;
+                this.inpSSName.Enabled = false;
+                btnConnectToServer.Text = "Connecting";
+                btnConnectToServer.Enabled = false;
+                clientController.connectToServer(hostname, SSName, handleHandshakeSuccess);
+            }
+            else
             {
-                MessageBox.Show("The Spreadsheet Name Cannot Be Blank");
-                return;
+                //Populate the UI for the current cell.
+                grabNewDisplayedData();
+                cellContentsBox.Enabled = false;
+                enterButton.Enabled = false;
+                inpHostname.Enabled = true;
+                inpSSName.Enabled = true;
+                btnConnectToServer.Text = "Connect";
+                clientController.closeConnection(handleSocketClosed);
             }
-
-
-            this.btnConnectToServer.Enabled = false;
-            this.inpHostname.Enabled = false;
-            this.inpSSName.Enabled = false;
-            clientController.connectToServer(hostname, SSName, handleHandshakeSuccess);
         }
 
+        /// <summary>
+        /// A simple callback to close the window. Used as a callback when we're closing the socket.
+        /// </summary>
+        private void handleSocketClosed()
+        {
+            ///// erase model
+            //clientController = new ClientController();
+            modelSheet = new Spreadsheet();
+            //modelSheet = new Spreadsheet(isValid, normalizer, VERSION);
+            Users = new Dictionary<string, Color>();
+            isTyping = false;
+            ClientID = null;
 
+            ///// erase view
+            //Replace the spreadsheet panel, so that we don't have any lingering data values
+            spreadsheetPanel1.Clear();
+            //Update all the values on load.
+            updateCells(modelSheet.GetNamesOfAllNonemptyCells());
+        }
 
 
         //private class User
