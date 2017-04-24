@@ -18,4 +18,12 @@
 #DoneTyping	vinc	A5	“DoneTyping\t clientID\t cellName\t\n”
 
 memo:
-1. improve UI of those connection input
+1. client add normalizer and validator
+2. save circular dependencies
+3. hide error prompt (circular dependencies & empty cell)
+4. if client disconnect from server improperly, client should prompt to user
+5. If I connect and do IsTyping, and then disconnect, highlighted cell won't hide
+
+server:
+1. if I connect and do IsTyping, and then disconnect, highlighted cell won't hide
+2. undo doesn't work

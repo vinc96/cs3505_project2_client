@@ -151,7 +151,7 @@
             this.inpHostname.Name = "inpHostname";
             this.inpHostname.Size = new System.Drawing.Size(216, 25);
             this.inpHostname.TabIndex = 6;
-            this.inpHostname.Text = "localhost";
+            this.inpHostname.Text = "lab1-3.eng.utah.edu";
             // 
             // inpSSName
             // 
