@@ -80,13 +80,13 @@
             this.newToolStripMenuItem.Size = new System.Drawing.Size(258, 26);
             this.newToolStripMenuItem.Text = "New... (Ctrl + N)";
             this.newToolStripMenuItem.Click += new System.EventHandler(this.newToolStripMenuItem_Click);
-            // 
-            // openToolStripMenuItem
-            // 
-            this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(258, 26);
-            this.openToolStripMenuItem.Text = "Open... (Ctrl + O)";
-            this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
+            //// 
+            //// openToolStripMenuItem
+            //// 
+            //this.openToolStripMenuItem.Name = "openToolStripMenuItem";
+            //this.openToolStripMenuItem.Size = new System.Drawing.Size(258, 26);
+            //this.openToolStripMenuItem.Text = "Open... (Ctrl + O)";
+            //this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
             // 
             // undoToolStripMenuItem
             // 
@@ -94,20 +94,20 @@
             this.undoToolStripMenuItem.Size = new System.Drawing.Size(258, 26);
             this.undoToolStripMenuItem.Text = "Undo (Ctrl+Z)";
             this.undoToolStripMenuItem.Click += new System.EventHandler(this.undoToolStripMenuItem_Click);
-            // 
-            // saveToolStripMenuItem
-            // 
-            this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(258, 26);
-            this.saveToolStripMenuItem.Text = "Save... (Ctrl + S)";
-            this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
-            // 
-            // saveAsToolStripMenuItem
-            // 
-            this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
-            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(258, 26);
-            this.saveAsToolStripMenuItem.Text = "Save As... (Ctrl + Shift + N)";
-            this.saveAsToolStripMenuItem.Click += new System.EventHandler(this.saveAsToolStripMenuItem_Click);
+            //// 
+            //// saveToolStripMenuItem
+            //// 
+            //this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
+            //this.saveToolStripMenuItem.Size = new System.Drawing.Size(258, 26);
+            //this.saveToolStripMenuItem.Text = "Save... (Ctrl + S)";
+            //this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
+            //// 
+            //// saveAsToolStripMenuItem
+            //// 
+            //this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
+            //this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(258, 26);
+            //this.saveAsToolStripMenuItem.Text = "Save As... (Ctrl + Shift + N)";
+            //this.saveAsToolStripMenuItem.Click += new System.EventHandler(this.saveAsToolStripMenuItem_Click);
             // 
             // closeToolStripMenuItem
             // 

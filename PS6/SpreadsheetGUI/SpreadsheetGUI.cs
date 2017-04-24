@@ -26,15 +26,15 @@ namespace WindowsFormsApplication1
         /// </summary>
         private const String VERSION = "ps6";
 
-        /// <summary>
-        /// The OpenFileDialog we'll be using to open any files we'll need.
-        /// </summary>
-        private OpenFileDialog openDialog;
+        ///// <summary>
+        ///// The OpenFileDialog we'll be using to open any files we'll need.
+        ///// </summary>
+        //private OpenFileDialog openDialog;
 
-        /// <summary>
-        /// The SaveFileDialog we'll be using to save all the files we want.
-        /// </summary>
-        private SaveFileDialog saveDialog;
+        ///// <summary>
+        ///// The SaveFileDialog we'll be using to save all the files we want.
+        ///// </summary>
+        //private SaveFileDialog saveDialog;
 
         /// <summary>
         /// The spreadsheet we use as the model in our MVC paradigm. Contains all the data for our spreadsheet.
@@ -120,7 +120,8 @@ namespace WindowsFormsApplication1
             //saveDialog.FileOk += SaveFileListener;
 
             //Set up our empty modelSheet.
-            modelSheet = new Spreadsheet(isValid, normalizer, VERSION);
+            //modelSheet = new Spreadsheet(isValid, normalizer, VERSION);
+            modelSheet = new Spreadsheet();
 
             grabNewDisplayedData(); //Populate the UI for the current cell.
 
@@ -160,115 +161,105 @@ namespace WindowsFormsApplication1
             return stringToBeNormalized.ToUpper();
         }
 
-        /// <summary>
-        /// Fired when we click the "Open" option in the file dialog. Opens a file open dialog.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void openToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            openDialog.ShowDialog();
-        }
+        ///// <summary>
+        ///// Fired when we click the "Open" option in the file dialog. Opens a file open dialog.
+        ///// </summary>
+        ///// <param name="sender"></param>
+        ///// <param name="e"></param>
+        //private void openToolStripMenuItem_Click(object sender, EventArgs e)
+        //{
+        //    openDialog.ShowDialog();
+        //}
 
-        /// <summary>
-        /// The listener that we use to open files. Should be registered with our openDialog.FileOK Listener. If it's not used
-        /// in this fashion, does nothing.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void OpenFileListener(object sender, CancelEventArgs e)
-        {
-            //If we're opening a file, perform actions required to do that.
-            if (sender.GetType().Equals(typeof(OpenFileDialog)))
-            {
-                //potentialDataLoss();
-                string fileLocation = ((OpenFileDialog)sender).FileName;
-                //If the fileLocation is null, open an empty sheet. Else, open the sheet at fileLocation.
-                modelSheet = new Spreadsheet(fileLocation, isValid, normalizer, VERSION);
-                lastSaveLocation = fileLocation;
-                updateWindowTitle();
+        ///// <summary>
+        ///// The listener that we use to open files. Should be registered with our openDialog.FileOK Listener. If it's not used
+        ///// in this fashion, does nothing.
+        ///// </summary>
+        ///// <param name="sender"></param>
+        ///// <param name="e"></param>
+        //private void OpenFileListener(object sender, CancelEventArgs e)
+        //{
+        //    //If we're opening a file, perform actions required to do that.
+        //    if (sender.GetType().Equals(typeof(OpenFileDialog)))
+        //    {
+        //        //potentialDataLoss();
+        //        string fileLocation = ((OpenFileDialog)sender).FileName;
+        //        //If the fileLocation is null, open an empty sheet. Else, open the sheet at fileLocation.
+        //        modelSheet = new Spreadsheet(fileLocation, isValid, normalizer, VERSION);
+        //        lastSaveLocation = fileLocation;
+        //        updateWindowTitle();
 
-                //Replace the spreadsheet panel, so that we don't have any lingering data values
-                spreadsheetPanel1.Clear();
-                //Update all the values on load.
-                updateCells(modelSheet.GetNamesOfAllNonemptyCells());
-                //Pull the data from our current location
-                grabNewDisplayedData();
-            }
-            else
-            {
-                //Else, this delegate was used incorrectly, and we should do nothing.
-            }
-        }
+        //        //Replace the spreadsheet panel, so that we don't have any lingering data values
+        //        spreadsheetPanel1.Clear();
+        //        //Update all the values on load.
+        //        updateCells(modelSheet.GetNamesOfAllNonemptyCells());
+        //        //Pull the data from our current location
+        //        grabNewDisplayedData();
+        //    }
+        //    else
+        //    {
+        //        //Else, this delegate was used incorrectly, and we should do nothing.
+        //    }
+        //}
 
-        /// <summary>
-        /// Fired when we hit the Save As button in the file menu. Opens a file save dialog.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            saveDialog.ShowDialog();
-        }
+        ///// <summary>
+        ///// Fired when we hit the Save As button in the file menu. Opens a file save dialog.
+        ///// </summary>
+        ///// <param name="sender"></param>
+        ///// <param name="e"></param>
+        //private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
+        //{
+        //    saveDialog.ShowDialog();
+        //}
 
-        /// <summary>
-        /// Fired when we hit the save button in the file menu. If the file hasn't been saved before, opens up a "save as" dialog.
-        /// If it has been saved before, overwrites the file previously saved to/opened from.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            saveFile();
-        }
+        ///// <summary>
+        ///// Fired when we hit the save button in the file menu. If the file hasn't been saved before, opens up a "save as" dialog.
+        ///// If it has been saved before, overwrites the file previously saved to/opened from.
+        ///// </summary>
+        ///// <param name="sender"></param>
+        ///// <param name="e"></param>
+        //private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        //{
+        //    saveFile();
+        //}
 
-        /// <summary>
-        /// Saves the current file. If the saveLocation is null, shows a dialog. If saveLocation is non-null, saves to the previously 
-        /// saved location.
-        /// </summary>
-        private void saveFile()
-        {
-            if (ReferenceEquals(lastSaveLocation, null))
-            {
-                saveDialog.ShowDialog();
-            }
-            else
-            {
-                modelSheet.Save(lastSaveLocation);
-                updateWindowTitle();
-            }
-        }
+        ///// <summary>
+        ///// Saves the current file. If the saveLocation is null, shows a dialog. If saveLocation is non-null, saves to the previously 
+        ///// saved location.
+        ///// </summary>
+        //private void saveFile()
+        //{
+        //    if (ReferenceEquals(lastSaveLocation, null))
+        //    {
+        //        saveDialog.ShowDialog();
+        //    }
+        //    else
+        //    {
+        //        modelSheet.Save(lastSaveLocation);
+        //        updateWindowTitle();
+        //    }
+        //}
 
-        /// <summary>
-        /// Send Undo message to server
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void undoToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            clientController.sendMessage("Undo", null);
-        }
-
-        /// <summary>
-        /// This is the listener that we use to save files. Should be reigstered with our saveDialog.FileOK listener. If
-        /// it's not used in this fashion, does nothing.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void SaveFileListener(object sender, CancelEventArgs e)
-        {
-            //If we're saving a file, perform actions required to do that.
-            if (sender.GetType().Equals(typeof(SaveFileDialog)))
-            {
-                modelSheet.Save(((SaveFileDialog)sender).FileName);
-                lastSaveLocation = ((SaveFileDialog)sender).FileName;
-                updateWindowTitle();//Update the window title, so that we can remove a "*" if needed.
-            }
-            else
-            {
-                //Else, this delegate was used incorrectly, and we should do nothing.
-            }
-        }
+        ///// <summary>
+        ///// This is the listener that we use to save files. Should be reigstered with our saveDialog.FileOK listener. If
+        ///// it's not used in this fashion, does nothing.
+        ///// </summary>
+        ///// <param name="sender"></param>
+        ///// <param name="e"></param>
+        //private void SaveFileListener(object sender, CancelEventArgs e)
+        //{
+        //    //If we're saving a file, perform actions required to do that.
+        //    if (sender.GetType().Equals(typeof(SaveFileDialog)))
+        //    {
+        //        modelSheet.Save(((SaveFileDialog)sender).FileName);
+        //        lastSaveLocation = ((SaveFileDialog)sender).FileName;
+        //        updateWindowTitle();//Update the window title, so that we can remove a "*" if needed.
+        //    }
+        //    else
+        //    {
+        //        //Else, this delegate was used incorrectly, and we should do nothing.
+        //    }
+        //}
 
         /// <summary>
         /// Fired when a new cell is selected in the spreadsheet panel. Takes the data from the view, pushes it to the model, and 
@@ -289,16 +280,6 @@ namespace WindowsFormsApplication1
             }
 
             grabNewDisplayedData(); //Grab the data from the new selection, and put it where it needs to go in the view. 
-        }
-
-        /// <summary>
-        /// Fired when someone clicks the enter button. Shifts the selection down, which fires the SelectionChanged listener.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void enterButton_Click(object sender, EventArgs e)
-        {
-            spreadsheetPanel1.selectDown();
         }
 
         /// <summary>
@@ -423,20 +404,6 @@ namespace WindowsFormsApplication1
             return cellname;
         }
 
-        /// <summary>
-        /// Before close window, properly disconnect server
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void MainWindow_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            if (MessageBox.Show("The whole application will be closed down. Confirm?", "Close Application", MessageBoxButtons.YesNo) == DialogResult.No)
-            {
-                e.Cancel = true;
-                return;
-            }
-            clientController.closeConnection(handleSocketClosed);
-        }
 
         ///// <summary>
         ///// A method designed to be called when there is the potential for data loss in our form, so that we can interupt the process, and
@@ -455,13 +422,32 @@ namespace WindowsFormsApplication1
         //}
 
         /// <summary>
-        /// Fired when you click on the "close" menu item in the file menu. Closes the window.
+        /// Fired when someone clicks the enter button. Shifts the selection down, which fires the SelectionChanged listener.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void closeToolStripMenuItem_Click(object sender, EventArgs e)
+        private void enterButton_Click(object sender, EventArgs e)
         {
-            this.Close();
+            spreadsheetPanel1.selectDown();
+        }
+
+        /// <summary>
+        /// Before close window, properly disconnect server
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MainWindow_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (!clientController.isTheConnectionAlive())
+            {
+                return;
+            }
+            if (MessageBox.Show("The whole application will be closed down. Confirm?", "Close Application", MessageBoxButtons.YesNo) == DialogResult.No)
+            {
+                e.Cancel = true;
+                return;
+            }
+            clientController.closeConnection(handleSocketClosed);
         }
 
         /// <summary>
@@ -473,6 +459,17 @@ namespace WindowsFormsApplication1
         {
             openNewWindow();
         }
+
+        /// <summary>
+        /// Fired when you click on the "close" menu item in the file menu. Closes the window.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void closeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
         /// <summary>
         /// Opens a new window by creating another version of this one in a new thread.
         /// </summary>
@@ -569,25 +566,25 @@ namespace WindowsFormsApplication1
                         openNewWindow();
                     }
                     break;
-                case Keys.O: //Open shortcut
-                    if (ModifierKeys.HasFlag(Keys.Control))
-                    {
-                        openDialog.ShowDialog();
-                    }
-                    break;
-                case Keys.S: //Save/Save As shortcut
-                    if (ModifierKeys.HasFlag(Keys.Control) && !ModifierKeys.HasFlag(Keys.Shift))
-                    {
-                        saveFile();//Save
-                        e.SuppressKeyPress = true; //Keeps the form from making a "bing" sound whenever you press this key combo.
-                    }
+                //case Keys.O: //Open shortcut
+                //    if (ModifierKeys.HasFlag(Keys.Control))
+                //    {
+                //        openDialog.ShowDialog();
+                //    }
+                //    break;
+                //case Keys.S: //Save/Save As shortcut
+                //    if (ModifierKeys.HasFlag(Keys.Control) && !ModifierKeys.HasFlag(Keys.Shift))
+                //    {
+                //        saveFile();//Save
+                //        e.SuppressKeyPress = true; //Keeps the form from making a "bing" sound whenever you press this key combo.
+                //    }
 
-                    if (ModifierKeys.HasFlag(Keys.Control) && ModifierKeys.HasFlag(Keys.Shift))
-                    {
-                        saveDialog.ShowDialog();//Save As
-                        e.SuppressKeyPress = true; //Keeps the form from making a "bing" sound whenever you press this key combo.
-                    }
-                    break;
+                //    if (ModifierKeys.HasFlag(Keys.Control) && ModifierKeys.HasFlag(Keys.Shift))
+                //    {
+                //        saveDialog.ShowDialog();//Save As
+                //        e.SuppressKeyPress = true; //Keeps the form from making a "bing" sound whenever you press this key combo.
+                //    }
+                //    break;
                 case Keys.F4: //Open shortcut
                     if (ModifierKeys.HasFlag(Keys.Alt))
                     {
@@ -902,6 +899,16 @@ namespace WindowsFormsApplication1
                 btnConnectToServer.Text = "Connect";
                 clientController.closeConnection(handleSocketClosed);
             }
+        }
+
+        /// <summary>
+        /// Send Undo message to server
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void undoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            clientController.sendMessage("Undo", null);
         }
 
         /// <summary>

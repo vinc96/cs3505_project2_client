@@ -19,3 +19,5 @@
 
 memo:
 3. improve UI of those connection input
+
+1. server only support single client

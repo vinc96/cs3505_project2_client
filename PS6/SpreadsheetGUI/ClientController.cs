@@ -223,6 +223,7 @@ namespace SpreadsheetClient
             }
             Networking.Send(clientSocketState.TheSocket, message);
         }
+
         /// <summary>
         /// Check to see if the connection is currently alive (e.g. connected to a server).
         /// </summary>
@@ -241,7 +242,7 @@ namespace SpreadsheetClient
         /// <summary>
         /// Close the connection for this server, using the specified handler passed.
         /// </summary>
-        /// <param name="handleDisconnect"></para>m
+        /// <param name="handleDisconnect"></param>
         internal void closeConnection(handleSocketClosed handleDisconnect)
         {
             Networking.Disconnect(clientSocketState, false, (ss) => { socketDisconected(ss, handleDisconnect); });
