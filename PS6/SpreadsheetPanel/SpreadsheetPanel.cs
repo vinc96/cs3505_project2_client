@@ -170,7 +170,7 @@ namespace SS
             }
         }
         /// <summary>
-        /// Moves the selected box up one cell
+        /// Moves the selected box down one cell
         /// </summary>
         public void selectDown()
         {
@@ -182,7 +182,7 @@ namespace SS
             }
         }
         /// <summary>
-        /// Moves the selected box up one cell
+        /// Moves the selected box left one cell
         /// </summary>
         public void selectLeft()
         {
@@ -194,7 +194,7 @@ namespace SS
             }
         }
         /// <summary>
-        /// Moves the selected box up one cell
+        /// Moves the selected box right one cell
         /// </summary>
         public void selectRight()
         {
