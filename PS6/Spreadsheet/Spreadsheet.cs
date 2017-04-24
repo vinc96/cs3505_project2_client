@@ -476,7 +476,14 @@ namespace SS
             }
             else if (content[0].Equals('=')) //If we're a formula
             {
-                output = SetCellContents(name, new Formula(content.Substring(1), Normalize, IsValidVarName));
+                try
+                {
+                    output = SetCellContents(name, new Formula(content.Substring(1), Normalize, IsValidVarName));
+                }
+                catch (FormulaFormatException)
+                {
+                    SetCellContents(name, "SpreadsheetUtilities.FormulaFormatException"); r
+                }
             }
             else if (Double.TryParse(content, out parsedContent)) //If we're a double
             {

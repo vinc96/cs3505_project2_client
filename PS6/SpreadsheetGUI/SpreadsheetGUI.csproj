@@ -33,6 +33,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Formula, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Resource\TempLibraries\Formula.dll</HintPath>
+    </Reference>
     <Reference Include="SpreadsheetUtilities">
       <HintPath>..\Resource\Libraries\SpreadsheetUtilities.dll</HintPath>
     </Reference>
@@ -84,10 +88,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Formula\Formula.csproj">
-      <Project>{d63d85ed-e2e0-416c-9375-bca8206ab5bc}</Project>
-      <Name>Formula</Name>
-    </ProjectReference>
     <ProjectReference Include="..\NetworkController\NetworkController.csproj">
       <Project>{7b2644b7-1617-4706-bc13-d531afb27e56}</Project>
       <Name>NetworkController</Name>

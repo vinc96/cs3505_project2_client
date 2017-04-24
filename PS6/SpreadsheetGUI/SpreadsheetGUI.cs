@@ -818,10 +818,10 @@ namespace WindowsFormsApplication1
                 {
                     modelSheet.SetContentsOfCell(messageComponents[i], messageComponents[i + 1]);
                 }
-                catch (FormulaFormatException)//If we catch an invalid formula error, inform the user.
-                {
-                    log.Append("Error: Invalid Formula at cell " + messageComponents[i] + "\n");
-                }
+                //catch (FormulaFormatException)//If we catch an invalid formula error, inform the user.
+                //{
+                //    log.Append("Error: Invalid Formula at cell " + messageComponents[i] + "\n");
+                //}
                 catch (CircularException)//If we catch a circular exception error, inform the user.
                 {
                     //MessageBox.Show("Error: You've entered a formula that has a circular dependency!");
