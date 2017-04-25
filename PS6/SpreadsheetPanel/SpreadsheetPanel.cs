@@ -639,7 +639,7 @@ namespace SS
             /// <returns></returns>
             private Color RandomColorObject(string ID)
             {
-                int hashCode = (ID.ToString() + "SaltyMcSaltPants").GetHashCode();
+                int hashCode = (ID.ToString() + "SaltyMcSaltPants6589195drtfhxdtfhgfh61495619854").GetHashCode();
                 return Color.FromArgb(255, (hashCode & 0x00FF0000) >> 16, (hashCode & 0x0000FF00) >> 8, hashCode & 0x000000FF);
             }
 
