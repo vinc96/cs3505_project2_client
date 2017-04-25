@@ -728,7 +728,7 @@ namespace WindowsFormsApplication1
             foreach (string message in data)
             {
                 //AtShar+vinc: get contents of the message (Type + cell&value pairs)
-                string[] messageComponents = message.Trim().Split('\t');
+                string[] messageComponents = message.Split('\t');
                 lock (modelSheet)
                 {
                     switch (messageComponents[0])
@@ -741,7 +741,7 @@ namespace WindowsFormsApplication1
                             }
                         case "Change":
                             {
-                                if (messageComponents.Length != 3)
+                                if (messageComponents.Length != 4)
                                 {
                                     //AtShar: The number of components in the startup should be three
                                     //MessageType+One pair of cell+value
@@ -755,7 +755,7 @@ namespace WindowsFormsApplication1
                             }
                         case "IsTyping":
                             {
-                                if (messageComponents.Length != 3)
+                                if (messageComponents.Length != 4)
                                 {
                                     //AtShar: The number of components in the startup should be three
                                     //MessageType+One pair of cell+value
