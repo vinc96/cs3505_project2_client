@@ -291,13 +291,20 @@ namespace WindowsFormsApplication1
             //Update the value text.
             cellValueBox.Text = modelSheet.GetCellValue(cellNameString).ToString();
             //Update the content text. Be careful, if we're grabbing a formula, we need to preappend a "="
-            if (modelSheet.GetCellContents(cellNameString).GetType().Equals(typeof(Formula)))
+            object cellContent = modelSheet.GetCellContents(cellNameString);
+            if (cellContent.GetType().Equals(typeof(Formula)))
             {
-                cellContentsBox.Text = "=" + modelSheet.GetCellContents(cellNameString).ToString();
+                if (((Formula)cellContent).ValidFormat)
+                {
+                    cellContentsBox.Text = "=" + cellContent.ToString();
+                }else
+                {
+                    cellContentsBox.Text = "=" + ((Formula)cellContent).formaterror.formula;
+                }
             }
             else
             {
-                cellContentsBox.Text = modelSheet.GetCellContents(cellNameString).ToString();
+                cellContentsBox.Text = cellContent.ToString();
             }
 
             //Give the contents box user focus. 
@@ -317,7 +324,7 @@ namespace WindowsFormsApplication1
             //Take the current contents of the cellContents box, and if it's different, add it to the spreadsheet.
             string cellNameString = coordsToCellName(lastCol, lastRow);
             //Determine if the cell contets have changed. Special case for formulas, because of the preappended "=".
-            bool cellChanged = processChangeMessage(cellNameString, cellContentsBox.Text);
+            bool cellChanged = processChangeMessage(cellNameString, cellContentsBox.Text, false);
             //vinc: if cell changed, send it to server
             if (cellChanged)
             {
@@ -742,7 +749,7 @@ namespace WindowsFormsApplication1
                                 }
 
                                 // vinc
-                                processChangeMessage(messageComponents[1], messageComponents[2]);
+                                processChangeMessage(messageComponents[1], messageComponents[2], true);
 
                                 break;
                             }
@@ -804,7 +811,7 @@ namespace WindowsFormsApplication1
             ///// update model
             //modelSheet = new Spreadsheet();
             modelSheet = new Spreadsheet(isValid, normalizer, VERSION);
-            StringBuilder log = new StringBuilder();
+            //StringBuilder log = new StringBuilder();
 
             if (messageComponents.Length % 2 != 0)
             {
@@ -816,7 +823,7 @@ namespace WindowsFormsApplication1
             {
                 try
                 {
-                    modelSheet.SetContentsOfCell(messageComponents[i], messageComponents[i + 1]);
+                    modelSheet.SetContentsOfCell(messageComponents[i], messageComponents[i + 1], true);
                 }
                 //catch (FormulaFormatException)//If we catch an invalid formula error, inform the user.
                 //{
@@ -831,7 +838,7 @@ namespace WindowsFormsApplication1
 
                 }
             }
-            MessageBox.Show(log.ToString());
+            //MessageBox.Show(log.ToString());
             ClientID = messageComponents[1];
 
             /// update view
@@ -852,10 +859,11 @@ namespace WindowsFormsApplication1
         /// <param name="targetCell"></param>
         /// <param name="newContent"></param>
         /// <returns></returns>
-        private bool processChangeMessage(string targetCell, string newContent)
+        private bool processChangeMessage(string targetCell, string newContent, bool isInvalidFormatAllowed)
         {
             bool cellChanged;
-            if (modelSheet.GetCellContents(targetCell).GetType().Equals(typeof(Formula)))
+            object cellContent = modelSheet.GetCellContents(targetCell);
+            if (cellContent.GetType().Equals(typeof(Formula)))
             {
                 //Special case for making empty cells
                 //if (cellContentsBox.Text.Length == 0)
@@ -863,17 +871,21 @@ namespace WindowsFormsApplication1
                 {
                     cellChanged = true;
                 }
+                else if (!((Formula)cellContent).ValidFormat)
+                {
+                    cellChanged = !((Formula)cellContent).formaterror.formula.Equals(newContent.Substring(1));
+                }
                 else
                 {
                     //Compare the contents of the spreadsheet, with the contents of the cellContentsBox, minus the "=".
                     //cellChanged = !modelSheet.GetCellContents(targetCell).ToString().Equals(cellContentsBox.Text.Substring(1));
-                    cellChanged = !modelSheet.GetCellContents(targetCell).ToString().Equals(newContent.Substring(1));
+                    cellChanged = !cellContent.ToString().Equals(newContent.Substring(1));
                 }
             }
             else
             {
                 //cellChanged = !modelSheet.GetCellContents(targetCell).ToString().Equals(cellContentsBox.Text);
-                cellChanged = !modelSheet.GetCellContents(targetCell).ToString().Equals(newContent);
+                cellChanged = !cellContent.ToString().Equals(newContent);
             }
             //If we've changed the cell contents, change the model, and update our front end.
             if (cellChanged)
@@ -881,13 +893,13 @@ namespace WindowsFormsApplication1
                 try
                 {
                     //ISet<String> cellsToUpdate = modelSheet.SetContentsOfCell(targetCell, cellContentsBox.Text);
-                    ISet<String> cellsToUpdate = modelSheet.SetContentsOfCell(targetCell, newContent);
+                    ISet<String> cellsToUpdate = modelSheet.SetContentsOfCell(targetCell, newContent, isInvalidFormatAllowed);
                     updateCells(cellsToUpdate); //Update the cells that need re-evaluation.
 
                     ////Run the updateWindowTitle method, so we'll indicate that the spreadsheet changed.
                     //Invoke(new MethodInvoker(updateWindowTitle));
                 }
-                catch (FormulaFormatException)//If we catch an invalid formula error, inform the user.
+                catch (InvalidFormatException)//If we catch an invalid formula error, inform the user.
                 {
                     MessageBox.Show("Error: Invalid Formula at cell " + targetCell);
                     // if formula format exception thrown, cell didn't changed

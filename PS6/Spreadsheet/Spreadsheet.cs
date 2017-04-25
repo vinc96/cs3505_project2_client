@@ -104,144 +104,144 @@ namespace SS
         /// equality test should be used thoughout to determine whether two variables are
         /// equal.
         /// </summary>
-        public Spreadsheet(Func<string, bool> isValid, Func<string, string> normalize, string version) 
+        public Spreadsheet(Func<string, bool> isValid, Func<string, string> normalize, string version)
             : base(isValid, normalize, version)
         {
             hasChanged = false;
         }
 
-        /// <summary>
-        /// Constructs a spreasheet by reading a saved spreadsheet from the specified file. 
-        /// Uses the provided validity delegate, normalization delegate, and version.
-        /// </summary>
-        /// <param name="pathToFile"></param>
-        /// <param name="isValid"></param>
-        /// <param name="normalize"></param>
-        /// <param name="version"></param>
-        public Spreadsheet(string pathToFile, Func<string, bool> isValid, Func<string, string> normalize, string version) 
-            : this(isValid, normalize, version)
-        {
-            LoadFile(pathToFile);
-            hasChanged = false;
-        }
+        ///// <summary>
+        ///// Constructs a spreasheet by reading a saved spreadsheet from the specified file. 
+        ///// Uses the provided validity delegate, normalization delegate, and version.
+        ///// </summary>
+        ///// <param name="pathToFile"></param>
+        ///// <param name="isValid"></param>
+        ///// <param name="normalize"></param>
+        ///// <param name="version"></param>
+        //public Spreadsheet(string pathToFile, Func<string, bool> isValid, Func<string, string> normalize, string version) 
+        //    : this(isValid, normalize, version)
+        //{
+        //    LoadFile(pathToFile);
+        //    hasChanged = false;
+        //}
 
-        /// <summary>
-        /// Attempts to load a file from the specified path. The file should be formatted
-        /// according to the specification of the Save method. If there are issues loading the 
-        /// file, throws a SpreadsheetReadWriteException with a message discribing the problem.
-        /// </summary>
-        /// <param name="pathToFile">The path to attempt to load the file from.</param>
-        private void LoadFile(string pathToFile)
-        {
-            XmlReaderSettings settings = new XmlReaderSettings();
-            settings.IgnoreWhitespace = true;
-            try
-            {
-                using (XmlReader reader = XmlReader.Create(pathToFile, settings))
-                {
+        ///// <summary>
+        ///// Attempts to load a file from the specified path. The file should be formatted
+        ///// according to the specification of the Save method. If there are issues loading the 
+        ///// file, throws a SpreadsheetReadWriteException with a message discribing the problem.
+        ///// </summary>
+        ///// <param name="pathToFile">The path to attempt to load the file from.</param>
+        //private void LoadFile(string pathToFile)
+        //{
+        //    XmlReaderSettings settings = new XmlReaderSettings();
+        //    settings.IgnoreWhitespace = true;
+        //    try
+        //    {
+        //        using (XmlReader reader = XmlReader.Create(pathToFile, settings))
+        //        {
 
-                    //Skip forward until we get to a spreadsheet tag
-                    while (!reader.Name.Equals("spreadsheet"))
-                    {
-                        reader.Read();
-                    }
+        //            //Skip forward until we get to a spreadsheet tag
+        //            while (!reader.Name.Equals("spreadsheet"))
+        //            {
+        //                reader.Read();
+        //            }
 
-                    if (!Version.Equals(reader.GetAttribute("version"))) //Check version
-                    {
-                        if (ReferenceEquals(reader.GetAttribute("version"), null))
-                        {
-                            throw new SpreadsheetReadWriteException("Missing version");
-                        }
-                        else
-                        {
-                            throw new SpreadsheetReadWriteException("Versions don't match. " +
-                            Version + " (constructor)  vs " + reader.GetAttribute("version") + " (file)");
-                        }
-                    }
+        //            if (!Version.Equals(reader.GetAttribute("version"))) //Check version
+        //            {
+        //                if (ReferenceEquals(reader.GetAttribute("version"), null))
+        //                {
+        //                    throw new SpreadsheetReadWriteException("Missing version");
+        //                }
+        //                else
+        //                {
+        //                    throw new SpreadsheetReadWriteException("Versions don't match. " +
+        //                    Version + " (constructor)  vs " + reader.GetAttribute("version") + " (file)");
+        //                }
+        //            }
 
-                    //Load all the cells
-                    while (reader.Read())
-                    {
-                        if (reader.IsStartElement() && reader.Name.Equals("cell"))
-                        {
-                            LoadCell(reader);
-                        }
-                    }
-                }
-            }
-            catch (System.IO.DirectoryNotFoundException e)
-            {
-                throw new SpreadsheetReadWriteException("Directory not Found: " + e.Message);
-            }
-            catch (System.IO.FileNotFoundException e)
-            {
-                throw new SpreadsheetReadWriteException("File Not Found: " + e.Message);
-            }
-            catch (XmlException) //Thrown when the reader steps off the end of the file.
-            {
-                throw new SpreadsheetReadWriteException("Spreadsheet element was never opened ");
-            }
+        //            //Load all the cells
+        //            while (reader.Read())
+        //            {
+        //                if (reader.IsStartElement() && reader.Name.Equals("cell"))
+        //                {
+        //                    LoadCell(reader);
+        //                }
+        //            }
+        //        }
+        //    }
+        //    catch (System.IO.DirectoryNotFoundException e)
+        //    {
+        //        throw new SpreadsheetReadWriteException("Directory not Found: " + e.Message);
+        //    }
+        //    catch (System.IO.FileNotFoundException e)
+        //    {
+        //        throw new SpreadsheetReadWriteException("File Not Found: " + e.Message);
+        //    }
+        //    catch (XmlException) //Thrown when the reader steps off the end of the file.
+        //    {
+        //        throw new SpreadsheetReadWriteException("Spreadsheet element was never opened ");
+        //    }
 
-        }
+        //}
 
-        /// <summary>
-        /// Loads from the specified XmlReader a cell, given that the XmlReader is currently
-        /// pointed at the start of a cell element. Once it's done, leaves the reader pointed
-        /// at the last element of the cell.
-        /// </summary>
-        /// <param name="reader"></param>
-        private void LoadCell(XmlReader reader)
-        {
-            string name;
-            //Read until we get to the name element
-            while (!reader.Name.Equals("name"))
-            {
-                reader.Read();
+        ///// <summary>
+        ///// Loads from the specified XmlReader a cell, given that the XmlReader is currently
+        ///// pointed at the start of a cell element. Once it's done, leaves the reader pointed
+        ///// at the last element of the cell.
+        ///// </summary>
+        ///// <param name="reader"></param>
+        //private void LoadCell(XmlReader reader)
+        //{
+        //    string name;
+        //    //Read until we get to the name element
+        //    while (!reader.Name.Equals("name"))
+        //    {
+        //        reader.Read();
 
-                if (reader.Name.Equals("cell"))
-                {
-                    throw new SpreadsheetReadWriteException("Invalid cell: name not found");
-                }
-            }
+        //        if (reader.Name.Equals("cell"))
+        //        {
+        //            throw new SpreadsheetReadWriteException("Invalid cell: name not found");
+        //        }
+        //    }
 
-            
-            name = reader.ReadElementContentAsString(); //Once we get to the name elment, store its value.
-            
-            name = RemoveWhitespace(name);//Clear whitespace from name
 
-            string contents;
-            //Read until we get to the contents element
-            while (!reader.Name.Equals("contents"))
-            {
-                reader.Read();
+        //    name = reader.ReadElementContentAsString(); //Once we get to the name elment, store its value.
 
-                if (reader.Name.Equals("cell"))
-                {
-                    throw new SpreadsheetReadWriteException("Invalid cell: contents not found");
-                }
-            }
+        //    name = RemoveWhitespace(name);//Clear whitespace from name
 
-            contents = reader.ReadElementContentAsString(); //Once we get to the contents element, store its value.
-           
-            contents = RemoveWhitespace(contents);//Clear whitespace from contents
-            //Create the cell (or try)
-            try
-            {
-                this.SetContentsOfCell(name, contents);
-            }
-            catch (InvalidNameException e)
-            {
-                throw new SpreadsheetReadWriteException("Invalid Name Exception: " + e.Message);
-            }
-            catch (CircularException e)
-            {
-                throw new SpreadsheetReadWriteException("Circular Exception: " + e.Message);
-            }
-            catch (FormulaFormatException e)
-            {
-                throw new SpreadsheetReadWriteException("Formula Format Exception: " + e.Message);
-            }
-        }
+        //    string contents;
+        //    //Read until we get to the contents element
+        //    while (!reader.Name.Equals("contents"))
+        //    {
+        //        reader.Read();
+
+        //        if (reader.Name.Equals("cell"))
+        //        {
+        //            throw new SpreadsheetReadWriteException("Invalid cell: contents not found");
+        //        }
+        //    }
+
+        //    contents = reader.ReadElementContentAsString(); //Once we get to the contents element, store its value.
+
+        //    contents = RemoveWhitespace(contents);//Clear whitespace from contents
+        //    //Create the cell (or try)
+        //    try
+        //    {
+        //        this.SetContentsOfCell(name, contents);
+        //    }
+        //    catch (InvalidNameException e)
+        //    {
+        //        throw new SpreadsheetReadWriteException("Invalid Name Exception: " + e.Message);
+        //    }
+        //    catch (CircularException e)
+        //    {
+        //        throw new SpreadsheetReadWriteException("Circular Exception: " + e.Message);
+        //    }
+        //    catch (FormulaFormatException e)
+        //    {
+        //        throw new SpreadsheetReadWriteException("Formula Format Exception: " + e.Message);
+        //    }
+        //}
 
         private string RemoveWhitespace(string str)
         {
@@ -279,13 +279,13 @@ namespace SS
                         }
 
                     }
-                   
+
                 }
             }
             catch (System.IO.DirectoryNotFoundException e)
             {
                 throw new SpreadsheetReadWriteException("Directory not Found: " + e.Message);
-            }            
+            }
             catch (System.IO.FileNotFoundException e)
             {
                 throw new SpreadsheetReadWriteException("File Not Found: " + e.Message);
@@ -370,8 +370,25 @@ namespace SS
             IsNameInvalidOrNull(name);
             if (GetCellContents(name).GetType().Equals(typeof(Formula)))
             {
-                return ((Formula) GetCellContents(name)).Evaluate(Lookup);
+                //return ((Formula)GetCellContents(name)).Evaluate(Lookup);
+                object result = ((Formula)GetCellContents(name)).Evaluate(Lookup);
+                if (result is InvalidFormat)
+                {
+                    result = "SpreadsheetUtilities.InvalidFormatException: " + ((InvalidFormat)result).message;
+                    //result = "SpreadsheetUtilities.FormulaFormatException";
+                }
+                return result;
             }
+            //else if(GetCellContents(name) is string && ((string)GetCellContents(name))[0] == '=')
+            //{
+            //    //object result = ((Formula)GetCellContents(name)).Evaluate(Lookup);
+            //    //if (result is InvalidFormat)
+            //    //{
+            //    //    result = "SpreadsheetUtilities.InvalidFormatException: " + ((InvalidFormat)result).message;
+            //    //    //result = "SpreadsheetUtilities.FormulaFormatException";
+            //    //}
+            //    //return result;
+            //}
             else
             {
                 return GetCellContents(name);
@@ -389,7 +406,7 @@ namespace SS
             object result = GetCellValue(varname);
             if (result.GetType().Equals(typeof(double)))
             {
-                return (double) result;
+                return (double)result;
             }
             else
             {
@@ -417,15 +434,19 @@ namespace SS
             name = Normalize(name);//Normalize name
             IsNameInvalidOrNull(name); //If we get passed this, our name is valid
             //If this isn't a NonEmptyCell, it's value is the empty string.
-            if(!GetNamesOfAllNonemptyCells().Contains(name))
+            if (!GetNamesOfAllNonemptyCells().Contains(name))
             {
                 return "";
             }
+            //else if(nonEmptyCells[name].Contents is Formula && !((Formula)nonEmptyCells[name].Contents).ValidFormat)
+            //{
+            //    return ((Formula)nonEmptyCells[name].Contents).formaterror.formula;
+            //}
             else
             {
                 return nonEmptyCells[name].Contents;
             }
-            
+
         }
 
         /// <summary>
@@ -457,7 +478,7 @@ namespace SS
         /// For example, if name is A1, B1 contains A1*2, and C1 contains B1+A1, the
         /// set {A1, B1, C1} is returned.
         /// </summary>
-        public override ISet<string> SetContentsOfCell(string name, string content)
+        public override ISet<string> SetContentsOfCell(string name, string content, bool isInvalidFormatAllowed)
         {
             if (ReferenceEquals(content, null))
             {
@@ -476,14 +497,25 @@ namespace SS
             }
             else if (content[0].Equals('=')) //If we're a formula
             {
-                try
+                Formula formula = new Formula(content.Substring(1), Normalize, IsValidVarName);
+                if (!formula.ValidFormat)
                 {
-                    output = SetCellContents(name, new Formula(content.Substring(1), Normalize, IsValidVarName));
-                }
-                catch (FormulaFormatException)
+                    if (isInvalidFormatAllowed)
+                    {
+                        //output = SetCellContents(name, "=" + formula.formaterror.formula);
+                        output = SetCellContents(name, formula);
+                    }else
+                    {
+                        throw new InvalidFormatException(formula.formaterror.message);
+                    }
+                }else
                 {
-                    SetCellContents(name, "SpreadsheetUtilities.FormulaFormatException"); r
+                    output = SetCellContents(name, formula);
                 }
+                //if (formula.ValidFormat || isInvalidFormatAllowed)
+                //    output = SetCellContents(name, formula);
+                //else
+                //    throw new InvalidFormatException(formula.formaterror.message);
             }
             else if (Double.TryParse(content, out parsedContent)) //If we're a double
             {
@@ -537,7 +569,7 @@ namespace SS
         {
             IsNameInvalidOrNull(name); //If we get past this, our name is valid
 
-            if (text==null)
+            if (text == null)
             {
                 throw new ArgumentNullException();
             }
@@ -554,7 +586,7 @@ namespace SS
                 nonEmptyCells.Add(name, new Cell(name, text)); //Add our new cell
                 return new HashSet<String>(GetCellsToRecalculate(name)); //Return all the cells to recalculate.
             }
-            
+
         }
 
         /// <summary>
@@ -581,7 +613,16 @@ namespace SS
                 throw new ArgumentNullException();
             }
 
-            //Perserve the old value.
+            // vinc: handle InvalidFormat
+            if (!formula.ValidFormat)
+            {
+                nonEmptyCells.Add(name, new Cell(name, formula)); //Add our new cell
+                HashSet<string> result = new HashSet<string>();
+                result.Add(name);
+                return result;
+            }
+
+            //Preserve the old value.
             object oldValue = GetCellContents(name);
 
             MakeEmpty(name); //Make the cell empty.
@@ -606,11 +647,11 @@ namespace SS
                 //We have a circular dependency. Restore the old values.
                 if (oldValue.GetType().Equals(typeof(double)))
                 {
-                    this.SetCellContents(name, (double) oldValue);
+                    this.SetCellContents(name, (double)oldValue);
                 }
                 else if (oldValue.GetType().Equals(typeof(string)))
                 {
-                    this.SetCellContents(name, (string) oldValue);
+                    this.SetCellContents(name, (string)oldValue);
                 }
                 else
                 {
@@ -645,7 +686,7 @@ namespace SS
         /// </summary>
         protected override IEnumerable<string> GetDirectDependents(string name)
         {
-            if (name==null)
+            if (name == null)
             {
                 throw new ArgumentNullException();
             }
@@ -738,7 +779,7 @@ namespace SS
                 //If the cell is a formula.
                 if (nonEmptyCells[name].Contents.GetType() == typeof(Formula))
                 {
-                    Formula toBeRemoved = (Formula) nonEmptyCells[name].Contents;   
+                    Formula toBeRemoved = (Formula)nonEmptyCells[name].Contents;
                     //Remove the dependencies for every varName in this cell.
                     foreach (string varName in toBeRemoved.GetVariables())
                     {
@@ -789,7 +830,8 @@ namespace SS
             /// </summary>
             public object Contents
             {
-                set {
+                set
+                {
                     if (value.GetType().Equals(typeof(string)))
                     {
                         this.contents = value;
@@ -807,7 +849,8 @@ namespace SS
                         throw new ArgumentException();
                     }
                 }
-                get {
+                get
+                {
                     return contents;
                 }
             }
@@ -851,5 +894,15 @@ namespace SS
         }
     }
 
-    
+
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public class InvalidFormatException : Exception
+    {
+        public InvalidFormatException(string message) : base(message)
+        {
+        }
+    }
 }

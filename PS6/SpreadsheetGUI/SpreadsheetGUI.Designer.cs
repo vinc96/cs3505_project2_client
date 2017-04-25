@@ -111,10 +111,10 @@
             // 
             this.cellContentsBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.cellContentsBox.Location = new System.Drawing.Point(261, 32);
+            this.cellContentsBox.Location = new System.Drawing.Point(483, 32);
             this.cellContentsBox.Name = "cellContentsBox";
             this.cellContentsBox.ShortcutsEnabled = false;
-            this.cellContentsBox.Size = new System.Drawing.Size(868, 25);
+            this.cellContentsBox.Size = new System.Drawing.Size(646, 25);
             this.cellContentsBox.TabIndex = 3;
             // 
             // cellNameBox
@@ -130,7 +130,7 @@
             this.cellValueBox.Location = new System.Drawing.Point(63, 32);
             this.cellValueBox.Name = "cellValueBox";
             this.cellValueBox.ReadOnly = true;
-            this.cellValueBox.Size = new System.Drawing.Size(192, 25);
+            this.cellValueBox.Size = new System.Drawing.Size(414, 25);
             this.cellValueBox.TabIndex = 5;
             // 
             // inpHostname

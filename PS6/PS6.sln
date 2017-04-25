@@ -10,8 +10,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spreadsheet", "Spreadsheet\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpreadsheetPanel", "SpreadsheetPanel\SpreadsheetPanel.csproj", "{F31299DC-288F-4E46-A3AF-6BF461B21C79}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpreadsheetTests", "SpreadsheetTests\SpreadsheetTests.csproj", "{3E3CE273-1E1E-4F21-AB51-54E1A7876779}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpreadsheetGUI", "SpreadsheetGUI\SpreadsheetGUI.csproj", "{8F172578-1C43-467B-A5FC-21CBA32067DC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Resources", "Resource\Resources.csproj", "{B3B915FE-57A7-448E-8491-AB2C34D0E8BB}"
@@ -47,14 +45,6 @@ Global
 		{F31299DC-288F-4E46-A3AF-6BF461B21C79}.Release|Any CPU.ActiveCfg = Release|x86
 		{F31299DC-288F-4E46-A3AF-6BF461B21C79}.Release|x86.ActiveCfg = Release|x86
 		{F31299DC-288F-4E46-A3AF-6BF461B21C79}.Release|x86.Build.0 = Release|x86
-		{3E3CE273-1E1E-4F21-AB51-54E1A7876779}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3E3CE273-1E1E-4F21-AB51-54E1A7876779}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3E3CE273-1E1E-4F21-AB51-54E1A7876779}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{3E3CE273-1E1E-4F21-AB51-54E1A7876779}.Debug|x86.Build.0 = Debug|Any CPU
-		{3E3CE273-1E1E-4F21-AB51-54E1A7876779}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3E3CE273-1E1E-4F21-AB51-54E1A7876779}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3E3CE273-1E1E-4F21-AB51-54E1A7876779}.Release|x86.ActiveCfg = Release|Any CPU
-		{3E3CE273-1E1E-4F21-AB51-54E1A7876779}.Release|x86.Build.0 = Release|Any CPU
 		{8F172578-1C43-467B-A5FC-21CBA32067DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8F172578-1C43-467B-A5FC-21CBA32067DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8F172578-1C43-467B-A5FC-21CBA32067DC}.Debug|x86.ActiveCfg = Debug|Any CPU
