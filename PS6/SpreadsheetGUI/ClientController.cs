@@ -140,11 +140,12 @@ namespace SpreadsheetClient
             }
             
             // vinc: parse startup message to dictionary
-            string[] startupData_array = startupData[0].Trim().Split('\t');
+            //string[] startupData_array = startupData[0].Trim().Split('\t');
+            string[] startupData_array = startupData[0].Split('\t');
 
 
             //vinc: ensure there are even number of string in startupData
-            if (!startupData_array[0].Equals("Startup") || startupData_array.Length % 2 != 0)
+            if (!startupData_array[0].Equals("Startup") || startupData_array.Length % 2 != 1)
             {
                 throw new ArgumentException();
             }

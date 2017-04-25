@@ -531,7 +531,8 @@ namespace WindowsFormsApplication1
             foreach (string message in data)
             {
                 //AtShar+vinc: get contents of the message (Type + cell&value pairs)
-                string[] messageComponents = message.Trim().Split('\t');
+                //string[] messageComponents = message.Trim().Split('\t');
+                string[] messageComponents = message.Split('\t');
                 lock (modelSheet)
                 {
                     switch (messageComponents[0])
@@ -544,7 +545,7 @@ namespace WindowsFormsApplication1
                             }
                         case "Change":
                             {
-                                if (messageComponents.Length != 3 && messageComponents.Length != 2)
+                                if (messageComponents.Length != 4)
                                 {
                                     //AtShar: The number of components in the startup should be three
                                     //MessageType+One pair of cell+value
@@ -552,13 +553,13 @@ namespace WindowsFormsApplication1
                                 }
 
                                 // vinc
-                                processChangeMessage(messageComponents[1], messageComponents.Length == 2 ? "" : messageComponents[2], true);
+                                processChangeMessage(messageComponents[1], messageComponents[2], true);
 
                                 break;
                             }
                         case "IsTyping":
                             {
-                                if (messageComponents.Length != 3)
+                                if (messageComponents.Length != 4)
                                 {
                                     //AtShar: The number of components in the startup should be three
                                     //MessageType+One pair of cell+value
@@ -604,12 +605,12 @@ namespace WindowsFormsApplication1
             modelSheet = new Spreadsheet(isValid, normalizer, VERSION);
             //modelSheet.myRefreshPanel += new refreshPanel(refreshPanel_handler);
 
-            if (messageComponents.Length % 2 != 0)
+            if (messageComponents.Length % 2 != 1)
             {
                 //AtShar: The number of components in the startup should be even
                 MessageBox.Show("Invalid startup message received from server.");
             }
-            for (int i = 2; i < messageComponents.Length; i += 2)
+            for (int i = 2; i < messageComponents.Length-1; i += 2)
             {
                 try
                 {
