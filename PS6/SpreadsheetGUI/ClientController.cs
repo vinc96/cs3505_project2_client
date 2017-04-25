@@ -216,7 +216,6 @@ namespace SpreadsheetClient
         /// <summary>
         /// Check to see if the connection is currently alive (e.g. connected to a server).
         /// </summary>
-        /// <returns></returns>
         public bool isTheConnectionAlive()
         {
             return clientSocketState != null && clientSocketState.TheSocket != null && clientSocketState.SafeToSendRequest;

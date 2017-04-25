@@ -154,7 +154,7 @@
             this.inpSSName.Name = "inpSSName";
             this.inpSSName.Size = new System.Drawing.Size(102, 20);
             this.inpSSName.TabIndex = 7;
-            this.inpSSName.Text = "asdf";
+            this.inpSSName.Text = "My Spreadsheet";
             // 
             // btnConnectToServer
             // 
