@@ -36,6 +36,11 @@ namespace SS
     /// </summary>
     public class CircularException : Exception
     {
+        public IEnumerable<String> dependencies;
+        public CircularException(IEnumerable<String> dependencies)
+        {
+            this.dependencies = dependencies;
+        }
     }
 
 
@@ -340,12 +345,17 @@ namespace SS
         {
             LinkedList<String> changed = new LinkedList<String>();
             HashSet<String> visited = new HashSet<String>();
+            bool CircularDependency = false;
             foreach (String name in names)
             {
                 if (!visited.Contains(name))
                 {
-                    Visit(name, name, visited, changed);
+                    Visit(name, name, visited, changed, ref CircularDependency);
                 }
+            }
+            if (CircularDependency)
+            {
+                throw new CircularException(changed);
             }
             return changed;
         }
@@ -364,18 +374,20 @@ namespace SS
         /// <summary>
         /// A helper for the GetCellsToRecalculate method.
         /// </summary>
-        private void Visit(String start, String name, ISet<String> visited, LinkedList<String> changed)
+        private void Visit(String start, String name, ISet<String> visited, LinkedList<String> changed,ref bool CircularDependency)
         {
             visited.Add(name);
             foreach (String n in GetDirectDependents(name))
             {
                 if (n.Equals(start))
                 {
-                    throw new CircularException();
+                    CircularDependency = true;
+                    continue;
+                    //throw new CircularException();
                 }
                 else if (!visited.Contains(n))
                 {
-                    Visit(start, n, visited, changed);
+                    Visit(start, n, visited, changed, ref CircularDependency);
                 }
             }
             changed.AddFirst(name);

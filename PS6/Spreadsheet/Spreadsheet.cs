@@ -644,10 +644,12 @@ namespace SS
             }
             catch (CircularException e)
             {
+                foreach(string cellName in e.dependencies)
+                {
+                    ((Formula)nonEmptyCells[cellName].Contents).CircularDependency = false;
+                }
                 formula.CircularDependency = true;
-                HashSet<string> result = new HashSet<String>(); //All is well, return. 
-                result.Add(name);
-                return result;
+                return new HashSet<String>(e.dependencies);
                 ////We have a circular dependency. Restore the old values.
                 //if (oldValue.GetType().Equals(typeof(double)))
                 //{
