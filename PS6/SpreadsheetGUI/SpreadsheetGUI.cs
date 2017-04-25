@@ -240,7 +240,13 @@ namespace WindowsFormsApplication1
                 cellValue = "InvalidFormat";
             }else if(cellValue is FormulaError)
             {
-                cellValue = "FormulaError";
+                if (((FormulaError)cellValue).CircularDependency)
+                {
+                    cellValue = "Circular Dependency";
+                }else
+                {
+                    cellValue = "FormulaError";
+                }
             }
             spreadsheetPanel1.SetValue(col, row, cellValue.ToString());
         }
@@ -745,6 +751,7 @@ namespace WindowsFormsApplication1
             inpSSName.Enabled = true;
             btnConnectToServer.Enabled = true;
             btnConnectToServer.Text = "Connect";
+            cellContentsBox.Text = "";
             clientController.closeConnection(handleSocketClosed);
         }
 
