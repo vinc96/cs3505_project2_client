@@ -133,10 +133,10 @@ namespace SS
             {
                 //return ((Formula)GetCellContents(name)).Evaluate(Lookup);
                 object result = ((Formula)GetCellContents(name)).Evaluate(Lookup);
-                if (result is InvalidFormat)
-                {
-                    result = "InvalidFormat:" + ((InvalidFormat)result).message;
-                }
+                //if (result is InvalidFormat)
+                //{
+                //    result = "InvalidFormat:" + ((InvalidFormat)result).message;
+                //}
                 return result;
             }
             else

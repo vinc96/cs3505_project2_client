@@ -96,11 +96,6 @@ namespace SS
         /// If the zero-based column and row are in range, sets the value of that
         /// cell and returns true.  Otherwise, returns false.
         /// </summary>
-        /// <param name="col"></param>
-        /// <param name="row"></param>
-        /// <param name="value"></param>
-        /// <returns></returns>
-
         public bool SetValue(int col, int row, string value)
         {
             return drawingPanel.SetValue(col, row, value);
@@ -116,7 +111,6 @@ namespace SS
         /// <param name="row"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-
         public bool GetValue(int col, int row, out string value)
         {
             return drawingPanel.GetValue(col, row, out value);
@@ -129,8 +123,6 @@ namespace SS
         /// </summary>
         /// <param name="col"></param>
         /// <param name="row"></param>
-        /// <returns></returns>
-
         public bool SetSelection(int col, int row)
         {
             return drawingPanel.SetSelection(col, row);

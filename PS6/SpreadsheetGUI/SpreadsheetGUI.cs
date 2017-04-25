@@ -161,6 +161,10 @@ namespace WindowsFormsApplication1
             cellNameBox.Text = cellNameString;
             //Update the value text.
             object cellValue = modelSheet.GetCellValue(cellNameString);
+            if (cellValue is InvalidFormat)
+            {
+                cellValue = "Reason:" + ((InvalidFormat)cellValue).message;
+            }
             cellValueBox.Text = cellValue.ToString();
             //Update the content text. Be careful, if we're grabbing a formula, we need to preappend a "="
             object cellContent = modelSheet.GetCellContents(cellNameString);
@@ -231,6 +235,13 @@ namespace WindowsFormsApplication1
             int col, row;
             cellNameToCoords(cellName, out col, out row);
             object cellValue = modelSheet.GetCellValue(cellName);
+            if (cellValue is InvalidFormat)
+            {
+                cellValue = "InvalidFormat";
+            }else if(cellValue is FormulaError)
+            {
+                cellValue = "FormulaError";
+            }
             spreadsheetPanel1.SetValue(col, row, cellValue.ToString());
         }
         /// <summary>

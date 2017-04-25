@@ -207,7 +207,7 @@ namespace SpreadsheetClient
                 message = messageType + "\t\n";
             }else
             {
-                message = messageType + "\t" + messageContent + "\n";
+                message = messageType + "\t" + messageContent + "\t\n";
             }
             Networking.Send(clientSocketState.TheSocket, message);
             return true;
