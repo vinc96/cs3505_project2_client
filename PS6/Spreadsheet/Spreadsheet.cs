@@ -238,10 +238,6 @@ namespace SS
             {
                 return "";
             }
-            //else if(nonEmptyCells[name].Contents is Formula && !((Formula)nonEmptyCells[name].Contents).ValidFormat)
-            //{
-            //    return ((Formula)nonEmptyCells[name].Contents).formaterror.formula;
-            //}
             else
             {
                 return nonEmptyCells[name].Contents;
@@ -302,7 +298,6 @@ namespace SS
                 {
                     if (isInvalidFormatAllowed)
                     {
-                        //output = SetCellContents(name, "=" + formula.formaterror.formula);
                         output = SetCellContents(name, formula);
                     }else
                     {
@@ -311,28 +306,7 @@ namespace SS
                 }else
                 {
                     output = SetCellContents(name, formula);
-                    //bool refreshed = false;
-                    //foreach (string cell in output)
-                    //{
-                    //    if (CircularDependency.Contains(cell))
-                    //    {
-                    //        if (!refreshed)
-                    //        {
-                    //            myRefreshPanel();
-                    //            refreshed = true;
-                    //        }
-                    //        CircularDependency.Remove(cell);
-                    //    }
-                    //}
-                    //if (refreshed)
-                    //{
-                    //    return new HashSet<string>();
-                    //}
                 }
-                //if (formula.ValidFormat || isInvalidFormatAllowed)
-                //    output = SetCellContents(name, formula);
-                //else
-                //    throw new InvalidFormatException(formula.formaterror.message);
             }
             else if (Double.TryParse(content, out parsedContent)) //If we're a double
             {
@@ -473,24 +447,6 @@ namespace SS
                 }
                 formula.CircularDependency = true;
                 return new HashSet<String>(e.dependencies);
-                ////We have a circular dependency. Restore the old values.
-                //if (oldValue.GetType().Equals(typeof(double)))
-                //{
-                //    this.SetCellContents(name, (double)oldValue);
-                //}
-                //else if (oldValue.GetType().Equals(typeof(string)))
-                //{
-                //    this.SetCellContents(name, (string)oldValue);
-                //}
-                //else
-                //{
-                //    if (oldValue.GetType().Equals(typeof(Formula)))
-                //    {
-                //        this.SetCellContents(name, (Formula)oldValue);
-                //    }
-                //}
-
-                //throw e;
             }
 
             return new HashSet<String>(returnValue); //All is well, return.
@@ -685,43 +641,6 @@ namespace SS
                     return contents;
                 }
             }
-            ///// <summary>
-            ///// Writes the XML for this cell, given the specified XmlWriter object. XML is as follows:
-            ///// 
-            ///// <cell>
-            ///// <name>
-            ///// cell name goes here
-            ///// </name>
-            ///// <contents>
-            ///// cell contents goes here
-            ///// </contents>    
-            ///// </cell>
-            ///// 
-            ///// </summary>
-            ///// <param name="writer"></param>
-            //internal void WriteXML(XmlWriter writer)
-            //{
-            //    writer.WriteStartElement("cell");//Open cell
-
-            //    writer.WriteStartElement("name");//Open name
-            //    writer.WriteString(this.name); //Write the name out
-            //    writer.WriteEndElement(); //Close name
-
-            //    writer.WriteStartElement("contents"); //Open contents\
-            //    //Write contents. Formulas get a special case.
-            //    if (contents.GetType().Equals(typeof(Formula)))
-            //    {
-            //        writer.WriteString("=" + contents.ToString());
-            //    }
-            //    else
-            //    {
-            //        writer.WriteString(contents.ToString());
-
-            //    }
-            //    writer.WriteEndElement(); //Close contents
-
-            //    writer.WriteEndElement();//Close cell
-            //}
         }
     }
 

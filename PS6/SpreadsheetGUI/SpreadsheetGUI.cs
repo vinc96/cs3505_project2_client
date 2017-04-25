@@ -19,24 +19,10 @@ namespace WindowsFormsApplication1
 {
     public partial class SpreadsheetGUI : Form
     {
-        ///// <summary>
-        ///// The base window title for our spreadsheet program. Modifiers are concatenated to this to show the status of the program.
-        ///// </summary>
-        //private const String WINDOWTITLE = "RAD Protocol Spreadsheet";
         /// <summary>
         /// The version we use when saving or loading spreadsheets.
         /// </summary>
         private const String VERSION = "ps6";
-
-        ///// <summary>
-        ///// The OpenFileDialog we'll be using to open any files we'll need.
-        ///// </summary>
-        //private OpenFileDialog openDialog;
-
-        ///// <summary>
-        ///// The SaveFileDialog we'll be using to save all the files we want.
-        ///// </summary>
-        //private SaveFileDialog saveDialog;
 
         /// <summary>
         /// The spreadsheet we use as the model in our MVC paradigm. Contains all the data for our spreadsheet.
@@ -52,12 +38,6 @@ namespace WindowsFormsApplication1
         /// </summary>
         private int lastRow;
 
-        ///// <summary>
-        ///// A list of all Users who access the spreadsheet.
-        ///// The users are mapped to unique colors so that the cells they edit can be highlighted
-        ///// </summary>
-        //private Dictionary<string, Color> Users;
-
         /// <summary>
         /// <author>AtShar</author>
         /// Network controller to send and receive requests to and from the server
@@ -70,10 +50,6 @@ namespace WindowsFormsApplication1
         // vinc: indicate whether or not user is typing in input textbox
         private bool isTyping;
 
-        ///// <summary>
-        ///// The location where the sheet we're working on was last saved. Null if it hasn't been saved yet.
-        ///// </summary>
-        //private string lastSaveLocation;
         /// <summary>
         /// The message to be displayed when the user clicks on the help button.
         /// </summary>
@@ -95,27 +71,13 @@ namespace WindowsFormsApplication1
         {
             //AtShar&vinc: initalize fields
             clientController = new ClientController();
-            //Users = new Dictionary<string, Color>();
             ClientID = null;
             isTyping = false;
 
             InitializeComponent();
 
-            ////Set up lastCol and lastRow: the "last" items selected in this case are the starting values.
-            //spreadsheetPanel1.GetSelection(out lastCol, out lastRow);
-            ////Set up the open dialog, and add our file open listener.
-            //openDialog = new OpenFileDialog();
-            //openDialog.Filter = "Spreadsheet Files (.sprd)| *.sprd|All Files|*";
-            //openDialog.FileOk += OpenFileListener;
-            ////Set up the save dialog, and add our file save listener.
-            //saveDialog = new SaveFileDialog();
-            //saveDialog.Filter = "Spreadsheet Files (.sprd)| *.sprd|All Files|*";
-            //saveDialog.FileOk += SaveFileListener;
-
             //Set up our empty modelSheet.
             modelSheet = new Spreadsheet(isValid, normalizer, VERSION);
-            //modelSheet = new Spreadsheet();
-            modelSheet.myRefreshPanel += new refreshPanel(refreshPanel_handler);
 
             grabNewDisplayedData(); //Populate the UI for the current cell.
 
@@ -124,15 +86,15 @@ namespace WindowsFormsApplication1
             enterButton.Enabled = false;
         }
 
-        public void refreshPanel_handler()
-        {
-            //Replace the spreadsheet panel, so that we don't have any lingering data values
-            spreadsheetPanel1.Clear();
-            //Update all the values on load.
-            updateCells(modelSheet.GetNamesOfAllNonemptyCells());
-            //Pull the data from our current location
-            Invoke(new MethodInvoker(() => { grabNewDisplayedData(); }));
-        }
+        //public void refreshPanel_handler()
+        //{
+        //    //Replace the spreadsheet panel, so that we don't have any lingering data values
+        //    spreadsheetPanel1.Clear();
+        //    //Update all the values on load.
+        //    updateCells(modelSheet.GetNamesOfAllNonemptyCells());
+        //    //Pull the data from our current location
+        //    Invoke(new MethodInvoker(() => { grabNewDisplayedData(); }));
+        //}
 
         /// <summary>
         /// The validator we use for our spreadsheet objects. Returns true if the cell is within the spreadsheet grid, false otherwise.
@@ -164,106 +126,6 @@ namespace WindowsFormsApplication1
         {
             return stringToBeNormalized.ToUpper();
         }
-
-        ///// <summary>
-        ///// Fired when we click the "Open" option in the file dialog. Opens a file open dialog.
-        ///// </summary>
-        ///// <param name="sender"></param>
-        ///// <param name="e"></param>
-        //private void openToolStripMenuItem_Click(object sender, EventArgs e)
-        //{
-        //    openDialog.ShowDialog();
-        //}
-
-        ///// <summary>
-        ///// The listener that we use to open files. Should be registered with our openDialog.FileOK Listener. If it's not used
-        ///// in this fashion, does nothing.
-        ///// </summary>
-        ///// <param name="sender"></param>
-        ///// <param name="e"></param>
-        //private void OpenFileListener(object sender, CancelEventArgs e)
-        //{
-        //    //If we're opening a file, perform actions required to do that.
-        //    if (sender.GetType().Equals(typeof(OpenFileDialog)))
-        //    {
-        //        //potentialDataLoss();
-        //        string fileLocation = ((OpenFileDialog)sender).FileName;
-        //        //If the fileLocation is null, open an empty sheet. Else, open the sheet at fileLocation.
-        //        modelSheet = new Spreadsheet(fileLocation, isValid, normalizer, VERSION);
-        //        lastSaveLocation = fileLocation;
-        //        updateWindowTitle();
-
-        //        //Replace the spreadsheet panel, so that we don't have any lingering data values
-        //        spreadsheetPanel1.Clear();
-        //        //Update all the values on load.
-        //        updateCells(modelSheet.GetNamesOfAllNonemptyCells());
-        //        //Pull the data from our current location
-        //        grabNewDisplayedData();
-        //    }
-        //    else
-        //    {
-        //        //Else, this delegate was used incorrectly, and we should do nothing.
-        //    }
-        //}
-
-        ///// <summary>
-        ///// Fired when we hit the Save As button in the file menu. Opens a file save dialog.
-        ///// </summary>
-        ///// <param name="sender"></param>
-        ///// <param name="e"></param>
-        //private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
-        //{
-        //    saveDialog.ShowDialog();
-        //}
-
-        ///// <summary>
-        ///// Fired when we hit the save button in the file menu. If the file hasn't been saved before, opens up a "save as" dialog.
-        ///// If it has been saved before, overwrites the file previously saved to/opened from.
-        ///// </summary>
-        ///// <param name="sender"></param>
-        ///// <param name="e"></param>
-        //private void saveToolStripMenuItem_Click(object sender, EventArgs e)
-        //{
-        //    saveFile();
-        //}
-
-        ///// <summary>
-        ///// Saves the current file. If the saveLocation is null, shows a dialog. If saveLocation is non-null, saves to the previously 
-        ///// saved location.
-        ///// </summary>
-        //private void saveFile()
-        //{
-        //    if (ReferenceEquals(lastSaveLocation, null))
-        //    {
-        //        saveDialog.ShowDialog();
-        //    }
-        //    else
-        //    {
-        //        modelSheet.Save(lastSaveLocation);
-        //        updateWindowTitle();
-        //    }
-        //}
-
-        ///// <summary>
-        ///// This is the listener that we use to save files. Should be reigstered with our saveDialog.FileOK listener. If
-        ///// it's not used in this fashion, does nothing.
-        ///// </summary>
-        ///// <param name="sender"></param>
-        ///// <param name="e"></param>
-        //private void SaveFileListener(object sender, CancelEventArgs e)
-        //{
-        //    //If we're saving a file, perform actions required to do that.
-        //    if (sender.GetType().Equals(typeof(SaveFileDialog)))
-        //    {
-        //        modelSheet.Save(((SaveFileDialog)sender).FileName);
-        //        lastSaveLocation = ((SaveFileDialog)sender).FileName;
-        //        updateWindowTitle();//Update the window title, so that we can remove a "*" if needed.
-        //    }
-        //    else
-        //    {
-        //        //Else, this delegate was used incorrectly, and we should do nothing.
-        //    }
-        //}
 
         /// <summary>
         /// Fired when a new cell is selected in the spreadsheet panel. Takes the data from the view, pushes it to the model, and 
@@ -301,17 +163,6 @@ namespace WindowsFormsApplication1
             cellNameBox.Text = cellNameString;
             //Update the value text.
             object cellValue = modelSheet.GetCellValue(cellNameString);
-            //if(cellValue is FormulaError)
-            //{
-            //    string reason = ((FormulaError)cellValue).Reason;
-            //    if (((FormulaError)cellValue).CircularDependency)
-            //    {
-            //        cellValue = "Circular Dependency";
-            //    }else
-            //    {
-            //        cellValue = "FormulaError:" + ((FormulaError)cellValue).Reason;
-            //    }
-            //}
             cellValueBox.Text = cellValue.ToString();
             //Update the content text. Be careful, if we're grabbing a formula, we need to preappend a "="
             object cellContent = modelSheet.GetCellContents(cellNameString);
@@ -382,18 +233,6 @@ namespace WindowsFormsApplication1
             int col, row;
             cellNameToCoords(cellName, out col, out row);
             object cellValue = modelSheet.GetCellValue(cellName);
-            //if (cellValue is FormulaError)
-            //{
-            //    string reason = ((FormulaError)cellValue).Reason;
-            //    if (((FormulaError)cellValue).CircularDependency)
-            //    {
-            //        cellValue = "Circular Dependency";
-            //    }
-            //    else
-            //    {
-            //        cellValue = "FormulaError:" + ((FormulaError)cellValue).Reason;
-            //    }
-            //}
             spreadsheetPanel1.SetValue(col, row, cellValue.ToString());
         }
         /// <summary>
@@ -448,23 +287,6 @@ namespace WindowsFormsApplication1
             cellname += (row + 1);
             return cellname;
         }
-
-
-        ///// <summary>
-        ///// A method designed to be called when there is the potential for data loss in our form, so that we can interupt the process, and
-        ///// ensure the user has a chance to save. 
-        ///// </summary>
-        //private void potentialDataLoss()
-        //{
-        //    if (modelSheet.Changed)
-        //    {
-        //        DialogResult result = MessageBox.Show("You have unsaved changes. Do you want to save?", "Save file?", MessageBoxButtons.YesNo);
-        //        if (result.Equals(DialogResult.Yes))
-        //        {
-        //            saveDialog.ShowDialog();
-        //        }
-        //    }
-        //}
 
         /// <summary>
         /// Fired when someone clicks the enter button. Shifts the selection down, which fires the SelectionChanged listener.
@@ -570,29 +392,6 @@ namespace WindowsFormsApplication1
             this.Close();
         }
 
-        ///// <summary>
-        ///// Sets the window title to be up to date, given the current state of the sheet. Grabs the edit state and file
-        ///// location and concatenates them together into a valid title.
-        ///// </summary>
-        //private void updateWindowTitle()
-        //{
-        //    //Add the file location (if it exists)
-        //    if (ReferenceEquals(lastSaveLocation, null))
-        //    {
-        //        this.Text = WINDOWTITLE;
-        //    }
-        //    else
-        //    {
-        //        this.Text = WINDOWTITLE + ": " + lastSaveLocation;
-        //    }
-
-        //    //Add the save state indicator
-        //    if (modelSheet.Changed)
-        //    {
-        //        this.Text += "*";
-        //    }
-        //}
-
         /// <summary>
         /// Fired when the help menu button is clicked. Opens a help window that explains how to use the spreadsheet.
         /// </summary>
@@ -620,20 +419,6 @@ namespace WindowsFormsApplication1
                 disconnectFromServer(true, str_lostServerConnection);
             }
         }
-
-        //protected override bool IsInputKey(Keys keyData)
-        //{
-        //    switch (keyData)
-        //    {
-        //        case Keys.Right:
-        //        case Keys.Left:
-        //        case Keys.Up:
-        //        case Keys.Down:
-        //        case Keys.Shift:
-        //            return true;
-        //    }
-        //    return base.IsInputKey(keyData);
-        //}
 
         protected override void OnKeyDown(KeyEventArgs e)
         {
@@ -672,25 +457,6 @@ namespace WindowsFormsApplication1
                         openNewWindow();
                     }
                     break;
-                //case Keys.O: //Open shortcut
-                //    if (ModifierKeys.HasFlag(Keys.Control))
-                //    {
-                //        openDialog.ShowDialog();
-                //    }
-                //    break;
-                //case Keys.S: //Save/Save As shortcut
-                //    if (ModifierKeys.HasFlag(Keys.Control) && !ModifierKeys.HasFlag(Keys.Shift))
-                //    {
-                //        saveFile();//Save
-                //        e.SuppressKeyPress = true; //Keeps the form from making a "bing" sound whenever you press this key combo.
-                //    }
-
-                //    if (ModifierKeys.HasFlag(Keys.Control) && ModifierKeys.HasFlag(Keys.Shift))
-                //    {
-                //        saveDialog.ShowDialog();//Save As
-                //        e.SuppressKeyPress = true; //Keeps the form from making a "bing" sound whenever you press this key combo.
-                //    }
-                //    break;
                 case Keys.F4: //Open shortcut
                     if (ModifierKeys.HasFlag(Keys.Alt))
                     {
@@ -804,17 +570,6 @@ namespace WindowsFormsApplication1
                                 int row, col;
                                 cellNameToCoords(messageComponents[2], out col, out row);
                                 spreadsheetPanel1.addHighlightCell(messageComponents[1], row, col);
-                                // change the panel frame color
-
-                                //if (Users.ContainsKey(messageComponents[1]))
-                                //{
-                                //    //change the panel background color
-                                //}
-                                //else
-                                //{
-                                //    //AtShar: Assign random color to each new user
-                                //    Users.Add(messageComponents[1],RandomColorObject(messageComponents[1]));
-                                //}
 
                                 break;
                             }
@@ -846,15 +601,12 @@ namespace WindowsFormsApplication1
         private void processStartupMessage(string[] messageComponents)
         {
             ///// update model
-            //modelSheet = new Spreadsheet();
             modelSheet = new Spreadsheet(isValid, normalizer, VERSION);
-            modelSheet.myRefreshPanel += new refreshPanel(refreshPanel_handler);
-            //StringBuilder log = new StringBuilder();
+            //modelSheet.myRefreshPanel += new refreshPanel(refreshPanel_handler);
 
             if (messageComponents.Length % 2 != 0)
             {
                 //AtShar: The number of components in the startup should be even
-                //MessageType+spreadsheetID+Pairs of cell+value
                 MessageBox.Show("Invalid startup message received from server.");
             }
             for (int i = 2; i < messageComponents.Length; i += 2)
@@ -864,10 +616,6 @@ namespace WindowsFormsApplication1
                     // vinc: cell from server that could cause InvalidFormatException is always allowed
                     modelSheet.SetContentsOfCell(messageComponents[i], messageComponents[i + 1], true);
                 }
-                //catch (FormulaFormatException)//If we catch an invalid formula error, inform the user.
-                //{
-                //    log.Append("Error: Invalid Formula at cell " + messageComponents[i] + "\n");
-                //}
                 catch (CircularException)//If we catch a circular exception error, inform the user.
                 {
                     MessageBox.Show("Error: You've entered a formula that has a circular dependency!");
@@ -877,7 +625,6 @@ namespace WindowsFormsApplication1
 
                 }
             }
-            //MessageBox.Show(log.ToString());
             ClientID = messageComponents[1];
 
             /// update view
@@ -887,7 +634,6 @@ namespace WindowsFormsApplication1
             updateCells(modelSheet.GetNamesOfAllNonemptyCells());
             //Pull the data from our current location
             Invoke(new MethodInvoker(() => { grabNewDisplayedData(); }));
-            //Invalidate();
         }
         
 
@@ -906,7 +652,6 @@ namespace WindowsFormsApplication1
             if (cellContent.GetType().Equals(typeof(Formula)))
             {
                 //Special case for making empty cells
-                //if (cellContentsBox.Text.Length == 0)
                 if (newContent.Length == 0)
                 {
                     cellChanged = true;
@@ -917,14 +662,11 @@ namespace WindowsFormsApplication1
                 }
                 else
                 {
-                    //Compare the contents of the spreadsheet, with the contents of the cellContentsBox, minus the "=".
-                    //cellChanged = !modelSheet.GetCellContents(targetCell).ToString().Equals(cellContentsBox.Text.Substring(1));
                     cellChanged = !cellContent.ToString().Equals(newContent.Substring(1));
                 }
             }
             else
             {
-                //cellChanged = !modelSheet.GetCellContents(targetCell).ToString().Equals(cellContentsBox.Text);
                 cellChanged = !cellContent.ToString().Equals(newContent);
             }
             //If we've changed the cell contents, change the model, and update our front end.
@@ -932,12 +674,8 @@ namespace WindowsFormsApplication1
             {
                 try
                 {
-                    //ISet<String> cellsToUpdate = modelSheet.SetContentsOfCell(targetCell, cellContentsBox.Text);
                     ISet<String> cellsToUpdate = modelSheet.SetContentsOfCell(targetCell, newContent, isInvalidFormatAllowed);
                     updateCells(cellsToUpdate); //Update the cells that need re-evaluation.
-
-                    ////Run the updateWindowTitle method, so we'll indicate that the spreadsheet changed.
-                    //Invoke(new MethodInvoker(updateWindowTitle));
                 }
                 catch (InvalidFormatException)//If we catch an invalid formula error, inform the user.
                 {
@@ -956,28 +694,6 @@ namespace WindowsFormsApplication1
             }
             return cellChanged;
         }
-
-        ///// <summary>
-        ///// highlight specified cell with specified color
-        ///// </summary>
-        ///// <param name="UserID"></param>
-        ///// <param name="cellName"></param>
-        //private void highlightCell(string UserID, string cellName)
-        //{
-        //    //Users[UserID] = RandomColorObject(cellName);
-
-        //}
-
-        ///// <summary>
-        ///// <author>AtShar</author>
-        ///// Updates the view. Called on a per-tick basis, whenever there's new data.
-        ///// Updating the state of the spreadsheet.
-        ///// </summary>
-        //private void updateView()
-        //{
-        //    //Update game display
-        //    spreadsheetPanel1.Update();
-        //}
 
         /// <summary>
         /// Displays error message on an unsuccesful initial connect attempt
@@ -1011,11 +727,7 @@ namespace WindowsFormsApplication1
         private void handleSocketClosed()
         {
             ///// erase model
-            //clientController = new ClientController();
-            //modelSheet = new Spreadsheet();
             modelSheet = new Spreadsheet(isValid, normalizer, VERSION);
-            modelSheet.myRefreshPanel += new refreshPanel(refreshPanel_handler);
-            //Users = new Dictionary<string, Color>();
             isTyping = false;
             ClientID = null;
 
@@ -1025,17 +737,6 @@ namespace WindowsFormsApplication1
             //Update all the values on load.
             updateCells(modelSheet.GetNamesOfAllNonemptyCells());
         }
-
-
-        //private class User
-        //{
-        //    Color assignedColor;
-        //    string clientID;
-        //    public User(string uniqueID)
-        //    {
-        //        clientID = uniqueID;
-        //    }
-        //}
 
     }
 

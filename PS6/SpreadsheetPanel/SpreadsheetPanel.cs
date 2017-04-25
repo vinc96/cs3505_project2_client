@@ -18,7 +18,6 @@ namespace SS
     /// The type of delegate used to register for SelectionChanged events
     /// </summary>
     /// <param name="sender"></param>
-
     public delegate void SelectionChangedHandler(SpreadsheetPanel sender);
 
 
@@ -31,7 +30,6 @@ namespace SS
     /// 
     /// None of the cells are editable.  They are for display purposes only.
     /// </summary>
-
     public partial class SpreadsheetPanel : UserControl
     {
 
@@ -56,7 +54,6 @@ namespace SS
         /// <summary>
         /// Creates an empty SpreadsheetPanel
         /// </summary>
-
         public SpreadsheetPanel()
         {
 
@@ -274,7 +271,6 @@ namespace SS
         /// The panel where the spreadsheet grid is drawn.  It keeps track of the
         /// current selection as well as what is supposed to be drawn in each cell.
         /// </summary>
-
         private class DrawingPanel : Panel
         {
             // Columns and rows are numbered beginning with 0.  This is the coordinate
@@ -648,18 +644,6 @@ namespace SS
                 IDToCell.Remove(ID);
                 Invalidate();
             }
-
-            ///// <summary>
-            ///// remove a highlighted cell permanently
-            ///// </summary>
-            ///// <param name="ID"></param>
-            ///// <param name="row"></param>
-            ///// <param name="col"></param>
-            ///// <param name="color"></param>
-            //private void removeHighlightCell(string ID, int row, int col, Color color)
-            //{
-            //    IDToColor.Remove(ID);
-            //}
 
             /// <summary>
             /// generate random color
