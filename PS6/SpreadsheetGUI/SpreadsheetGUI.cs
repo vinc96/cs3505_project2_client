@@ -115,12 +115,23 @@ namespace WindowsFormsApplication1
             //Set up our empty modelSheet.
             modelSheet = new Spreadsheet(isValid, normalizer, VERSION);
             //modelSheet = new Spreadsheet();
+            modelSheet.myRefreshPanel += new refreshPanel(refreshPanel_handler);
 
             grabNewDisplayedData(); //Populate the UI for the current cell.
 
             // vinc: disable SS input untill connection to server success
             cellContentsBox.Enabled = false;
             enterButton.Enabled = false;
+        }
+
+        public void refreshPanel_handler()
+        {
+            //Replace the spreadsheet panel, so that we don't have any lingering data values
+            spreadsheetPanel1.Clear();
+            //Update all the values on load.
+            updateCells(modelSheet.GetNamesOfAllNonemptyCells());
+            //Pull the data from our current location
+            Invoke(new MethodInvoker(() => { grabNewDisplayedData(); }));
         }
 
         /// <summary>
@@ -837,6 +848,7 @@ namespace WindowsFormsApplication1
             ///// update model
             //modelSheet = new Spreadsheet();
             modelSheet = new Spreadsheet(isValid, normalizer, VERSION);
+            modelSheet.myRefreshPanel += new refreshPanel(refreshPanel_handler);
             //StringBuilder log = new StringBuilder();
 
             if (messageComponents.Length % 2 != 0)
@@ -877,6 +889,7 @@ namespace WindowsFormsApplication1
             Invoke(new MethodInvoker(() => { grabNewDisplayedData(); }));
             //Invalidate();
         }
+        
 
         /// <summary>
         /// vinc:
@@ -1001,6 +1014,7 @@ namespace WindowsFormsApplication1
             //clientController = new ClientController();
             //modelSheet = new Spreadsheet();
             modelSheet = new Spreadsheet(isValid, normalizer, VERSION);
+            modelSheet.myRefreshPanel += new refreshPanel(refreshPanel_handler);
             //Users = new Dictionary<string, Color>();
             isTyping = false;
             ClientID = null;

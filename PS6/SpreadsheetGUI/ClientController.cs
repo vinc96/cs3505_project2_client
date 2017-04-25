@@ -138,13 +138,7 @@ namespace SpreadsheetClient
                 Networking.listenForData(aSocketState, (ss) => { startupDataRecieved(ss, handshakeCompletedHandler); });
                 return;
             }
-
-            //int playerId;
-            //int worldWidth;
-            //int worldHeight;
-            //Int32.TryParse(setupData[0], out playerId);
-            //Int32.TryParse(setupData[1], out worldWidth);
-            //Int32.TryParse(setupData[2], out worldHeight);
+            
             // vinc: parse startup message to dictionary
             string[] startupData_array = startupData[0].Trim().Split('\t');
 

@@ -64,6 +64,10 @@ namespace SS
         /// A dictionary containing all of the non-empty cells in this object.
         /// </summary>
         private Dictionary<String, Cell> nonEmptyCells = new Dictionary<string, Cell>();
+        /// vinc: CircularDependency pool containing all involved cells
+        private HashSet<string> CircularDependency = new HashSet<string>();
+        ///// vinc: event to refresh panel
+        //public event refreshPanel myRefreshPanel;
 
         /// <summary>
         /// Denotes if this spreadsheet has changed since it's construction, or last save.
@@ -109,139 +113,6 @@ namespace SS
         {
             hasChanged = false;
         }
-
-        ///// <summary>
-        ///// Constructs a spreasheet by reading a saved spreadsheet from the specified file. 
-        ///// Uses the provided validity delegate, normalization delegate, and version.
-        ///// </summary>
-        ///// <param name="pathToFile"></param>
-        ///// <param name="isValid"></param>
-        ///// <param name="normalize"></param>
-        ///// <param name="version"></param>
-        //public Spreadsheet(string pathToFile, Func<string, bool> isValid, Func<string, string> normalize, string version) 
-        //    : this(isValid, normalize, version)
-        //{
-        //    LoadFile(pathToFile);
-        //    hasChanged = false;
-        //}
-
-        ///// <summary>
-        ///// Attempts to load a file from the specified path. The file should be formatted
-        ///// according to the specification of the Save method. If there are issues loading the 
-        ///// file, throws a SpreadsheetReadWriteException with a message discribing the problem.
-        ///// </summary>
-        ///// <param name="pathToFile">The path to attempt to load the file from.</param>
-        //private void LoadFile(string pathToFile)
-        //{
-        //    XmlReaderSettings settings = new XmlReaderSettings();
-        //    settings.IgnoreWhitespace = true;
-        //    try
-        //    {
-        //        using (XmlReader reader = XmlReader.Create(pathToFile, settings))
-        //        {
-
-        //            //Skip forward until we get to a spreadsheet tag
-        //            while (!reader.Name.Equals("spreadsheet"))
-        //            {
-        //                reader.Read();
-        //            }
-
-        //            if (!Version.Equals(reader.GetAttribute("version"))) //Check version
-        //            {
-        //                if (ReferenceEquals(reader.GetAttribute("version"), null))
-        //                {
-        //                    throw new SpreadsheetReadWriteException("Missing version");
-        //                }
-        //                else
-        //                {
-        //                    throw new SpreadsheetReadWriteException("Versions don't match. " +
-        //                    Version + " (constructor)  vs " + reader.GetAttribute("version") + " (file)");
-        //                }
-        //            }
-
-        //            //Load all the cells
-        //            while (reader.Read())
-        //            {
-        //                if (reader.IsStartElement() && reader.Name.Equals("cell"))
-        //                {
-        //                    LoadCell(reader);
-        //                }
-        //            }
-        //        }
-        //    }
-        //    catch (System.IO.DirectoryNotFoundException e)
-        //    {
-        //        throw new SpreadsheetReadWriteException("Directory not Found: " + e.Message);
-        //    }
-        //    catch (System.IO.FileNotFoundException e)
-        //    {
-        //        throw new SpreadsheetReadWriteException("File Not Found: " + e.Message);
-        //    }
-        //    catch (XmlException) //Thrown when the reader steps off the end of the file.
-        //    {
-        //        throw new SpreadsheetReadWriteException("Spreadsheet element was never opened ");
-        //    }
-
-        //}
-
-        ///// <summary>
-        ///// Loads from the specified XmlReader a cell, given that the XmlReader is currently
-        ///// pointed at the start of a cell element. Once it's done, leaves the reader pointed
-        ///// at the last element of the cell.
-        ///// </summary>
-        ///// <param name="reader"></param>
-        //private void LoadCell(XmlReader reader)
-        //{
-        //    string name;
-        //    //Read until we get to the name element
-        //    while (!reader.Name.Equals("name"))
-        //    {
-        //        reader.Read();
-
-        //        if (reader.Name.Equals("cell"))
-        //        {
-        //            throw new SpreadsheetReadWriteException("Invalid cell: name not found");
-        //        }
-        //    }
-
-
-        //    name = reader.ReadElementContentAsString(); //Once we get to the name elment, store its value.
-
-        //    name = RemoveWhitespace(name);//Clear whitespace from name
-
-        //    string contents;
-        //    //Read until we get to the contents element
-        //    while (!reader.Name.Equals("contents"))
-        //    {
-        //        reader.Read();
-
-        //        if (reader.Name.Equals("cell"))
-        //        {
-        //            throw new SpreadsheetReadWriteException("Invalid cell: contents not found");
-        //        }
-        //    }
-
-        //    contents = reader.ReadElementContentAsString(); //Once we get to the contents element, store its value.
-
-        //    contents = RemoveWhitespace(contents);//Clear whitespace from contents
-        //    //Create the cell (or try)
-        //    try
-        //    {
-        //        this.SetContentsOfCell(name, contents);
-        //    }
-        //    catch (InvalidNameException e)
-        //    {
-        //        throw new SpreadsheetReadWriteException("Invalid Name Exception: " + e.Message);
-        //    }
-        //    catch (CircularException e)
-        //    {
-        //        throw new SpreadsheetReadWriteException("Circular Exception: " + e.Message);
-        //    }
-        //    catch (FormulaFormatException e)
-        //    {
-        //        throw new SpreadsheetReadWriteException("Formula Format Exception: " + e.Message);
-        //    }
-        //}
 
         private string RemoveWhitespace(string str)
         {
@@ -299,66 +170,6 @@ namespace SS
         }
 
         /// <summary>
-        /// Writes the contents of this spreadsheet to the named file using an XML format.
-        /// The XML elements should be structured as follows:
-        /// 
-        /// <spreadsheet version="version information goes here">
-        /// 
-        /// <cell>
-        /// <name>
-        /// cell name goes here
-        /// </name>
-        /// <contents>
-        /// cell contents goes here
-        /// </contents>    
-        /// </cell>
-        /// 
-        /// </spreadsheet>
-        /// 
-        /// There should be one cell element for each non-empty cell in the spreadsheet.  
-        /// If the cell contains a string, it should be written as the contents.  
-        /// If the cell contains a double d, d.ToString() should be written as the contents.  
-        /// If the cell contains a Formula f, f.ToString() with "=" prepended should be written as the contents.
-        /// 
-        /// If there are any problems opening, writing, or closing the file, the method should throw a
-        /// SpreadsheetReadWriteException with an explanatory message.
-        /// </summary>
-        public override void Save(string filename)
-        {
-            XmlWriterSettings settings = new XmlWriterSettings();
-            settings.Indent = true;
-            settings.IndentChars = "  ";
-            try
-            {
-                using (XmlWriter writer = XmlWriter.Create(filename, settings))
-                {
-                    writer.WriteStartDocument();
-                    writer.WriteStartElement("spreadsheet");//Start spreadsheet tags
-                    writer.WriteAttributeString("version", Version); //Write version attribute
-
-                    //For every non-empty cell
-                    foreach (Cell c in nonEmptyCells.Values)
-                    {
-                        c.WriteXML(writer);
-                    }
-
-                    writer.WriteEndElement(); //end spreadsheet tags
-                    writer.WriteEndDocument();
-                }
-            }
-            catch (ArgumentException e)
-            {
-                throw new SpreadsheetReadWriteException("Exception: " + e.ToString());
-            }
-            catch (System.IO.DirectoryNotFoundException e)
-            {
-                throw new SpreadsheetReadWriteException("Directory not Found: " + e.Message);
-            }
-
-            hasChanged = false; //Last thing we do before we exit.
-        }
-
-        /// <summary>
         /// If name is null or invalid, throws an InvalidNameException.
         /// 
         /// Otherwise, returns the value (as opposed to the contents) of the named cell.  The return
@@ -375,20 +186,9 @@ namespace SS
                 if (result is InvalidFormat)
                 {
                     result = "InvalidFormat:" + ((InvalidFormat)result).message;
-                    //result = "SpreadsheetUtilities.FormulaFormatException";
                 }
                 return result;
             }
-            //else if(GetCellContents(name) is string && ((string)GetCellContents(name))[0] == '=')
-            //{
-            //    //object result = ((Formula)GetCellContents(name)).Evaluate(Lookup);
-            //    //if (result is InvalidFormat)
-            //    //{
-            //    //    result = "SpreadsheetUtilities.InvalidFormatException: " + ((InvalidFormat)result).message;
-            //    //    //result = "SpreadsheetUtilities.FormulaFormatException";
-            //    //}
-            //    //return result;
-            //}
             else
             {
                 return GetCellContents(name);
@@ -511,6 +311,23 @@ namespace SS
                 }else
                 {
                     output = SetCellContents(name, formula);
+                    //bool refreshed = false;
+                    //foreach (string cell in output)
+                    //{
+                    //    if (CircularDependency.Contains(cell))
+                    //    {
+                    //        if (!refreshed)
+                    //        {
+                    //            myRefreshPanel();
+                    //            refreshed = true;
+                    //        }
+                    //        CircularDependency.Remove(cell);
+                    //    }
+                    //}
+                    //if (refreshed)
+                    //{
+                    //    return new HashSet<string>();
+                    //}
                 }
                 //if (formula.ValidFormat || isInvalidFormatAllowed)
                 //    output = SetCellContents(name, formula);
@@ -641,11 +458,17 @@ namespace SS
             try
             {
                 returnValue = GetCellsToRecalculate(name);
+                foreach(string cellName in returnValue)
+                {
+                    CircularDependency.Remove(cellName);
+                    ((Formula)nonEmptyCells[cellName].Contents).CircularDependency = false;
+                }
             }
             catch (CircularException e)
             {
                 foreach(string cellName in e.dependencies)
                 {
+                    CircularDependency.Add(cellName);
                     ((Formula)nonEmptyCells[cellName].Contents).CircularDependency = false;
                 }
                 formula.CircularDependency = true;
@@ -672,6 +495,8 @@ namespace SS
 
             return new HashSet<String>(returnValue); //All is well, return.
         }
+
+
 
         /// <summary>
         /// If name is null, throws an ArgumentNullException.
@@ -860,43 +685,43 @@ namespace SS
                     return contents;
                 }
             }
-            /// <summary>
-            /// Writes the XML for this cell, given the specified XmlWriter object. XML is as follows:
-            /// 
-            /// <cell>
-            /// <name>
-            /// cell name goes here
-            /// </name>
-            /// <contents>
-            /// cell contents goes here
-            /// </contents>    
-            /// </cell>
-            /// 
-            /// </summary>
-            /// <param name="writer"></param>
-            internal void WriteXML(XmlWriter writer)
-            {
-                writer.WriteStartElement("cell");//Open cell
+            ///// <summary>
+            ///// Writes the XML for this cell, given the specified XmlWriter object. XML is as follows:
+            ///// 
+            ///// <cell>
+            ///// <name>
+            ///// cell name goes here
+            ///// </name>
+            ///// <contents>
+            ///// cell contents goes here
+            ///// </contents>    
+            ///// </cell>
+            ///// 
+            ///// </summary>
+            ///// <param name="writer"></param>
+            //internal void WriteXML(XmlWriter writer)
+            //{
+            //    writer.WriteStartElement("cell");//Open cell
 
-                writer.WriteStartElement("name");//Open name
-                writer.WriteString(this.name); //Write the name out
-                writer.WriteEndElement(); //Close name
+            //    writer.WriteStartElement("name");//Open name
+            //    writer.WriteString(this.name); //Write the name out
+            //    writer.WriteEndElement(); //Close name
 
-                writer.WriteStartElement("contents"); //Open contents\
-                //Write contents. Formulas get a special case.
-                if (contents.GetType().Equals(typeof(Formula)))
-                {
-                    writer.WriteString("=" + contents.ToString());
-                }
-                else
-                {
-                    writer.WriteString(contents.ToString());
+            //    writer.WriteStartElement("contents"); //Open contents\
+            //    //Write contents. Formulas get a special case.
+            //    if (contents.GetType().Equals(typeof(Formula)))
+            //    {
+            //        writer.WriteString("=" + contents.ToString());
+            //    }
+            //    else
+            //    {
+            //        writer.WriteString(contents.ToString());
 
-                }
-                writer.WriteEndElement(); //Close contents
+            //    }
+            //    writer.WriteEndElement(); //Close contents
 
-                writer.WriteEndElement();//Close cell
-            }
+            //    writer.WriteEndElement();//Close cell
+            //}
         }
     }
 
@@ -911,4 +736,6 @@ namespace SS
         {
         }
     }
+
+    public delegate void refreshPanel();
 }
