@@ -650,6 +650,101 @@ namespace SS
                 int hashCode = (ID.ToString() + "SaltyMcSaltPants").GetHashCode();
                 return Color.FromArgb(255, (hashCode & 0x00FF0000) >> 16, (hashCode & 0x0000FF00) >> 8, hashCode & 0x000000FF);
             }
+
+
+            // VinC: the win32 msg code to wheel tilt message
+            private const int WM_MOUSEHWHEEL = 0x020E;
+            /// <summary>
+            /// VinC override
+            /// 
+            /// 1. Processes Windows messages.
+            /// 2. respond to mouse horizontal wheel by rolling spreadsheet left/right
+            /// </summary>
+            /// <param name="m">The Windows System.Windows.Forms.Message to process.</param>
+            protected override void WndProc(ref Message m)
+            {
+                base.WndProc(ref m);
+                if (m.HWnd != this.Handle)
+                    return;
+                switch (m.Msg)
+                {
+                    case WM_MOUSEHWHEEL: // if it is mouse horizontal wheel
+                        if ((int)m.WParam > 0) // if wheel tilt to the right
+                            moveCol(_ssp.hScroll.SmallChange);
+                        else // if wheel tilt to the left
+                            moveCol(-_ssp.hScroll.SmallChange);
+                        m.Result = (IntPtr)1; // indicate msg handled
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            /// <summary>
+            /// VinC override
+            /// 
+            /// override the OnMouseWheel:
+            /// 1. Raises the System.Windows.Forms.Control.MouseWheel event.
+            /// 2. Respond to up/down scroll wheel control
+            /// </summary>
+            /// <param name="e">A System.Windows.Forms.MouseEventArgs that contains the event data.</param>
+            protected override void OnMouseWheel(MouseEventArgs e)
+            {
+                base.OnMouseWheel(e);
+                if (ModifierKeys == Keys.Shift)
+                {// if Shift key is pressed
+                    if (e.Delta > 0)
+                        moveCol(-_ssp.hScroll.SmallChange);
+                    else if (e.Delta < 0)
+                        moveCol(_ssp.hScroll.SmallChange);
+                }
+                else
+                {// if Shift key isn't pressed
+                    if (e.Delta > 0)
+                        moveRow(-_ssp.vScroll.SmallChange);
+                    else if (e.Delta < 0)
+                        moveRow(_ssp.vScroll.SmallChange);
+                }
+            }
+
+            /// <summary>
+            /// VinC API method
+            /// 
+            /// move spreadsheet by distance rows, with row overflow protection
+            /// e.g. 
+            /// when distance > 0, _firstRow increase
+            /// when distance &lt; 0, _firstRow decrease
+            /// </summary>
+            /// <param name="distance">the number of rows to move</param>
+            /// <returns>the value of _firstRow(0 base)</returns>
+            private int moveRow(int distance)
+            {
+                int maxFirstRow = ROW_COUNT - _ssp.vScroll.LargeChange;
+                _firstRow = Math.Min(maxFirstRow, Math.Max(_firstRow + distance, 0));
+                _ssp.vScroll.Value = _firstRow;
+                Invalidate();
+                return _firstRow;
+            }
+
+            /// <summary>
+            /// VinC API method
+            /// 
+            /// move spreadsheet by distance cols, with cols overflow protection
+            /// e.g. 
+            /// when distance > 0, _firstColumn increase
+            /// when distance &lt; 0, _firstColumn decrease
+            /// </summary>
+            /// <param name="distance">the number of cols to move</param>
+            /// <returns>the value of _firstColumn(0 base)</returns>
+            private int moveCol(int distance)
+            {
+                int maxFirstCol = COL_COUNT - _ssp.hScroll.LargeChange;
+                _firstColumn = Math.Min(maxFirstCol, Math.Max(_firstColumn + distance, 0));
+                _ssp.hScroll.Value = _firstColumn;
+                Invalidate();
+                return _firstColumn;
+            }
+
         }
 
         /// <summary>

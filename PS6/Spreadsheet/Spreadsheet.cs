@@ -357,7 +357,8 @@ namespace SS
             // vinc: handle InvalidFormat
             if (!formula.ValidFormat)
             {
-                nonEmptyCells.Add(name, new Cell(name, formula)); //Add our new cell
+                //nonEmptyCells.Add(name, new Cell(name, formula)); //Add our new cell
+                nonEmptyCells[name] = new Cell(name, formula);
                 HashSet<string> result = new HashSet<string>();
                 result.Add(name);
                 return result;
