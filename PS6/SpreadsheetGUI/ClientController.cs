@@ -35,12 +35,14 @@ namespace SpreadsheetClient
 
             //public Dictionary<String, String> Cells { get; private set; }
             public string[] Cells { get; private set; }
+            public string StartupString { get; private set; }
 
 
-            public StartupData(string[] Cells)
+            public StartupData(string[] Cells, string StartupString)
             {
                 // vinc: store the whole startup data.
                 this.Cells = Cells;
+                this.StartupString = StartupString;
 
                 ErrorOccured = false;
                 ErrorMessage = null;
@@ -50,6 +52,7 @@ namespace SpreadsheetClient
             {
                 // vinc: set cells to null when there are errors
                 Cells = null;
+                this.StartupString = null;
 
                 ErrorOccured = true;
                 ErrorMessage = errorMessage;
@@ -143,14 +146,7 @@ namespace SpreadsheetClient
             //string[] startupData_array = startupData[0].Trim().Split('\t');
             string[] startupData_array = startupData[0].Split('\t');
 
-
-            //vinc: ensure there are even number of string in startupData
-            if (!startupData_array[0].Equals("Startup") || startupData_array.Length % 2 != 1)
-            {
-                throw new ArgumentException();
-            }
-
-            handshakeCompletedHandler(new StartupData(startupData_array));
+            handshakeCompletedHandler(new StartupData(startupData_array, startupData[0]));
             initialized = true;
         }
         /// <summary>

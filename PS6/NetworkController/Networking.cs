@@ -26,7 +26,7 @@ namespace NetworkController
 
             return listener;
         }
-        
+
         private static void foundTcpConnection(IAsyncResult ar)
         {
             TcpListenerState ts = (TcpListenerState)ar.AsyncState;
@@ -38,7 +38,7 @@ namespace NetworkController
             newSocketState.SafeToSendRequest = true;
 
             ts.TheCallback(newSocketState);
-            
+
             // Starts Listening For Connections
             ts.TheTcpListener.BeginAcceptSocket(foundTcpConnection, ts);
         }
@@ -200,7 +200,7 @@ namespace NetworkController
         /// <param name="ar"></param>
         private static void ReceiveCallback(IAsyncResult ar)
         {
-            
+
             SocketState ss = (SocketState)ar.AsyncState;
 
             int bytesRead;
@@ -220,7 +220,7 @@ namespace NetworkController
             }
 
             // socket wants to be closed
-            if(bytesRead == 0)
+            if (bytesRead == 0)
             {
                 Disconnect(ss, false);
                 return;
@@ -283,11 +283,12 @@ namespace NetworkController
         /// <param name="ss"></param>
         /// <param name="messages"></param>
         /// <param name="terminator"></param>
-        public static void resetGrowableBufferWithMessagesSeperatedByCharacter(SocketState ss, IList<string> messages,  Char terminator)
+        public static void resetGrowableBufferWithMessagesSeperatedByCharacter(SocketState ss, IList<string> messages, Char terminator)
         {
             string currentStringsInBuffer = ss.StringGrowableBuffer.ToString();
 
-            lock(ss.StringGrowableBuffer){
+            lock (ss.StringGrowableBuffer)
+            {
                 ss.StringGrowableBuffer.Clear();
 
                 foreach (string s in messages)
@@ -307,7 +308,7 @@ namespace NetworkController
             if (!s.Connected) { return; }
 
             byte[] messageBytes = Encoding.UTF8.GetBytes(data);
-            SocketState socketWrapper = new SocketState(s, (ss) => {});
+            SocketState socketWrapper = new SocketState(s, (ss) => { });
             s.BeginSend(messageBytes, 0, messageBytes.Length, SocketFlags.None, Networking.SendCallback, socketWrapper);
         }
 
@@ -319,7 +320,7 @@ namespace NetworkController
         {
             SocketState ss = (SocketState)ar.AsyncState;
             try
-            { 
+            {
                 ss.TheSocket.EndSend(ar);
             }
             catch (Exception e)
@@ -366,12 +367,13 @@ namespace NetworkController
             try
             {
                 ss.TheSocket.EndDisconnect(ar);
-            }catch(Exception e)
+            }
+            catch (Exception e)
             {
                 ss.ErrorOccured = true;
                 ss.ErrorMesssage = e.Message;
             }
-            
+
             ss.TheCallback(ss);
         }
     }

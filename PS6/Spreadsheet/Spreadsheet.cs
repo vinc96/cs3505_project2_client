@@ -120,56 +120,6 @@ namespace SS
         }
 
         /// <summary>
-        /// Returns the version information of the spreadsheet saved in the named file.
-        /// If there are any problems opening, reading, or closing the file, the method
-        /// should throw a SpreadsheetReadWriteException with an explanatory message.
-        /// </summary>
-        public override string GetSavedVersion(string filename)
-        {
-            XmlReaderSettings settings = new XmlReaderSettings();
-            settings.IgnoreWhitespace = true;
-            try
-            {
-                using (XmlReader reader = XmlReader.Create(filename, settings))
-                {
-
-                    //Skip forward until we get to a spreadsheet tag
-                    while (!reader.Name.Equals("spreadsheet"))
-                    {
-                        reader.Read();
-                    }
-                    if (reader.Name.Equals("spreadsheet"))
-                    {
-                        if (ReferenceEquals(reader.GetAttribute("version"), null))
-                        {
-                            throw new SpreadsheetReadWriteException("Missing Version");
-                        }
-                        else
-                        {
-                            return reader.GetAttribute("version"); //Return version
-                        }
-
-                    }
-
-                }
-            }
-            catch (System.IO.DirectoryNotFoundException e)
-            {
-                throw new SpreadsheetReadWriteException("Directory not Found: " + e.Message);
-            }
-            catch (System.IO.FileNotFoundException e)
-            {
-                throw new SpreadsheetReadWriteException("File Not Found: " + e.Message);
-            }
-            catch (XmlException) //Thrown when the reader steps off the end of the file.
-            {
-                throw new SpreadsheetReadWriteException("Spreadsheet element was never opened ");
-            }
-
-            return null;//Should never return, exception should be thrown first.
-        }
-
-        /// <summary>
         /// If name is null or invalid, throws an InvalidNameException.
         /// 
         /// Otherwise, returns the value (as opposed to the contents) of the named cell.  The return

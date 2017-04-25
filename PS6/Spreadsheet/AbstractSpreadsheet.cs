@@ -161,14 +161,6 @@ namespace SS
 
         // ADDED FOR PS5
         /// <summary>
-        /// Returns the version information of the spreadsheet saved in the named file.
-        /// If there are any problems opening, reading, or closing the file, the method
-        /// should throw a SpreadsheetReadWriteException with an explanatory message.
-        /// </summary>
-        public abstract string GetSavedVersion(String filename);
-
-        // ADDED FOR PS5
-        /// <summary>
         /// If name is null or invalid, throws an InvalidNameException.
         /// 
         /// Otherwise, returns the value (as opposed to the contents) of the named cell.  The return

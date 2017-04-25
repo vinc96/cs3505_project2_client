@@ -143,7 +143,7 @@ namespace WindowsFormsApplication1
                 string cellNameString = coordsToCellName(lastCol, lastRow);
                 if (cellContentsBox.Enabled && !clientController.sendMessage("DoneTyping", ClientID + "\t" + cellNameString))
                 {
-                    disconnectFromServer(true, str_lostServerConnection);
+                    resetClient(true, str_lostServerConnection);
                 }
                 isTyping = false;
             }
@@ -205,7 +205,7 @@ namespace WindowsFormsApplication1
             {
                 if (cellContentsBox.Enabled && !clientController.sendMessage("Edit", cellNameString + "\t" + cellContentsBox.Text))
                 {
-                    disconnectFromServer(true, str_lostServerConnection);
+                    resetClient(true, str_lostServerConnection);
                 }
             }
         }
@@ -326,11 +326,19 @@ namespace WindowsFormsApplication1
                 this.inpSSName.Enabled = false;
                 btnConnectToServer.Text = "Connecting";
                 btnConnectToServer.Enabled = false;
-                clientController.connectToServer(hostname, SSName, handleHandshakeSuccess);
+                try
+                {
+                    clientController.connectToServer(hostname, SSName, handleHandshakeSuccess);
+                }
+                catch(Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                    resetClient(false, null);
+                }
             }
             else
             {
-                disconnectFromServer(false, null);
+                resetClient(false, null);
             }
         }
 
@@ -416,7 +424,7 @@ namespace WindowsFormsApplication1
         {
             if (cellContentsBox.Enabled && !clientController.sendMessage("Undo", null))
             {
-                disconnectFromServer(true, str_lostServerConnection);
+                resetClient(true, str_lostServerConnection);
             }
         }
 
@@ -468,7 +476,7 @@ namespace WindowsFormsApplication1
                     {
                         if (cellContentsBox.Enabled && !clientController.sendMessage("IsTyping", ClientID + "\t" + cellNameBox.Text))
                         {
-                            disconnectFromServer(true, str_lostServerConnection);
+                            resetClient(true, str_lostServerConnection);
                         }
                         isTyping = true;
                     }
@@ -496,6 +504,15 @@ namespace WindowsFormsApplication1
             {
                 this.spreadsheetPanel1.Focus();
             }));
+
+            //vinc: ensure there are even number of string in startupData
+            if (!startupData.Cells[0].Equals("Startup") || startupData.Cells.Length % 2 != 1)
+            {
+                MessageBox.Show("Invalid Startup Message: " + startupData.StartupString);
+                //throw new ArgumentException("Startup Message Error: " + startupData.StartupString);
+                Invoke(new MethodInvoker(() =>{resetClient(false, null);}));
+                return;
+            }
 
             processStartupMessage(startupData.Cells);
 
@@ -703,9 +720,9 @@ namespace WindowsFormsApplication1
         /// <param name="message"></param>
         private void handleSocketError(string message)
         {
-            disconnectFromServer(true, message);
+            resetClient(true, message);
         }
-        private void disconnectFromServer(bool showPrompt, string message)
+        private void resetClient(bool showPrompt, string message)
         {
             if (showPrompt)
             {
