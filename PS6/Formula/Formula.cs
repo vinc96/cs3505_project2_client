@@ -112,7 +112,7 @@ namespace SpreadsheetUtilities
             //Code for the first element
             if (!tokens.MoveNext())
             {
-                formaterror = new InvalidFormat(formula, "You must have at least one token. Don't pass empty strings to the constructor.");
+                formaterror = new InvalidFormat(formula, "Need at least one token");
                 return;
                 //throw new FormulaFormatException("You must have at least one token. Don't pass empty strings to the constructor.");
             }
@@ -120,8 +120,7 @@ namespace SpreadsheetUtilities
             {
                 if (!(Double.TryParse(tokens.Current, out currentDouble) || IsVariable(tokens.Current) || tokens.Current.Equals("(")))
                 {
-                    formaterror = new InvalidFormat(formula, "The formula must start with a variable, a number, or an open parenthesis. " +
-                                                        "It starts with:" + tokens.Current + " , choose another thing to start with");
+                    formaterror = new InvalidFormat(formula, "Must start with a variable/number/open parenthesis");
                     return;
                     //throw new FormulaFormatException("The formula must start with a variable, a number, or an open parenthesis. " +
                     //                                    "It starts with:" + tokens.Current +" , choose another thing to start with");
@@ -139,9 +138,7 @@ namespace SpreadsheetUtilities
                         }
                         else
                         {
-                            formaterror = new InvalidFormat(formula, "Normalized token is not valid:" + normalizedToken +
-                                ". Check your normalizing and validating functions. Check the token at the" +
-                                (normalizedFormula.Count + 1) + "place");
+                            formaterror = new InvalidFormat(formula, "Normalized token is not valid:" + normalizedToken);
                             return;
                             //throw new FormulaFormatException("Normalized token is not valid:" + normalizedToken +
                             //    ". Check your normalizing and validating functions. Check the token at the" +
@@ -175,8 +172,7 @@ namespace SpreadsheetUtilities
                     if (!lastTokenNumVarCloseParen)
                     {
                         formaterror = new InvalidFormat(formula,
-                            "You have a close paren following an operator or open paren. Check the token at the"
-                                    + (normalizedFormula.Count + 1) + "place");
+                            "Close paren following an operator/open paren");
                         return;
                         //throw new FormulaFormatException("You have a close paren following an operator or open paren. Check the token at the"
                         //    + (normalizedFormula.Count + 1) + "place");
@@ -186,8 +182,7 @@ namespace SpreadsheetUtilities
                     if (closedParenSoFar > openParenSoFar)
                     {
                         formaterror = new InvalidFormat(formula,
-                            "You have a close paren without an opening one. Called at the"
-                            + (normalizedFormula.Count + 1) + "place");
+                            "Close/open paren doesn't match");
                         return;
                         //throw new FormulaFormatException("You have a close paren without an opening one. Called at the"
                         //    + (normalizedFormula.Count + 1) + "place");
@@ -202,8 +197,7 @@ namespace SpreadsheetUtilities
                     if (lastTokenNumVarCloseParen)
                     {
                         formaterror = new InvalidFormat(formula,
-                            "You have an open paren following a close paren, variable, or number." + tokens.Current +
-                            "Check the token at the" + (normalizedFormula.Count + 1) + "place");
+                            "Open paren following a close paren/variable/number");
                         return;
                         //throw new FormulaFormatException("You have an open paren following a close paren, variable, or number." + tokens.Current +
                         //    "Check the token at the" + (normalizedFormula.Count + 1) + "place");
@@ -218,8 +212,7 @@ namespace SpreadsheetUtilities
                     if (lastTokenNumVarCloseParen)
                     {
                         formaterror = new InvalidFormat(formula,
-                            "You have a variable following another number, variable or close paren." + tokens.Current +
-                            "Check the token at the" + (normalizedFormula.Count + 1) + "place");
+                            "A variable following another number/variable/close paren");
                         return;
                         //throw new FormulaFormatException("You have a variable following another number, variable or close paren." + tokens.Current +
                         //    "Check the token at the" + (normalizedFormula.Count + 1) + "place");
@@ -233,8 +226,7 @@ namespace SpreadsheetUtilities
                     else
                     {
                         formaterror = new InvalidFormat(formula,
-                            "Normalized token is not valid: " + normalizedToken +
-                            "Check the token at the" + (normalizedFormula.Count + 1) + "place");
+                            "Normalized token [" + normalizedToken + "] is not valid");
                         return;
                         //throw new FormulaFormatException("Normalized token is not valid: " + normalizedToken +
                         //    "Check the token at the" + (normalizedFormula.Count + 1) + "place");
@@ -246,8 +238,7 @@ namespace SpreadsheetUtilities
                     if (lastTokenNumVarCloseParen)
                     {
                         formaterror = new InvalidFormat(formula,
-                            "You have a number following another number, variable or close paren: Check the token at the"
-                            + (normalizedFormula.Count + 1) + "place");
+                            "A number following another number/variable/close paren");
                         return;
                         //throw new FormulaFormatException("You have a number following another number, variable or close paren: Check the token at the"
                         //    + (normalizedFormula.Count + 1) + "place");
@@ -261,8 +252,7 @@ namespace SpreadsheetUtilities
                     if (!lastTokenNumVarCloseParen)
                     {
                         formaterror = new InvalidFormat(formula,
-                            "You have an operator following another operator, or an open paren: Check the token at the"
-                            + (normalizedFormula.Count + 1) + "place");
+                            "An operator following another operator/open paren");
                         return;
                         //throw new FormulaFormatException("You have an operator following another operator, or an open paren: Check the token at the"
                         //    + (normalizedFormula.Count + 1) + "place");
@@ -285,7 +275,7 @@ namespace SpreadsheetUtilities
             if (openParenSoFar != closedParenSoFar)
             {
                 formaterror = new InvalidFormat(formula,
-                    "Number of open parenthisis need to match the number of close parenthisis");
+                    "Number of open parenthisis != Number of close parenthisis");
                 return;
                 //throw new FormulaFormatException("Number of open parenthisis need to match the number of close parenthisis");
             }
@@ -375,7 +365,7 @@ namespace SpreadsheetUtilities
                         }
                         catch (DivideByZeroException)
                         {
-                            return new FormulaError("Error: Divide by Zero");
+                            return new FormulaError("Divide by Zero");
                         }
                     }
                     else
@@ -747,7 +737,8 @@ namespace SpreadsheetUtilities
                 return "Circular Dependency";
             }else
             {
-                return "FormulaError:" + Reason;
+                //return "FormulaError:" + Reason;
+                return "FormulaError";
             }
         }
 
