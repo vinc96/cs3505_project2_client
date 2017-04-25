@@ -374,7 +374,7 @@ namespace SS
                 object result = ((Formula)GetCellContents(name)).Evaluate(Lookup);
                 if (result is InvalidFormat)
                 {
-                    result = "SpreadsheetUtilities.InvalidFormatException: " + ((InvalidFormat)result).message;
+                    result = "InvalidFormat:" + ((InvalidFormat)result).message;
                     //result = "SpreadsheetUtilities.FormulaFormatException";
                 }
                 return result;
@@ -644,24 +644,28 @@ namespace SS
             }
             catch (CircularException e)
             {
-                //We have a circular dependency. Restore the old values.
-                if (oldValue.GetType().Equals(typeof(double)))
-                {
-                    this.SetCellContents(name, (double)oldValue);
-                }
-                else if (oldValue.GetType().Equals(typeof(string)))
-                {
-                    this.SetCellContents(name, (string)oldValue);
-                }
-                else
-                {
-                    if (oldValue.GetType().Equals(typeof(Formula)))
-                    {
-                        this.SetCellContents(name, (Formula)oldValue);
-                    }
-                }
+                formula.CircularDependency = true;
+                HashSet<string> result = new HashSet<String>(); //All is well, return. 
+                result.Add(name);
+                return result;
+                ////We have a circular dependency. Restore the old values.
+                //if (oldValue.GetType().Equals(typeof(double)))
+                //{
+                //    this.SetCellContents(name, (double)oldValue);
+                //}
+                //else if (oldValue.GetType().Equals(typeof(string)))
+                //{
+                //    this.SetCellContents(name, (string)oldValue);
+                //}
+                //else
+                //{
+                //    if (oldValue.GetType().Equals(typeof(Formula)))
+                //    {
+                //        this.SetCellContents(name, (Formula)oldValue);
+                //    }
+                //}
 
-                throw e;
+                //throw e;
             }
 
             return new HashSet<String>(returnValue); //All is well, return.

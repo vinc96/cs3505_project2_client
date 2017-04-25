@@ -44,6 +44,8 @@ namespace SpreadsheetUtilities
         public InvalidFormat formaterror;
         /// vinc: indicate whether or not formula format valid
         public bool ValidFormat { get { return formaterror == null; } }
+        /// vinc: indicate whether or not formula causes circular dependency
+        public bool CircularDependency;
 
         ///A set containing valid arithmetic operators. Done to shorten conditionals. 
         private HashSet<string> validOps;
@@ -86,8 +88,9 @@ namespace SpreadsheetUtilities
         {
 
             normalizedFormula = new List<string>(); //Initialize our list of tokens.
-            // vinc: init formaterror
+            // vinc: init my variables
             formaterror = null;
+            CircularDependency = false;
 
             validOps = new HashSet<string>(); //Initialize our valid operators.
             validOps.Add("+");
@@ -321,10 +324,17 @@ namespace SpreadsheetUtilities
         /// </summary>
         public object Evaluate(Func<string, double> lookup)
         {
-            // check if formula causes FormulaFormatException
+            // vinc: check if formula causes FormulaFormatException
             if (!ValidFormat)
             {
                 return formaterror;
+            }
+            /// vinc: check if it is Circular Dependency
+            if (CircularDependency)
+            {
+                FormulaError error = new FormulaError("Circular Dependency");
+                error.CircularDependency = true;
+                return error;
             }
 
             //Set up stacks and start distributing the tokens into them
@@ -727,11 +737,27 @@ namespace SpreadsheetUtilities
             : this()
         {
             Reason = reason;
+            CircularDependency = false;
+        }
+
+        public override string ToString()
+        {
+            if (CircularDependency)
+            {
+                return "Circular Dependency";
+            }else
+            {
+                return "FormulaError:" + Reason;
+            }
         }
 
         /// <summary>
         ///  The reason why this FormulaError was created.
         /// </summary>
         public string Reason { get; private set; }
+        /// <summary>
+        /// Indicate whether or no it is caused by circular dependency
+        /// </summary>
+        public bool CircularDependency;
     }
 }

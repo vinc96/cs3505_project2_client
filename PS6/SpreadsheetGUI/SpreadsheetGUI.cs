@@ -268,7 +268,7 @@ namespace WindowsFormsApplication1
             if (isTyping)
             {
                 string cellNameString = coordsToCellName(lastCol, lastRow);
-                if(cellContentsBox.Enabled && !clientController.sendMessage("DoneTyping", ClientID + "\t" + cellNameString))
+                if (cellContentsBox.Enabled && !clientController.sendMessage("DoneTyping", ClientID + "\t" + cellNameString))
                 {
                     disconnectFromServer(true, str_lostServerConnection);
                 }
@@ -289,7 +289,19 @@ namespace WindowsFormsApplication1
             //Update the location text.
             cellNameBox.Text = cellNameString;
             //Update the value text.
-            cellValueBox.Text = modelSheet.GetCellValue(cellNameString).ToString();
+            object cellValue = modelSheet.GetCellValue(cellNameString);
+            //if(cellValue is FormulaError)
+            //{
+            //    string reason = ((FormulaError)cellValue).Reason;
+            //    if (((FormulaError)cellValue).CircularDependency)
+            //    {
+            //        cellValue = "Circular Dependency";
+            //    }else
+            //    {
+            //        cellValue = "FormulaError:" + ((FormulaError)cellValue).Reason;
+            //    }
+            //}
+            cellValueBox.Text = cellValue.ToString();
             //Update the content text. Be careful, if we're grabbing a formula, we need to preappend a "="
             object cellContent = modelSheet.GetCellContents(cellNameString);
             if (cellContent.GetType().Equals(typeof(Formula)))
@@ -297,7 +309,8 @@ namespace WindowsFormsApplication1
                 if (((Formula)cellContent).ValidFormat)
                 {
                     cellContentsBox.Text = "=" + cellContent.ToString();
-                }else
+                }
+                else
                 {
                     cellContentsBox.Text = "=" + ((Formula)cellContent).formaterror.formula;
                 }
@@ -357,7 +370,20 @@ namespace WindowsFormsApplication1
         {
             int col, row;
             cellNameToCoords(cellName, out col, out row);
-            spreadsheetPanel1.SetValue(col, row, modelSheet.GetCellValue(cellName).ToString());
+            object cellValue = modelSheet.GetCellValue(cellName);
+            //if (cellValue is FormulaError)
+            //{
+            //    string reason = ((FormulaError)cellValue).Reason;
+            //    if (((FormulaError)cellValue).CircularDependency)
+            //    {
+            //        cellValue = "Circular Dependency";
+            //    }
+            //    else
+            //    {
+            //        cellValue = "FormulaError:" + ((FormulaError)cellValue).Reason;
+            //    }
+            //}
+            spreadsheetPanel1.SetValue(col, row, cellValue.ToString());
         }
         /// <summary>
         /// Takes a cell name from our sheet in the form of a name, and returns the col and row corresponding to that cell name.
@@ -663,7 +689,7 @@ namespace WindowsFormsApplication1
                 default:
                     if (cellContentsBox.Enabled && !isTyping)
                     {
-                        if (cellContentsBox.Enabled && !clientController.sendMessage("IsTyping", ClientID + "\t" + cellNameBox.Text)) 
+                        if (cellContentsBox.Enabled && !clientController.sendMessage("IsTyping", ClientID + "\t" + cellNameBox.Text))
                         {
                             disconnectFromServer(true, str_lostServerConnection);
                         }
@@ -749,7 +775,7 @@ namespace WindowsFormsApplication1
                                 }
 
                                 // vinc
-                                processChangeMessage(messageComponents[1], messageComponents.Length==2?"":messageComponents[2], true);
+                                processChangeMessage(messageComponents[1], messageComponents.Length == 2 ? "" : messageComponents[2], true);
 
                                 break;
                             }
@@ -823,6 +849,7 @@ namespace WindowsFormsApplication1
             {
                 try
                 {
+                    // vinc: cell from server that could cause InvalidFormatException is always allowed
                     modelSheet.SetContentsOfCell(messageComponents[i], messageComponents[i + 1], true);
                 }
                 //catch (FormulaFormatException)//If we catch an invalid formula error, inform the user.
@@ -831,7 +858,7 @@ namespace WindowsFormsApplication1
                 //}
                 catch (CircularException)//If we catch a circular exception error, inform the user.
                 {
-                    //MessageBox.Show("Error: You've entered a formula that has a circular dependency!");
+                    MessageBox.Show("Error: You've entered a formula that has a circular dependency!");
                 }
                 catch (InvalidNameException)
                 {
@@ -907,7 +934,11 @@ namespace WindowsFormsApplication1
                 }
                 catch (CircularException)//If we catch a circular exception error, inform the user.
                 {
-                    //MessageBox.Show("Error: You've entered a formula that has a circular dependency!");
+                    MessageBox.Show("Error: You've entered a formula that has a circular dependency!");
+                }
+                catch (InvalidNameException)
+                {
+
                 }
             }
             return cellChanged;
@@ -921,7 +952,7 @@ namespace WindowsFormsApplication1
         //private void highlightCell(string UserID, string cellName)
         //{
         //    //Users[UserID] = RandomColorObject(cellName);
-            
+
         //}
 
         ///// <summary>
